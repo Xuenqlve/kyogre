@@ -1,0 +1,80 @@
+# Kyogre gh-ost 压力测试配置示例
+
+# 数据源配置
+data-source:
+  # 源库配置
+  mysql-source:
+    host: localhost
+    port: 3306
+    user: root
+    password: ""
+    database: mydb
+    max-idle-conns: 10
+    max-open-conns: 20
+    conn-max-lifetime: 3600
+
+# 压力测试配置
+pressure:
+  # gh-ost DDL 迁移引擎配置
+  gh-ost:
+    # 必需：源数据库配置名称
+    source-data-source: "mysql-source"
+
+    # gh-ost 可执行文件路径
+    # 默认值："gh-ost"（从 PATH 中查找）
+    ghost-binary: "gh-ost"
+
+    # 最大并发迁移数
+    # 默认值：1
+    # 注：建议根据系统资源调整
+    max-concurrent-migrations: 2
+
+    # 批处理大小（行数）
+    # 默认值：1000
+    # 对于大表，可以增加此值以提高性能
+    chunk-size: 1000
+
+    # 最大负载（MySQL Threads_running 指标）
+    # 默认值：100
+    # 超过此值时，gh-ost 会暂停迁移
+    max-load: 100
+
+    # 是否执行变更
+    # true：直接执行 DDL 变更
+    # false：先在副本库测试，不在主库执行
+    # 默认值：false（安全起见）
+    execute-changes: false
+
+    # 是否允许在主库上运行
+    # 仅在没有副本库的情况下设置为 true
+    # 默认值：false
+    allow-on-master: false
+
+    # 是否自动切换表
+    # true：迁移完成时自动切换原表和影子表
+    # false：等待手动确认后再切换
+    # 默认值：true
+    cut-over: true
+
+    # 迁移超时时间（秒）
+    # 默认值：3600（1 小时）
+    timeout: 3600
+
+# 配置说明：
+#
+# 1. 快速迁移（适合小表）：
+#    - chunk-size: 5000
+#    - max-load: 150
+#    - max-concurrent-migrations: 3
+#
+# 2. 保守迁移（适合大表和高负载系统）：
+#    - chunk-size: 500
+#    - max-load: 50
+#    - execute-changes: false（先测试）
+#    - cut-over: false（手动控制）
+#
+# 3. 生产环境推荐：
+#    - allow-on-master: false（使用副本库）
+#    - execute-changes: false（先测试）
+#    - cut-over: false（手动控制）
+#    - timeout: 7200（充分的超时时间）
