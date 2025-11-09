@@ -10,7 +10,7 @@ import (
 
 type Config struct {
 	DataSource string   `mapstructure:"data-source" json:"data-source"`
-	Databases  Database `mapstructure:"database" json:"database"`
+	Databases  Database `mapstructure:"databases" json:"databases"`
 }
 
 type Database map[string]Tables
@@ -18,14 +18,15 @@ type Database map[string]Tables
 type Tables []Table
 
 type Table struct {
-	Name    string   `mapstructure:"name" json:"name"`
+	Table   string   `mapstructure:"table" json:"table"`
 	Columns []Column `mapstructure:"columns" json:"columns"`
 	Indexes []Index  `mapstructure:"indexes" json:"indexes"`
 }
 
 type Column struct {
-	Name string `mapstructure:"name" json:"name"`
-	Type string `mapstructure:"type" json:"type"`
+	Column string `mapstructure:"column" json:"column"`
+	Type   string `mapstructure:"type" json:"type"`
+	Mock   string `mapstructure:"mock" json:"mock"` // Template name for mock data generation (e.g., "email", "phone", "uuid")
 }
 
 type Index struct {
@@ -52,7 +53,7 @@ func (c *Config) SchemaKeys() []schema_store.SchemaKey {
 		for _, table := range tables {
 			keys = append(keys, &mysql_schema.Index{
 				Database: database,
-				Table:    table.Name,
+				Table:    table.Table,
 			})
 		}
 	}
@@ -78,9 +79,9 @@ func (t Table) CreateTableSQL(database string) string {
 	return fmt.Sprintf(
 		"CREATE TABLE IF NOT EXISTS `%s`.`%s` (\n  %s\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='%s-测试表';",
 		database,
-		t.Name,
+		t.Table,
 		columnDefs,
-		t.Name,
+		t.Table,
 	)
 }
 
@@ -166,8 +167,12 @@ func (c Column) TypeTransform() string {
 
 // ColumnDefinition 生成列定义
 func (c Column) ColumnDefinition() string {
-	def := fmt.Sprintf("`%s` %s", c.Name, c.TypeTransform())
-	def += " COMMENT '" + c.Name + "'"
+	def := fmt.Sprintf("`%s` %s", c.Column, c.TypeTransform())
+	comment := c.Column
+	if c.Mock != "" {
+		comment += " (mock: " + c.Mock + ")"
+	}
+	def += " COMMENT '" + comment + "'"
 	return def
 }
 

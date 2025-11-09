@@ -20,19 +20,19 @@ func TestCreateTableSQL(t *testing.T) {
 		{
 			name: "simple table with primary key",
 			table: mysql_config.Table{
-				Name: "users",
+				Table: "users",
 				Columns: []mysql_config.Column{
 					{
-						Name: "id",
-						Type: "primary",
+						Column: "id",
+						Type:   "primary",
 					},
 					{
-						Name: "username",
-						Type: "string",
+						Column: "username",
+						Type:   "string",
 					},
 					{
-						Name: "email",
-						Type: "varchar",
+						Column: "email",
+						Type:   "varchar",
 					},
 				},
 				Indexes: []mysql_config.Index{
@@ -55,19 +55,19 @@ func TestCreateTableSQL(t *testing.T) {
 		{
 			name: "table with composite index",
 			table: mysql_config.Table{
-				Name: "orders",
+				Table: "orders",
 				Columns: []mysql_config.Column{
 					{
-						Name: "order_id",
-						Type: "primary",
+						Column: "order_id",
+						Type:   "primary",
 					},
 					{
-						Name: "user_id",
-						Type: "bigint_unsigned",
+						Column: "user_id",
+						Type:   "bigint_unsigned",
 					},
 					{
-						Name: "status",
-						Type: "enum",
+						Column: "status",
+						Type:   "enum",
 					},
 				},
 				Indexes: []mysql_config.Index{
@@ -102,8 +102,8 @@ func TestCreateTableSQL(t *testing.T) {
 			if !contains(result, tt.database) {
 				t.Errorf("Missing database name: %s", tt.database)
 			}
-			if !contains(result, tt.table.Name) {
-				t.Errorf("Missing table name: %s", tt.table.Name)
+			if !contains(result, tt.table.Table) {
+				t.Errorf("Missing table name: %s", tt.table.Table)
 			}
 			if !contains(result, "ENGINE=InnoDB") {
 				t.Errorf("Missing ENGINE specification")
@@ -127,104 +127,104 @@ func TestColumnDefinition(t *testing.T) {
 		{
 			name: "primary key with TypeTransform",
 			column: mysql_config.Column{
-				Name: "id",
-				Type: "primary",
+				Column: "id",
+				Type:   "primary",
 			},
 			want: "`id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'id'",
 		},
 		{
 			name: "simple string type",
 			column: mysql_config.Column{
-				Name: "username",
-				Type: "string",
+				Column: "username",
+				Type:   "string",
 			},
 			want: "`username` VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'username'",
 		},
 		{
 			name: "int type with TypeTransform",
 			column: mysql_config.Column{
-				Name: "status",
-				Type: "int",
+				Column: "status",
+				Type:   "int",
 			},
 			want: "`status` INT NOT NULL DEFAULT 0 COMMENT 'status'",
 		},
 		{
 			name: "decimal type",
 			column: mysql_config.Column{
-				Name: "price",
-				Type: "decimal",
+				Column: "price",
+				Type:   "decimal",
 			},
 			want: "`price` DECIMAL(10,2) NOT NULL DEFAULT 0.00 COMMENT 'price'",
 		},
 		{
 			name: "timestamp type",
 			column: mysql_config.Column{
-				Name: "created_at",
-				Type: "timestamp",
+				Column: "created_at",
+				Type:   "timestamp",
 			},
 			want: "`created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'created_at'",
 		},
 		{
 			name: "timestamp_update type",
 			column: mysql_config.Column{
-				Name: "updated_at",
-				Type: "timestamp_update",
+				Column: "updated_at",
+				Type:   "timestamp_update",
 			},
 			want: "`updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'updated_at'",
 		},
 		{
 			name: "json type",
 			column: mysql_config.Column{
-				Name: "metadata",
-				Type: "json",
+				Column: "metadata",
+				Type:   "json",
 			},
 			want: "`metadata` JSON COMMENT 'metadata'",
 		},
 		{
 			name: "boolean type",
 			column: mysql_config.Column{
-				Name: "is_active",
-				Type: "boolean",
+				Column: "is_active",
+				Type:   "boolean",
 			},
 			want: "`is_active` TINYINT(1) NOT NULL DEFAULT 0 COMMENT 'is_active'",
 		},
 		{
 			name: "varchar_large type",
 			column: mysql_config.Column{
-				Name: "description",
-				Type: "varchar_large",
+				Column: "description",
+				Type:   "varchar_large",
 			},
 			want: "`description` VARCHAR(1024) NOT NULL DEFAULT '' COMMENT 'description'",
 		},
 		{
 			name: "text type",
 			column: mysql_config.Column{
-				Name: "content",
-				Type: "text",
+				Column: "content",
+				Type:   "text",
 			},
 			want: "`content` TEXT COMMENT 'content'",
 		},
 		{
 			name: "date type",
 			column: mysql_config.Column{
-				Name: "birth_date",
-				Type: "date",
+				Column: "birth_date",
+				Type:   "date",
 			},
 			want: "`birth_date` DATE NOT NULL DEFAULT '2000-01-01' COMMENT 'birth_date'",
 		},
 		{
 			name: "datetime type",
 			column: mysql_config.Column{
-				Name: "event_time",
-				Type: "datetime",
+				Column: "event_time",
+				Type:   "datetime",
 			},
 			want: "`event_time` DATETIME NOT NULL DEFAULT '2000-01-01 00:00:00' COMMENT 'event_time'",
 		},
 		{
 			name: "custom full type (fallback)",
 			column: mysql_config.Column{
-				Name: "custom_col",
-				Type: "DECIMAL(15,4) NOT NULL DEFAULT 0.0000",
+				Column: "custom_col",
+				Type:   "DECIMAL(15,4) NOT NULL DEFAULT 0.0000",
 			},
 			want: "`custom_col` DECIMAL(15,4) NOT NULL DEFAULT 0.0000 COMMENT 'custom_col'",
 		},
@@ -293,7 +293,7 @@ func TestTypeTransform(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			col := mysql_config.Column{Name: "test_col", Type: tt.typeStr}
+			col := mysql_config.Column{Column: "test_col", Type: tt.typeStr}
 			result := col.TypeTransform()
 			fmt.Printf("Type: %s → %s\n", tt.typeStr, result)
 			if result != tt.expected {
@@ -377,30 +377,30 @@ func mockMySQLConfig() map[string]any {
 			"kyogre": []map[string]any{
 				{
 					"table": "orders",
-					"column": []map[string]any{
+					"columns": []map[string]any{
 						{
-							"name": "id",
-							"type": "primary",
+							"column": "id",
+							"type":   "primary",
 						},
 						{
-							"name": "order_id",
-							"type": "bigint",
+							"column": "order_id",
+							"type":   "bigint",
 						},
 						{
-							"name": "user_id",
-							"type": "bigint",
+							"column": "user_id",
+							"type":   "bigint",
 						},
 						{
-							"name": "status",
-							"type": "smallint",
+							"column": "status",
+							"type":   "smallint",
 						},
 						{
-							"name": "create_time",
-							"type": "datetime",
+							"column": "create_time",
+							"type":   "datetime",
 						},
 						{
-							"name": "update_time",
-							"type": "timestamp_update",
+							"column": "update_time",
+							"type":   "timestamp_update",
 						},
 					},
 					"indexes": []map[string]any{
@@ -426,28 +426,28 @@ func mockMySQLConfig() map[string]any {
 				},
 				{
 					"table": "users",
-					"column": []map[string]any{
+					"columns": []map[string]any{
 						{
-							"name": "id",
-							"type": "primary",
+							"column": "id",
+							"type":   "primary",
 						}, {
-							"name": "name",
-							"type": "string",
+							"column": "name",
+							"type":   "string",
 						}, {
-							"name": "sex",
-							"type": "smallint",
+							"column": "sex",
+							"type":   "smallint",
 						}, {
-							"name": "age",
-							"type": "int",
+							"column": "age",
+							"type":   "int",
 						}, {
-							"name": "email",
-							"type": "string",
+							"column": "email",
+							"type":   "string",
 						}, {
-							"name": "create_time",
-							"type": "datetime",
+							"column": "create_time",
+							"type":   "datetime",
 						}, {
-							"name": "update_time",
-							"type": "timestamp_update",
+							"column": "update_time",
+							"type":   "timestamp_update",
 						},
 					},
 					"indexes": []map[string]any{
@@ -496,7 +496,10 @@ func TestMySQLConfigMetadata(t *testing.T) {
 
 	t.Run("SchemaKeys", func(t *testing.T) {
 		keys := metadata.SchemaKeys()
-		t.Logf("SchemaKeys: %v", keys)
+		for _, key := range keys {
+			t.Logf("id:%v", key.UniqueID())
+		}
+		//t.Logf("SchemaKeys: %v", keys)
 	})
 
 	t.Run("SchemaStore", func(t *testing.T) {

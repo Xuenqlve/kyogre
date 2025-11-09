@@ -62,11 +62,14 @@ type Row struct {
 }
 
 // write type
-const (
+var (
 	Replace              = "replace"
 	Insert               = "insert"
 	InsertOnDuplicateKey = "insert_on_duplicate_key"
 	InsertIgnore         = "insert_ignore"
+	Delete               = "delete"
+	Update               = "update"
+	UpdateJoin           = "update_join"
 )
 
 type Metadata struct {

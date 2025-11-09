@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	MySQLDML plugin.PressureType = "mysql_config-dml"
+	MySQLDML plugin.PressureType = "mysql-dml"
 )
 
 func init() {
