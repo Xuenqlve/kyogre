@@ -22,7 +22,6 @@ type Config struct {
 
 type ConfigureMold struct {
 	Type   string         `json:"type,omitempty" yaml:"type,omitempty" toml:"type,omitempty"`
-	Mode   string         `json:"mode,omitempty" yaml:"mode,omitempty" toml:"mode,omitempty"`
 	Config map[string]any `json:"config,omitempty" yaml:"config,omitempty" toml:"config,omitempty"`
 }
 

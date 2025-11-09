@@ -3,13 +3,30 @@ package message
 import (
 	"time"
 
-	"github.com/xuenqlve/timburr/pkg/tool/schema_store"
+	"github.com/xuenqlve/common/relational_database/mysql"
 )
 
 const (
 	MySQLRow         = "mysql-row"
 	MySQLTransaction = "mysql-transaction"
+	MySQLDDL         = "mysql-ddl"
 )
+
+type MySQLDDLMessage struct {
+	Metadata
+	// DDL 语句
+	mysql.DDLStatement
+}
+
+// Type 返回消息类型
+func (m *MySQLDDLMessage) Type() string {
+	return MySQLDDL
+}
+
+// StartTime 返回消息的起始时间
+func (m *MySQLDDLMessage) StartTime() time.Time {
+	return m.Metadata.StartTime
+}
 
 type MySQLTransactionMessage struct {
 	GTID    string
@@ -38,25 +55,10 @@ func (m *MySQLRowMessage) StartTime() time.Time {
 
 type SQLRows struct {
 	Metadata
-	Contents []Row
+	Contents []mysql.RowData
 }
 
 type Row struct {
-	Key       string         `json:"key" c:"key"`
-	Data      map[string]any `json:"data" c:"data"`
-	Old       map[string]any `json:"old" c:"old,omitempty"`
-	GuideKeys map[string]any `json:"guide_keys" c:"guide_keys"`
-}
-
-type defaultStruct struct{}
-
-func (r *Row) IsColumnSetDefault(columnName string) bool {
-	data, ok := r.Data[columnName]
-	if !ok {
-		return false
-	}
-	_, ok = data.(defaultStruct)
-	return ok
 }
 
 // write type
@@ -68,10 +70,10 @@ const (
 )
 
 type Metadata struct {
-	Operation schema_store.DML `json:"operation" c:"operation"`
-	Database  string           `json:"database" c:"database"`
-	Table     string           `json:"table" c:"table"`
-	Hint      string           `json:"hint" c:"hint"`
-	WriteType string           `json:"write_type" c:"write_type"`
-	StartTime time.Time        `json:"start_time" c:"start_time"`
+	Operation string    `json:"operation" c:"operation"`
+	Database  string    `json:"database" c:"database"`
+	Table     string    `json:"table" c:"table"`
+	Hint      string    `json:"hint" c:"hint"`
+	WriteType string    `json:"write_type" c:"write_type"`
+	StartTime time.Time `json:"start_time" c:"start_time"`
 }

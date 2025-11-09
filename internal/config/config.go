@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/xuenqlve/kyogre/internal/common/errors"
-	"github.com/xuenqlve/kyogre/internal/common/utils"
+	"github.com/xuenqlve/common/errors"
+	"github.com/xuenqlve/common/transform"
 )
 
 const (
@@ -20,13 +20,13 @@ func NewConfig() (Config, error) {
 	flagSet := flag.NewFlagSet("app", flag.ContinueOnError)
 	flagSet.StringVar(&configFile, "config", "", "config file")
 	if err := flagSet.Parse(os.Args[1:]); err != nil {
-		return nil, err
+		return Config{}, err
 	}
 	fmt.Printf("config: %s\n", configFile)
 	if configFile == "" {
 		return Config{}, fmt.Errorf("缺少参数 -config")
 	}
-	cfgData, err := utils.ConfigFromFile(configFile)
+	cfgData, err := transform.ConfigFromFile(configFile)
 	if err != nil {
 		return Config{}, errors.Trace(err)
 	}
@@ -42,7 +42,7 @@ func NewConfig() (Config, error) {
 		return Config{}, errors.Trace(err)
 	}
 	if err = config.Configure(cfgData); err != nil {
-		return nil, errors.Trace(err)
+		return Config{}, errors.Trace(err)
 	}
 	cfg, err := config.Load()
 	if err != nil {

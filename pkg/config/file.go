@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/test/mapstructure"
-	"github.com/xuenqlve/kyogre/internal/common/utils"
+	"github.com/mitchellh/mapstructure"
+	"github.com/xuenqlve/common/transform"
 	"github.com/xuenqlve/kyogre/internal/config"
 )
 
@@ -28,14 +28,14 @@ func (f *FileConfig) Configure(data map[string]any) (err error) {
 	if !ok {
 		return fmt.Errorf("file-config key:%s %v to string fail", config.FilePathKey, filePath)
 	}
-	f.cfg, err = utils.ConfigFromFile(f.filePath)
+	f.cfg, err = transform.ConfigFromFile(f.filePath)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (f *FileConfig) Parse() (config.Config, error) {
+func (f *FileConfig) Load() (config.Config, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 	cfg := config.Config{}

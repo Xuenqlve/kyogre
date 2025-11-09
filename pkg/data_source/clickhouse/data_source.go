@@ -2,7 +2,8 @@ package clickhouse
 
 import (
 	"github.com/mitchellh/mapstructure"
-	"github.com/xuenqlve/kyogre/internal/common/errors"
+	"github.com/xuenqlve/common/data_source/clickhouse"
+	"github.com/xuenqlve/common/errors"
 	"github.com/xuenqlve/kyogre/internal/data_source"
 )
 
@@ -10,7 +11,7 @@ const ClickHouse data_source.DataSourceType = "clickhouse"
 
 type DataSource struct {
 	pipelineName  string
-	dataSourceMap map[string]Config
+	dataSourceMap map[string]clickhouse.Config
 }
 
 func init() {
@@ -19,7 +20,7 @@ func init() {
 
 func (ds *DataSource) Configure(pipelineName string, data map[string]any) error {
 	ds.pipelineName = pipelineName
-	ds.dataSourceMap = map[string]Config{}
+	ds.dataSourceMap = map[string]clickhouse.Config{}
 	if err := mapstructure.Decode(data, &ds.dataSourceMap); err != nil {
 		return errors.Trace(err)
 	}

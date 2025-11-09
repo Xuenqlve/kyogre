@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"sync"
 
-	"github.com/xuenqlve/kyogre/internal/common/errors"
+	"github.com/xuenqlve/common/errors"
 )
 
 type (

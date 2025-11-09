@@ -7,6 +7,3 @@ type Generator interface {
 	MockMessage() message.Message
 	Close()
 }
-
-type MockCondition struct {
-}

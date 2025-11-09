@@ -2,15 +2,16 @@ package kafka
 
 import (
 	"github.com/mitchellh/mapstructure"
-	"github.com/xuenqlve/kyogre/internal/common/errors"
+	"github.com/xuenqlve/common/data_source/kafka"
+	"github.com/xuenqlve/common/errors"
 	"github.com/xuenqlve/kyogre/internal/data_source"
 )
 
-const KafKa data_source.DataSourceType = "kafka-docker"
+const KafKa data_source.DataSourceType = "kafka"
 
 type DataSource struct {
 	pipelineName  string
-	dataSourceMap map[string]Config
+	dataSourceMap map[string]kafka.Config
 }
 
 func init() {
@@ -19,7 +20,7 @@ func init() {
 
 func (ds *DataSource) Configure(pipelineName string, data map[string]any) error {
 	ds.pipelineName = pipelineName
-	ds.dataSourceMap = map[string]Config{}
+	ds.dataSourceMap = map[string]kafka.Config{}
 	if err := mapstructure.Decode(data, &ds.dataSourceMap); err != nil {
 		return errors.Trace(err)
 	}

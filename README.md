@@ -64,7 +64,7 @@ go install github.com/your-org/kyogre@latest
 kyogre --help
 
 # 运行MySQL压测
-kyogre --config config/mysql.yaml --scenario scenario/basic.yaml
+kyogre --config config/mysql-row.yaml --scenario scenario/basic.yaml
 
 # 运行MongoDB压测
 kyogre --config config/mongodb.yaml --scenario scenario/read-heavy.yaml
@@ -78,9 +78,9 @@ kyogre --config config/redis.yaml --scenario scenario/cache.yaml
 ### MySQL 配置示例
 
 ```yaml
-# config/mysql.yaml
+# config/mysql-row.yaml
 database:
-  type: "mysql"
+  type: "mysql-row"
   mysql:
     host: "localhost"
     port: 3306
@@ -235,7 +235,7 @@ workload:
 ### Ghost DDL 压测场景
 
 ```yaml
-# scenario/gh-ost-ddl.yaml
+# scenario/mysql-ddl.yaml
 name: "online-ddl-pressure"
 description: "模拟在线DDL变更期间的数据库压力"
 
@@ -249,7 +249,7 @@ workload:
         update: 30
         select: 30
     
-    - name: "gh-ost-migration"
+    - name: "mysql-migration"
       duration: "10m"
       threads: 50
       ghost_operations:
@@ -273,13 +273,13 @@ Kyogre 提供丰富的监控指标和报告：
 
 ```bash
 # 实时监控
-kyogre --config config/mysql.yaml --scenario scenario/mixed.yaml --monitor
+kyogre --config config/mysql-row.yaml --scenario scenario/mixed.yaml --monitor
 
 # 生成HTML报告
-kyogre --config config/mysql.yaml --scenario scenario/mixed.yaml --report html
+kyogre --config config/mysql-row.yaml --scenario scenario/mixed.yaml --report html
 
 # 导出JSON数据
-kyogre --config config/mysql.yaml --scenario scenario/mixed.yaml --report json
+kyogre --config config/mysql-row.yaml --scenario scenario/mixed.yaml --report json
 ```
 
 报告内容包括：

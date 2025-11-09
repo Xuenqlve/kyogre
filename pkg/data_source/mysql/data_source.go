@@ -2,16 +2,16 @@ package mysql
 
 import (
 	"github.com/mitchellh/mapstructure"
-	"github.com/xuenqlve/kyogre/internal/common/errors"
+	"github.com/xuenqlve/common/data_source/mysql"
+	"github.com/xuenqlve/common/errors"
 	"github.com/xuenqlve/kyogre/internal/data_source"
 )
 
-const MySQL data_source.DataSourceType = "mysql"
+const MySQL data_source.DataSourceType = "mysql-row"
 
 type DataSource struct {
-	pipelineName string
-	// key: batch_position-input、position等
-	dataSourceMap map[string]Config
+	pipelineName  string
+	dataSourceMap map[string]mysql.Config
 }
 
 func init() {
@@ -20,7 +20,7 @@ func init() {
 
 func (ds *DataSource) Configure(pipelineName string, data map[string]any) error {
 	ds.pipelineName = pipelineName
-	ds.dataSourceMap = map[string]Config{}
+	ds.dataSourceMap = map[string]mysql.Config{}
 	if err := mapstructure.Decode(data, &ds.dataSourceMap); err != nil {
 		return errors.Trace(err)
 	}

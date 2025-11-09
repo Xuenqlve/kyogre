@@ -4,191 +4,304 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**Kyogre** is a high-performance database load testing tool that supports multiple databases: MySQL, MongoDB, Redis, Kafka, and ClickHouse. The project is written in Go 1.24.9+ and uses a plugin-based architecture for extensibility.
+**Kyogre** is a high-performance, multi-database stress testing tool. Named after Kyogre from Pokémon, it can simulate massive data traffic to stress test multiple types of databases (MySQL, Redis, MongoDB, ClickHouse, Kafka).
 
-The project is approximately 50% complete with robust infrastructure but several core modules still pending implementation.
+- **Language**: Go 1.24.0
+- **Architecture**: Plugin-based with factory pattern for extensibility
+- **Core Focus**: MySQL (DML and DDL operations), with support for other databases
 
-## Build and Development Commands
+## Common Development Commands
+
+### Build
 
 ```bash
-# Build the project
-go build -o kyogre ./cmd
+# Build the binary
+go build -o kyogre ./cmd/...
 
-# Install dependencies (already vendored)
-go mod download
-go mod tidy
+# Build with specific output path
+go build -o ./bin/kyogre ./cmd/...
+```
 
+### Testing
+
+```bash
 # Run all tests
 go test ./...
 
-# Run tests for a specific package
-go test -v ./pkg/data_source/mysql
+# Run tests with verbose output
+go test -v ./...
 
-# Run a specific test
-go test -run TestName ./path/to/package -v
+# Run specific test file
+go test -v ./test/pressure/mysql_row_test.go
 
-# Check code quality
+# Run specific test function
+go test -v -run TestMySQLRowPressure ./test/pressure/...
+
+# Run tests with coverage
+go test -cover ./...
+
+# Run tests with race detector
+go test -race ./...
+```
+
+### Linting & Formatting
+
+```bash
+# Format code
 go fmt ./...
+
+# Check for issues with gofmt
+gofmt -l ./...
+
+# Run vet to find suspicious code
 go vet ./...
 
-# Run linter (if installed)
-golangci-lint run ./...
+# Clean up dependencies
+go mod tidy
 ```
 
-## Project Architecture
+### Dependency Management
 
-### Plugin-Based Data Source System
+```bash
+# Download dependencies
+go mod download
 
-The core architecture revolves around a plugin registration system in `internal/data_source/data_source.go`:
+# Tidy and verify
+go mod tidy
 
-- Each data source (MySQL, MongoDB, Redis, Kafka, ClickHouse) registers itself as a plugin
-- Plugins implement the `DataSource` interface with `Configure()` and `CreateDataSource()` methods
-- Factory pattern (`GetDataSource()`) dynamically creates data source instances
-- Each implementation located in `pkg/data_source/{database_type}/`
-
-### Directory Structure
-
-```
-cmd/                          # CLI application (main.go is empty, needs implementation)
-internal/
-  ├── config/                 # Configuration parsing (YAML/JSON/TOML support)
-  ├── data_source/            # Plugin system and registration
-  ├── common/
-  │   ├── log/               # Zerolog-based structured logging
-  │   ├── errors/            # Error handling and wrapping
-  │   └── utils/             # Utility functions
-  ├── generator/             # Data generation (NOT IMPLEMENTED)
-  ├── metrics/               # Metrics collection (NOT IMPLEMENTED)
-  ├── report/                # Report generation (NOT IMPLEMENTED)
-  ├── scenario/              # Test scenarios (NOT IMPLEMENTED)
-  └── workload/              # Workload engine (NOT IMPLEMENTED)
-
-pkg/data_source/
-  ├── config.go              # Configuration helpers
-  ├── connection.go           # Connection management
-  └── {mysql,mongodb,redis,kafka,clickhouse}/
-      ├── data_source.go     # Interface implementation
-      └── {db}.go            # DB-specific config and connection
+# Check for issues
+go mod verify
 ```
 
-### Data Source Implementations
+## Codebase Architecture
 
-**Completed and functional:**
-- MySQL: Full SQL support, transactions, DDL, connection pooling
-- MongoDB: Document operations, replica sets, TLS, authentication
-- Redis: Single-node and cluster modes, custom protocol implementation in `proto/`
-- Kafka: Producer/consumer, TLS, SASL authentication
-- ClickHouse: Column-oriented database support
+### High-Level Architecture
 
-### Execution Flow (Expected)
+The project uses a **plugin-based architecture** with factory pattern for extensibility:
 
-1. Parse CLI arguments and configuration file (YAML/JSON/TOML)
-2. Initialize logging and error handlers
-3. Load and validate data source configuration
-4. Initialize data source connections via plugin system
-5. Load test scenarios (when implemented)
-6. Generate synthetic data (when implemented)
-7. Execute workload with concurrent threads
-8. Collect metrics in real-time
-9. Generate HTML/JSON reports (when implemented)
+```
+Configuration → Server Init → Data Source Plugin → Pressure Plugin → Execution
+     ↓              ↓              ↓                    ↓               ↓
+YAML/TOML      Load Config    MySQL/Redis/        DML/DDL/          Run
+Config File    + Logging      MongoDB/etc        Custom Engine      Pressure Test
+```
 
-### CLI Entry Point
+### Core Components
 
-The `cmd/main.go` file is currently empty and needs implementation. It should:
-- Accept command-line flags: `--config`, `--scenario`, `--monitor`, `--report`
-- Load configuration files and validate them
-- Initialize the entire application lifecycle
-- Orchestrate the plugin system, workload execution, and reporting
+#### 1. **Application Layer** (`internal/app/app.go`)
+- `Server`: Main application controller managing lifecycle
+- Handles initialization, configuration, and execution flow
+- Key methods: `NewServer()`, `Configure()`, `Run()`
 
-### Key Dependencies
+#### 2. **Configuration System** (Dual-layer)
 
-| Package | Version | Purpose |
-|---------|---------|---------|
-| go-sql-driver/mysql | v1.9.3 | MySQL driver |
-| go.mongodb.org/mongo-driver | v1.17.4 | MongoDB driver |
-| redis/go-redis | v9.14.0 | Redis client |
-| segmentio/kafka-go | v0.4.49 | Kafka client |
-| ClickHouse/clickhouse-go | v2.40.3 | ClickHouse driver |
-| rs/zerolog | v1.34.0 | Structured logging |
+**Internal Config** (`internal/config/`):
+- Factory pattern: `RegisterConfigFactory()`, `GetConfig()`
+- Type: `Config` struct with nested maps for flexible configuration
+- Manages datasource, scenario, pressure, and monitor configs
 
-## Code Patterns and Conventions
+**Public Config Implementation** (`pkg/config/file.go`):
+- `FileConfig`: Reads YAML/TOML configuration files
+- Thread-safe configuration loading
 
-### Logging
+#### 3. **Data Source System** (`internal/data_source/` + `pkg/data_source/`)
 
-Use the wrapped zerolog functions in `internal/common/log/func.go`:
+Factory-based plugin system for database support:
+
+| Database | Type Constant | Implementation | Features |
+|----------|---------------|----------------|----------|
+| MySQL | `mysql-row` | `pkg/data_source/mysql/` | Connection pooling, DML operations |
+| Redis | `redis` | `pkg/data_source/redis/` | Standalone & Cluster support |
+| MongoDB | `mongodb` | `pkg/data_source/mongodb/` | Document operations |
+| ClickHouse | `clickhouse` | `pkg/data_source/clickhouse/` | Columnar queries |
+| Kafka | `kafka` | `pkg/data_source/kafka/` | Message read/write |
+
+**DataSource Interface**:
 ```go
-log.Infof("message")
-log.Errorf("error: %v", err)
-log.Warnf("warning: %v", err)
-log.Debugf("debug info")
-```
-
-Logs support console and file output with configurable levels.
-
-### Plugin Registration
-
-Each data source registers in its `init()` function:
-```go
-func init() {
-    data_source.RegisterPlugin(MySQL, &DataSource{}, true)
+type DataSource interface {
+    Configure(pipelineName string, data map[string]any) error
+    CreateDataSource(dataSourceName string) (any, error)
+    DataSourceConfig(dataSourceName string) (any, error)
 }
 ```
 
-The third parameter indicates if it's a singleton (true) or multi-instance (false).
+#### 4. **Message System** (`internal/message/`)
 
-### Configuration Handling
+Abstract messaging interface for different database operations:
 
-- Configurations are in `internal/config/` package
-- Support YAML, JSON, TOML formats
-- Use `mapstructure` for config deserialization
-- Example configurations in README.md
+- `Message`: Base interface with `Type()` and `StartTime()`
+- `MySQLRowMessage`: Single row DML operations (INSERT/UPDATE/DELETE/SELECT)
+- `MySQLTransactionMessage`: Multi-row transaction operations with GTID
+- `MySQLDDLMessage`: DDL operations (ALTER TABLE, etc.)
 
-### Error Handling
+**Metadata Structure**: Contains operation, database, table, hint, write type, and timestamp
 
-Use `internal/common/errors/` package for error wrapping with context from `pingcap/errors`.
+#### 5. **Pressure Testing Plugins** (`pkg/pressure/`)
 
-## Implementation Status
+**Plugin Interface**:
+```go
+type Pressure interface {
+    Configure(pipeline string, data map[string]any) error
+    Start(ctx context.Context) error
+    Execute(msg message.Message)
+    Close() error
+}
+```
 
-**Complete:**
-- ✅ Plugin system and data source framework
-- ✅ All 5 database drivers (MySQL, MongoDB, Redis, Kafka, ClickHouse)
-- ✅ Configuration parsing (YAML/JSON/TOML)
-- ✅ Logging and error handling infrastructure
-- ✅ Connection pooling and lifecycle management
+##### MySQL DML Pressure (`pkg/pressure/mysql-row/`)
 
-**Pending Implementation:**
-- ⏳ `cmd/main.go` - CLI entry point and argument parsing
-- ⏳ `internal/generator/` - Synthetic data generation
-- ⏳ `internal/metrics/` - Real-time metrics collection (QPS, latency, errors)
-- ⏳ `internal/scenario/` - Test scenario parser and execution
-- ⏳ `internal/workload/` - Concurrent workload execution engine
-- ⏳ `internal/report/` - HTML and JSON report generation
+- **Type**: `mysql-dml`
+- Worker thread pool architecture with configurable concurrency
+- Features:
+  - Supports INSERT, UPDATE, DELETE, SELECT
+  - Multiple insert modes (INSERT IGNORE, INSERT ON DUPLICATE KEY, REPLACE)
+  - SQL comment/hint support
+  - Transaction handling
+- **Config**: `DataSource`, `WorkerCount`, `WorkerQueueLength`
 
-## Common Development Tasks
+##### MySQL DDL Pressure (`pkg/pressure/mysql-ddl/`)
+
+- **Type**: `mysql-ddl`
+- Integrates gh-ost for online DDL migrations
+- Features:
+  - ALTER TABLE, RENAME TABLE, CREATE/DROP operations
+  - Concurrent migration limit with dependency management
+  - Graceful shutdown with timeout
+  - MigrationTask tracking per schema.table
+- **Config**: `DataSource`, `GhostBinary`, `MaxConcurrent`, `ChunkSize`, `MaxLoad`, `ExecuteChanges`, `Timeout`, `CutOver`, `DropOldTable`
+
+### Key Design Patterns
+
+1. **Factory Pattern**: All plugins (Config, DataSource, Pressure) registered and retrieved via factory methods
+2. **Plugin Architecture**: Easy to add new databases, pressure engines, or config sources
+3. **Worker Pool**: MySQL DML uses worker threads for concurrent operations
+4. **Context-based Cancellation**: Extensive use of `context.Context` for timeout and cancellation
+5. **Resource Management**: `Close()` methods for graceful cleanup
+
+## Testing Patterns
+
+**Location**: `/test/pressure/`
+
+**Test Files**:
+- `pressure_test.go`: Base test setup and utilities
+- `mysql_row_test.go`: Row-level DML pressure tests
+- `mysql_ddl_test.go`: DDL migration tests
+
+**Test Setup**:
+- MySQL connection: `127.0.0.1:3306`
+- Log level: DEBUG
+- Uses `TestMain` for environment initialization
+
+## File Organization
+
+```
+kyogre/
+├── cmd/
+│   └── main.go                      # Entry point
+├── internal/                         # Unexported packages
+│   ├── app/
+│   │   └── app.go                   # Server struct and lifecycle
+│   ├── config/
+│   │   ├── config.go                # Config factory and loading
+│   │   └── base.go                  # ConfigManager interface
+│   ├── data_source/
+│   │   └── data_source.go           # DataSource factory and registry
+│   ├── message/
+│   │   ├── message.go               # Message interface
+│   │   └── mysql.go                 # MySQL message types
+│   └── plugin/
+│       ├── pressure.go              # Pressure plugin interface
+│       ├── generator.go             # Generator interface
+│       └── scenario.go              # Scenario interface (placeholder)
+├── pkg/                             # Exported packages
+│   ├── config/
+│   │   └── file.go                  # FileConfig implementation
+│   ├── data_source/
+│   │   ├── data_source.go           # Initializer
+│   │   ├── mysql/
+│   │   ├── redis/
+│   │   ├── mongodb/
+│   │   ├── clickhouse/
+│   │   └── kafka/
+│   └── pressure/
+│       ├── mysql-row/               # DML pressure engine
+│       │   ├── pressure.go
+│       │   ├── worker.go
+│       │   └── config.go
+│       └── mysql-ddl/               # DDL pressure engine
+│           ├── pressure.go
+│           └── config.go
+└── test/
+    └── pressure/
+        ├── pressure_test.go
+        ├── mysql_row_test.go
+        └── mysql_ddl_test.go
+```
+
+## Important Dependencies
+
+- `github.com/xuenqlve/common`: Common library (data sources, error handling, logging, schema management)
+- `github.com/mitchellh/mapstructure`: Struct mapping from maps
+- `github.com/pingcap/tidb/pkg/parser`: SQL parsing
+- Database drivers: mysql, redis, mongodb, clickhouse, kafka
+- Logging: zerolog and zap via common library
+
+## Execution Flow
+
+```
+main() in cmd/main.go
+  ↓
+config.NewConfig()          # Load YAML/TOML configuration
+  ↓
+app.NewServer(cfg)          # Create server instance
+  ├── log.Init()            # Initialize logging
+  └── server.Configure()    # Register data sources
+      └── DataSource plugins configure connections
+  ↓
+server.Run()                # Start application
+  └── Launch pressure plugins to accept and process messages
+```
+
+## When Adding New Features
 
 ### Adding a New Data Source
+1. Create directory: `pkg/data_source/{database-name}/`
+2. Implement `DataSource` interface in two files:
+   - `data_source.go`: Configuration and initialization
+   - `{database-name}.go`: Client and operations
+3. Register in `init()` function: `data_source.RegisterPlugin(type, implementation, singleton)`
+4. Reference: See `pkg/data_source/mysql/` for pattern
 
-1. Create `pkg/data_source/{database_type}/` directory
-2. Implement the `DataSource` interface in `data_source.go`
-3. Create `{database_type}.go` for driver-specific config and connection
-4. Register the plugin in `init()` function
-5. Update imports in relevant files
+### Adding a New Pressure Engine
+1. Create directory: `pkg/pressure/{engine-name}/`
+2. Implement `Pressure` interface:
+   - `Configure()`: Parse configuration
+   - `Start()`: Initialize resources
+   - `Execute()`: Process messages
+   - `Close()`: Cleanup
+3. Create `config.go` for config struct
+4. Register in `init()`: `pressure.RegisterPressure(type, implementation, singleton)`
+5. Reference: See `pkg/pressure/mysql-row/` for simple pattern or `mysql-ddl/` for complex
 
-### Testing Configuration
+### Adding Tests
+- Follow patterns in `/test/pressure/`
+- Use `TestMain` for setup/teardown
+- Tests should be runnable in isolation with proper database connection
 
-Since no test files exist yet, create tests following this pattern:
-```bash
-pkg/data_source/{database_type}/{database_type}_test.go
-internal/{module}/{module}_test.go
-```
+## Debugging Tips
 
-Run with: `go test -v ./...` or `go test -run TestName ./...`
+1. **Logging**: Set log level in config (DEBUG shows detailed execution)
+2. **Context Timeouts**: Check `context.Context` cancellation in pressure engines
+3. **Database Connections**: Verify MySQL is running on `localhost:3306` for tests
+4. **Worker Deadlocks**: Monitor worker queue lengths in MySQL DML pressure
+5. **Ghost Migrations**: Ensure gh-ost binary is accessible and MySQL binary log is enabled
 
-### Debugging
+## Current Development Focus
 
-Enable debug logging by setting log level to DEBUG in configuration, or use:
-```go
-log.Debugf("debug message: %v", value)
-```
+The codebase is actively refactoring towards:
+- Plugin-based architecture with cleaner separation of concerns
+- Transitioning from gh-ost to native MySQL DDL pressure testing
+- Enhanced message system for different database types
+- Improved configuration management with factory pattern
 
-Check `/tmp/kyogre.log` (or configured log file) for persistent logs.
+Recent changes show restructuring of pressure test engines and migration from older patterns to the current factory-based plugin system.

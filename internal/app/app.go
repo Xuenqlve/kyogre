@@ -3,8 +3,8 @@ package app
 import (
 	"context"
 
-	"github.com/xuenqlve/kyogre/internal/common/errors"
-	"github.com/xuenqlve/kyogre/internal/common/log"
+	"github.com/xuenqlve/common/errors"
+	"github.com/xuenqlve/common/log"
 	"github.com/xuenqlve/kyogre/internal/config"
 	"github.com/xuenqlve/kyogre/internal/data_source"
 )
