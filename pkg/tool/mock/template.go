@@ -1,9 +1,10 @@
-package common
+package mock
 
 import (
 	"fmt"
 	"math/rand/v2"
 	"strings"
+	"sync/atomic"
 	"time"
 )
 
@@ -91,9 +92,17 @@ func RegisterAllBuiltinTemplates(dg *DataGenerator) {
 // ============ 身份标识类模板 ============
 
 func registerIdentityTemplates(dg *DataGenerator) {
+	dg.RegisterTemplate("id", generateId)
 	dg.RegisterTemplate("uuid", generateUUID)
 	dg.RegisterTemplate("object_id", generateObjectID)
 	dg.RegisterTemplate("snowflake", generateSnowflake)
+}
+
+var id int64 = 1
+
+func generateId() any {
+	defer atomic.AddInt64(&id, 1)
+	return id
 }
 
 // generateUUID 生成 UUID v4 格式字符串

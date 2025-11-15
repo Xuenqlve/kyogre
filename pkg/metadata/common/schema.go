@@ -1,4 +1,4 @@
-package mysql_config
+package common
 
 import (
 	"fmt"
@@ -8,27 +8,26 @@ import (
 	"github.com/xuenqlve/common/schema_store"
 )
 
-type Config struct {
-	DataSource string   `mapstructure:"data-source" json:"data-source"`
-	Databases  Database `mapstructure:"databases" json:"databases"`
-}
-
+// Database 数据库配置，key为数据库名称，value为表列表
 type Database map[string]Tables
 
+// Tables 表配置列表
 type Tables []Table
 
+// Table 表的配置结构
 type Table struct {
 	Table   string   `mapstructure:"table" json:"table"`
 	Columns []Column `mapstructure:"columns" json:"columns"`
 	Indexes []Index  `mapstructure:"indexes" json:"indexes"`
 }
 
+// Column 列的配置结构
 type Column struct {
 	Column string `mapstructure:"column" json:"column"`
 	Type   string `mapstructure:"type" json:"type"`
-	Mock   string `mapstructure:"mock" json:"mock"` // Template name for mock data generation (e.g., "email", "phone", "uuid")
 }
 
+// Index 索引的配置结构
 type Index struct {
 	Name      string   `mapstructure:"name" json:"name"`
 	Columns   []string `mapstructure:"columns" json:"columns"`
@@ -36,20 +35,10 @@ type Index struct {
 	IsUnique  bool     `mapstructure:"is_unique" json:"is_unique"`
 }
 
-func (c *Config) CreateTableSQLs() []string {
-	sqlSet := []string{}
-	for database, tables := range c.Databases {
-		sqlSet = append(sqlSet, "CREATE DATABASE IF NOT EXISTS "+database)
-		for _, table := range tables {
-			sqlSet = append(sqlSet, table.CreateTableSQL(database))
-		}
-	}
-	return sqlSet
-}
-
-func (c *Config) SchemaKeys() []schema_store.SchemaKey {
+// SchemaKeys 从数据库配置中提取所有表的schema keys
+func (d Database) SchemaKeys() []schema_store.SchemaKey {
 	keys := []schema_store.SchemaKey{}
-	for database, tables := range c.Databases {
+	for database, tables := range d {
 		for _, table := range tables {
 			keys = append(keys, &mysql_schema.Index{
 				Database: database,
@@ -85,81 +74,183 @@ func (t Table) CreateTableSQL(database string) string {
 	)
 }
 
+const (
+	Primary         = "primary"
+	Tinyint         = "tinyint"
+	Smallint        = "smallint"
+	Mediumint       = "mediumint"
+	Int             = "int"
+	Bigint          = "bigint"
+	BigintUnsigned  = "bigint_unsigned"
+	Float           = "float"
+	Double          = "double"
+	Decimal         = "decimal"
+	Date            = "date"
+	Time            = "time"
+	Datetime        = "datetime"
+	Timestamp       = "timestamp"
+	TimestampUpdate = "timestamp_update"
+	Year            = "year"
+
+	Char         = "char"
+	Varchar      = "varchar"
+	String       = "string"
+	VarcharLarge = "varchar_large"
+	Text         = "text"
+	Mediumtext   = "mediumtext"
+	Longtext     = "longtext"
+	Blob         = "blob"
+
+	Boolean = "boolean"
+	Json    = "json"
+
+	Enum = "enum"
+	Set  = "set"
+)
+
 // TypeTransform 将用户配置的简化类型转换为完整的MySQL列定义
 // 支持常见的数据类型别名，便于配置文件编写
 func (c Column) TypeTransform() string {
 	switch c.Type {
 	// 主键类型
-	case "primary":
+	case Primary:
 		return "BIGINT UNSIGNED NOT NULL AUTO_INCREMENT"
 
 	// 整数类型
-	case "tinyint":
+	case Tinyint:
 		return "TINYINT NOT NULL DEFAULT 0"
-	case "smallint":
+	case Smallint:
 		return "SMALLINT NOT NULL DEFAULT 0"
-	case "mediumint":
+	case Mediumint:
 		return "MEDIUMINT NOT NULL DEFAULT 0"
-	case "int":
+	case Int:
 		return "INT NOT NULL DEFAULT 0"
-	case "bigint":
+	case Bigint:
 		return "BIGINT NOT NULL DEFAULT 0"
-	case "bigint_unsigned":
+	case BigintUnsigned:
 		return "BIGINT UNSIGNED NOT NULL DEFAULT 0"
 
 	// 浮点数类型
-	case "float":
+	case Float:
 		return "FLOAT NOT NULL DEFAULT 0.0"
-	case "double":
+	case Double:
 		return "DOUBLE NOT NULL DEFAULT 0.0"
-	case "decimal":
+	case Decimal:
 		return "DECIMAL(10,2) NOT NULL DEFAULT 0.00"
 
 	// 字符串类型
-	case "char":
+	case Char:
 		return "CHAR(255) NOT NULL DEFAULT ''"
-	case "string", "varchar":
+	case String, Varchar:
 		return "VARCHAR(255) NOT NULL DEFAULT ''"
-	case "varchar_large":
+	case VarcharLarge:
 		return "VARCHAR(1024) NOT NULL DEFAULT ''"
-	case "varchar_xlarge":
-		return "VARCHAR(5000) NOT NULL DEFAULT ''"
-	case "text":
+	case Text:
 		return "TEXT"
-	case "mediumtext":
+	case Mediumtext:
 		return "MEDIUMTEXT"
-	case "longtext":
+	case Longtext:
 		return "LONGTEXT"
-	case "blob":
+	case Blob:
 		return "BLOB"
 
 	// 日期时间类型
-	case "date":
+	case Date:
 		return "DATE NOT NULL DEFAULT '2000-01-01'"
-	case "time":
+	case Time:
 		return "TIME NOT NULL DEFAULT '00:00:00'"
-	case "datetime":
+	case Datetime:
 		return "DATETIME NOT NULL DEFAULT '2000-01-01 00:00:00'"
-	case "timestamp":
+	case Timestamp:
 		return "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"
-	case "timestamp_update":
+	case TimestampUpdate:
 		return "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"
-	case "year":
+	case Year:
 		return "YEAR NOT NULL DEFAULT 2000"
 
 	// 布尔类型（MySQL中使用TINYINT(1)）
-	case "boolean":
+	case Boolean:
 		return "TINYINT(1) NOT NULL DEFAULT 0"
 
 	// JSON类型
-	case "json":
+	case Json:
 		return "JSON"
 
 	// ENUM类型（默认示例）
-	case "enum":
+	case Enum:
 		return "ENUM('active','inactive') NOT NULL DEFAULT 'active'"
 
 	// 如果是未知类型，直接返回原始值（用户可提供完整的MySQL类型定义）
+	default:
+		return c.Type
+	}
+}
+
+func (c Column) DefaultVal() string {
+	switch c.Type {
+	// 主键类型 - 自增，无需默认值
+	case Primary:
+		return ""
+
+	// 整数类型
+	case Tinyint, Smallint, Mediumint, Int, Bigint, BigintUnsigned, Boolean:
+		return "0"
+	case Year:
+		return "2000"
+
+	// 浮点数类型
+	case Float, Double:
+		return "0.0"
+	case Decimal:
+		return "0.00"
+
+	// 字符串类型
+	case Char, String, Varchar, VarcharLarge:
+		return ""
+	case Text, Mediumtext, Longtext, Blob:
+		return ""
+
+	// 日期时间类型
+	case Date:
+		return "2000-01-01"
+	case Time:
+		return "00:00:00"
+	case Datetime:
+		return "2000-01-01 00:00:00"
+	case Timestamp, TimestampUpdate:
+		return "" // CURRENT_TIMESTAMP 自动设置
+
+	// JSON 类型
+	case Json:
+		return "{}"
+
+	// ENUM 类型
+	case Enum:
+		return "active"
+
+	// SET 类型
+	case Set:
+		return ""
+
+	// 默认返回空值
+	default:
+		return ""
+	}
+}
+
+func (c Column) DataType() string {
+	switch c.Type {
+	// 主键类型
+	case Primary:
+		return "bigint"
+	case "string", "varchar_large", "varchar_xlarge":
+		return "varchar"
+	case "bigint_unsigned":
+		return "bigint"
+	case "timestamp_update":
+		return "timestamp"
+	case "boolean":
+		return "tinyint"
 	default:
 		return c.Type
 	}
@@ -169,9 +260,6 @@ func (c Column) TypeTransform() string {
 func (c Column) ColumnDefinition() string {
 	def := fmt.Sprintf("`%s` %s", c.Column, c.TypeTransform())
 	comment := c.Column
-	if c.Mock != "" {
-		comment += " (mock: " + c.Mock + ")"
-	}
 	def += " COMMENT '" + comment + "'"
 	return def
 }

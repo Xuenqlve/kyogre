@@ -3,13 +3,13 @@ package mysql
 import (
 	"fmt"
 	"math/rand/v2"
+	"strconv"
 	"time"
 
 	"github.com/mitchellh/mapstructure"
 	"github.com/xuenqlve/common/relational_database/mysql"
 	"github.com/xuenqlve/kyogre/internal/message"
 	"github.com/xuenqlve/kyogre/internal/plugin"
-	"github.com/xuenqlve/kyogre/pkg/generator/common"
 )
 
 type Config struct {
@@ -21,7 +21,7 @@ type DMLGenerator struct {
 	metadata   plugin.Metadata
 	config     Config
 	hitIndex   int
-	rowBuilder *common.RowBuilder
+	rowBuilder *RowBuilder
 }
 
 func (g *DMLGenerator) Configure(pipeline string, data map[string]any) (err error) {
@@ -30,7 +30,7 @@ func (g *DMLGenerator) Configure(pipeline string, data map[string]any) (err erro
 		return err
 	}
 	g.hitIndex = 0
-	g.rowBuilder = common.NewRowBuilder()
+	g.rowBuilder = NewRowBuilder()
 	return nil
 }
 
@@ -78,7 +78,7 @@ func (g *DMLGenerator) MockMessage(param plugin.MockParam) message.Message {
 	}
 
 	// 解析行数
-	count, err := common.ParseCount(param.Count)
+	count, err := ParseCount(param.Count)
 	if err != nil {
 		count = 1
 	}
@@ -103,7 +103,6 @@ func (g *DMLGenerator) MockMessage(param plugin.MockParam) message.Message {
 			Contents: rowDataList,
 		},
 	}
-
 	return rowMsg
 }
 
@@ -114,4 +113,17 @@ func (g *DMLGenerator) getCurrentTime() time.Time {
 
 func (g *DMLGenerator) Close() {
 
+}
+
+func ParseCount(countStr string) (int, error) {
+	if countStr == "" {
+		return 1, nil
+	}
+
+	// 处理 "random" 格式
+	if countStr == "random" {
+		return rand.IntN(100) + 1, nil
+	}
+	// 尝试直接解析为整数
+	return strconv.Atoi(countStr)
 }
