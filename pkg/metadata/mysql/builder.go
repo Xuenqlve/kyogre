@@ -1,4 +1,4 @@
-package common
+package mysql
 
 import (
 	"strings"
@@ -31,8 +31,13 @@ func BuildMockTables(databases Database) map[string]*mysql_schema.Table {
 					RawType:         rawType,
 					IsNullable:      true,
 					OrdinalPosition: i + 1,
+					DataType:        col.DataType(),
 				}
 
+				mockCol.DefaultVal = mysql_schema.ColumnValueString{
+					ValueString: col.DefaultVal(),
+					IsNull:      false,
+				}
 				if strings.Contains(rawType, "unsigned") {
 					mockCol.IsUnsigned = true
 				} else {

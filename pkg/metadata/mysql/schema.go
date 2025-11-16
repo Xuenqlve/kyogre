@@ -1,12 +1,41 @@
-package common
+package mysql
 
 import (
 	"fmt"
 	"strings"
 
+	"github.com/xuenqlve/common/errors"
 	mysql_schema "github.com/xuenqlve/common/relational_database/mysql"
 	"github.com/xuenqlve/common/schema_store"
 )
+
+// MockLoadSchemaTool 是一个不依赖数据库连接的schema加载工具
+// 从内存中的mock数据返回Table对象
+type MockLoadSchemaTool struct {
+	mockTables map[string]*mysql_schema.Table
+}
+
+// LoadSchema 根据SchemaKey从mock数据中返回Table
+func (m *MockLoadSchemaTool) LoadSchema(key schema_store.SchemaKey) (any, error) {
+	// key 应该是 mysql_schema.Index 类型
+	idx, ok := key.(*mysql_schema.Index)
+	if !ok {
+		return nil, errors.Errorf("invalid schema key type, expected *mysql_schema.Index, got %T", key)
+	}
+
+	tableKey := idx.Database + "." + idx.Table
+	table, exists := m.mockTables[tableKey]
+	if !exists {
+		return nil, errors.Errorf("mock table not found: %s", tableKey)
+	}
+
+	return table, nil
+}
+
+// Close 关闭资源（mock版本不需要实际操作）
+func (m *MockLoadSchemaTool) Close() error {
+	return nil
+}
 
 // Database 数据库配置，key为数据库名称，value为表列表
 type Database map[string]Tables
@@ -47,6 +76,23 @@ func (d Database) SchemaKeys() []schema_store.SchemaKey {
 		}
 	}
 	return keys
+}
+
+func (d Database) Validate() error {
+	if len(d) == 0 {
+		return errors.New("database is empty")
+	}
+	for database, tables := range d {
+		if len(tables) == 0 {
+			return errors.Errorf("database:%s table is empty", database)
+		}
+		for _, table := range tables {
+			if len(table.Columns) == 0 {
+				return errors.Errorf("database:%s table %s has no columns", database, table.Table)
+			}
+		}
+	}
+	return nil
 }
 
 // CreateTableSQL 生成CREATE TABLE语句

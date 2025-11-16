@@ -8,7 +8,7 @@ require (
 	github.com/ClickHouse/clickhouse-go/v2 v2.40.3
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/segmentio/kafka-go v0.4.49
-	github.com/xuenqlve/common v1.1.1
+	github.com/xuenqlve/common v1.0.5
 	go.mongodb.org/mongo-driver v1.17.4
 )
 

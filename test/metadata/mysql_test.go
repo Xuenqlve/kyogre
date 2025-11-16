@@ -5,25 +5,23 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/xuenqlve/common/relational_database/mysql"
+	mysql_schema "github.com/xuenqlve/common/relational_database/mysql"
 	"github.com/xuenqlve/kyogre/internal/plugin"
-	"github.com/xuenqlve/kyogre/pkg/metadata/common"
-	"github.com/xuenqlve/kyogre/pkg/metadata/mysql_config"
-	"github.com/xuenqlve/kyogre/pkg/metadata/mysql_mock"
+	"github.com/xuenqlve/kyogre/pkg/metadata/mysql"
 )
 
 func TestCreateTableSQL(t *testing.T) {
 	tests := []struct {
 		name     string
-		table    common.Table
+		table    mysql.Table
 		database string
 		want     string
 	}{
 		{
 			name: "simple table with primary key",
-			table: common.Table{
+			table: mysql.Table{
 				Table: "users",
-				Columns: []common.Column{
+				Columns: []mysql.Column{
 					{
 						Column: "id",
 						Type:   "primary",
@@ -37,7 +35,7 @@ func TestCreateTableSQL(t *testing.T) {
 						Type:   "varchar",
 					},
 				},
-				Indexes: []common.Index{
+				Indexes: []mysql.Index{
 					{
 						Name:      "",
 						Columns:   []string{"id"},
@@ -56,9 +54,9 @@ func TestCreateTableSQL(t *testing.T) {
 		},
 		{
 			name: "table with composite index",
-			table: common.Table{
+			table: mysql.Table{
 				Table: "orders",
-				Columns: []common.Column{
+				Columns: []mysql.Column{
 					{
 						Column: "order_id",
 						Type:   "primary",
@@ -72,7 +70,7 @@ func TestCreateTableSQL(t *testing.T) {
 						Type:   "enum",
 					},
 				},
-				Indexes: []common.Index{
+				Indexes: []mysql.Index{
 					{
 						Name:      "",
 						Columns:   []string{"order_id"},
@@ -123,12 +121,12 @@ func TestCreateTableSQL(t *testing.T) {
 func TestColumnDefinition(t *testing.T) {
 	tests := []struct {
 		name   string
-		column common.Column
+		column mysql.Column
 		want   string
 	}{
 		{
 			name: "primary key with TypeTransform",
-			column: common.Column{
+			column: mysql.Column{
 				Column: "id",
 				Type:   "primary",
 			},
@@ -136,7 +134,7 @@ func TestColumnDefinition(t *testing.T) {
 		},
 		{
 			name: "simple string type",
-			column: common.Column{
+			column: mysql.Column{
 				Column: "username",
 				Type:   "string",
 			},
@@ -144,7 +142,7 @@ func TestColumnDefinition(t *testing.T) {
 		},
 		{
 			name: "int type with TypeTransform",
-			column: common.Column{
+			column: mysql.Column{
 				Column: "status",
 				Type:   "int",
 			},
@@ -152,7 +150,7 @@ func TestColumnDefinition(t *testing.T) {
 		},
 		{
 			name: "decimal type",
-			column: common.Column{
+			column: mysql.Column{
 				Column: "price",
 				Type:   "decimal",
 			},
@@ -160,7 +158,7 @@ func TestColumnDefinition(t *testing.T) {
 		},
 		{
 			name: "timestamp type",
-			column: common.Column{
+			column: mysql.Column{
 				Column: "created_at",
 				Type:   "timestamp",
 			},
@@ -168,7 +166,7 @@ func TestColumnDefinition(t *testing.T) {
 		},
 		{
 			name: "timestamp_update type",
-			column: common.Column{
+			column: mysql.Column{
 				Column: "updated_at",
 				Type:   "timestamp_update",
 			},
@@ -176,7 +174,7 @@ func TestColumnDefinition(t *testing.T) {
 		},
 		{
 			name: "json type",
-			column: common.Column{
+			column: mysql.Column{
 				Column: "metadata",
 				Type:   "json",
 			},
@@ -184,7 +182,7 @@ func TestColumnDefinition(t *testing.T) {
 		},
 		{
 			name: "boolean type",
-			column: common.Column{
+			column: mysql.Column{
 				Column: "is_active",
 				Type:   "boolean",
 			},
@@ -192,7 +190,7 @@ func TestColumnDefinition(t *testing.T) {
 		},
 		{
 			name: "varchar_large type",
-			column: common.Column{
+			column: mysql.Column{
 				Column: "description",
 				Type:   "varchar_large",
 			},
@@ -200,7 +198,7 @@ func TestColumnDefinition(t *testing.T) {
 		},
 		{
 			name: "text type",
-			column: common.Column{
+			column: mysql.Column{
 				Column: "content",
 				Type:   "text",
 			},
@@ -208,7 +206,7 @@ func TestColumnDefinition(t *testing.T) {
 		},
 		{
 			name: "date type",
-			column: common.Column{
+			column: mysql.Column{
 				Column: "birth_date",
 				Type:   "date",
 			},
@@ -216,7 +214,7 @@ func TestColumnDefinition(t *testing.T) {
 		},
 		{
 			name: "datetime type",
-			column: common.Column{
+			column: mysql.Column{
 				Column: "event_time",
 				Type:   "datetime",
 			},
@@ -224,7 +222,7 @@ func TestColumnDefinition(t *testing.T) {
 		},
 		{
 			name: "custom full type (fallback)",
-			column: common.Column{
+			column: mysql.Column{
 				Column: "custom_col",
 				Type:   "DECIMAL(15,4) NOT NULL DEFAULT 0.0000",
 			},
@@ -295,7 +293,7 @@ func TestTypeTransform(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			col := common.Column{Column: "test_col", Type: tt.typeStr}
+			col := mysql.Column{Column: "test_col", Type: tt.typeStr}
 			result := col.TypeTransform()
 			fmt.Printf("Type: %s → %s\n", tt.typeStr, result)
 			if result != tt.expected {
@@ -308,12 +306,12 @@ func TestTypeTransform(t *testing.T) {
 func TestIndexDefinition(t *testing.T) {
 	tests := []struct {
 		name  string
-		index common.Index
+		index mysql.Index
 		want  string
 	}{
 		{
 			name: "primary key",
-			index: common.Index{
+			index: mysql.Index{
 				Columns:   []string{"id"},
 				IsPrimary: true,
 				IsUnique:  false,
@@ -322,7 +320,7 @@ func TestIndexDefinition(t *testing.T) {
 		},
 		{
 			name: "unique index",
-			index: common.Index{
+			index: mysql.Index{
 				Name:      "uk_email",
 				Columns:   []string{"email"},
 				IsPrimary: false,
@@ -332,7 +330,7 @@ func TestIndexDefinition(t *testing.T) {
 		},
 		{
 			name: "normal index",
-			index: common.Index{
+			index: mysql.Index{
 				Name:      "idx_status",
 				Columns:   []string{"status"},
 				IsPrimary: false,
@@ -342,7 +340,7 @@ func TestIndexDefinition(t *testing.T) {
 		},
 		{
 			name: "composite index",
-			index: common.Index{
+			index: mysql.Index{
 				Name:      "idx_user_status",
 				Columns:   []string{"user_id", "status"},
 				IsPrimary: false,
@@ -483,7 +481,7 @@ func mockMySQLConfig() map[string]any {
 }
 
 func TestMySQLConfigMetadata(t *testing.T) {
-	metadata, err := plugin.GetMetadata(mysql_config.MySQL, mysql_config.ConfigMode)
+	metadata, err := plugin.GetMetadata(mysql.MySQL, mysql.ConfigMode)
 	if err != nil {
 		t.Errorf("plugin get metadata err:%v", err)
 		return
@@ -516,7 +514,7 @@ func TestMySQLConfigMetadata(t *testing.T) {
 				t.Errorf("plugin get schema err:%v", err)
 				return
 			}
-			tableDef, ok := schema.(*mysql.Table)
+			tableDef, ok := schema.(*mysql_schema.Table)
 			if !ok {
 				t.Errorf("schema transformation *mysql.Table fail")
 				return
@@ -532,13 +530,20 @@ func TestMySQLConfigMetadata(t *testing.T) {
 }
 
 func TestMySQLMockMetadata(t *testing.T) {
-	metadata, err := plugin.GetMetadata(mysql_config.MySQL, mysql_mock.MockMode)
+	metadata, err := plugin.GetMetadata(mysql.MySQL, mysql.ConfigMode)
 	if err != nil {
 		t.Errorf("plugin get metadata err:%v", err)
 		return
 	}
-	if err = metadata.Configure(pipeline, mockMySQLConfig()); err != nil {
+	cfg := map[string]interface{}{
+		"databases": mockDatabases(),
+	}
+	if err = metadata.Configure(pipeline, cfg); err != nil {
 		t.Errorf("plugin configure err:%v", err)
+		return
+	}
+	if err = metadata.Initialize(context.Background()); err != nil {
+		t.Errorf("plugin init err:%v", err)
 		return
 	}
 	t.Run("SchemaKeys", func(t *testing.T) {
@@ -557,7 +562,7 @@ func TestMySQLMockMetadata(t *testing.T) {
 				t.Errorf("plugin get schema err:%v", err)
 				return
 			}
-			tableDef, ok := schema.(*mysql.Table)
+			tableDef, ok := schema.(*mysql_schema.Table)
 			if !ok {
 				t.Errorf("schema transformation *mysql.Table fail")
 				return
