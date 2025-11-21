@@ -1,10 +1,13 @@
 package plugin
 
-import "github.com/xuenqlve/kyogre/internal/message"
+import (
+	"github.com/xuenqlve/kyogre/internal/message"
+	"github.com/xuenqlve/kyogre/internal/metadata"
+)
 
 type Generator interface {
 	Configure(pipeline string, data map[string]any) error
-	RegisterMetadata(metadata Metadata)
+	RegisterMetadata(metadata metadata.Metadata)
 	MockMessage(param MockParam) message.Message
 	Close()
 }

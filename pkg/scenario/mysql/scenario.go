@@ -30,7 +30,9 @@ func (s *Scenario) Configure(pipeline string, data map[string]any) (err error) {
 func (s *Scenario) Preparation(ctx context.Context) error {
 	s.ctx = ctx
 	// todo 初始化对应用 metadata
+
 	// todo 初始化对应 generator
+
 	return nil
 }
 

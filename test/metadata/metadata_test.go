@@ -9,6 +9,7 @@ import (
 	"github.com/xuenqlve/common/log"
 	"github.com/xuenqlve/kyogre/internal/data_source"
 	ds "github.com/xuenqlve/kyogre/pkg/data_source/mysql"
+	_ "github.com/xuenqlve/kyogre/pkg/metadata_template"
 )
 
 const (

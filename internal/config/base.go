@@ -12,6 +12,7 @@ type Config struct {
 	LogFile    string                    `mapstructure:"log-file" json:"log-file" yaml:"log-file" toml:"log-file"`
 	ApiConfig  map[string]any            `mapstructure:"api-config" json:"api-config" yaml:"api-config" toml:"api-config"`
 	DataSource map[string]map[string]any `mapstructure:"data-source" json:"data-source" yaml:"data-source" toml:"data-source"`
+	Metadata   map[string]ConfigureMold  `mapstructure:"metadata" json:"metadata" yaml:"metadata" toml:"metadata"`
 	// 场景配置
 	Scenario ConfigureMold `mapstructure:"scenario" json:"scenario" yaml:"scenario" toml:"scenario"`
 	// 压测配置

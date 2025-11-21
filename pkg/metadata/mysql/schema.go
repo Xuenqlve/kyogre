@@ -134,6 +134,7 @@ const (
 	Date            = "date"
 	Time            = "time"
 	Datetime        = "datetime"
+	DatetimeUpdate  = "datetime_update"
 	Timestamp       = "timestamp"
 	TimestampUpdate = "timestamp_update"
 	Year            = "year"
@@ -207,6 +208,8 @@ func (c Column) TypeTransform() string {
 		return "TIME NOT NULL DEFAULT '00:00:00'"
 	case Datetime:
 		return "DATETIME NOT NULL DEFAULT '2000-01-01 00:00:00'"
+	case DatetimeUpdate:
+		return "datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"
 	case Timestamp:
 		return "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"
 	case TimestampUpdate:
@@ -261,11 +264,10 @@ func (c Column) DefaultVal() string {
 		return "2000-01-01"
 	case Time:
 		return "00:00:00"
-	case Datetime:
+	case Datetime, DatetimeUpdate:
 		return "2000-01-01 00:00:00"
 	case Timestamp, TimestampUpdate:
 		return "" // CURRENT_TIMESTAMP 自动设置
-
 	// JSON 类型
 	case Json:
 		return "{}"
@@ -288,15 +290,17 @@ func (c Column) DataType() string {
 	switch c.Type {
 	// 主键类型
 	case Primary:
-		return "bigint"
-	case "string", "varchar_large", "varchar_xlarge":
-		return "varchar"
-	case "bigint_unsigned":
-		return "bigint"
-	case "timestamp_update":
-		return "timestamp"
-	case "boolean":
-		return "tinyint"
+		return Bigint
+	case String, VarcharLarge:
+		return Varchar
+	case BigintUnsigned:
+		return Bigint
+	case DatetimeUpdate:
+		return Datetime
+	case TimestampUpdate:
+		return Timestamp
+	case Boolean:
+		return Tinyint
 	default:
 		return c.Type
 	}

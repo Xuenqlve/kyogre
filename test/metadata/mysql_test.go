@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/xuenqlve/common/log"
 	mysql_schema "github.com/xuenqlve/common/relational_database/mysql"
-	"github.com/xuenqlve/kyogre/internal/plugin"
+	"github.com/xuenqlve/kyogre/internal/metadata"
 	"github.com/xuenqlve/kyogre/pkg/metadata/mysql"
+	"github.com/xuenqlve/kyogre/pkg/metadata_template"
 )
 
 func TestCreateTableSQL(t *testing.T) {
@@ -476,12 +478,13 @@ func mockDatabases() map[string]any {
 func mockMySQLConfig() map[string]any {
 	return map[string]any{
 		"data-source": mysqlDataSource,
+		"template":    mysql.CustomizeTemplate,
 		"databases":   mockDatabases(),
 	}
 }
 
 func TestMySQLConfigMetadata(t *testing.T) {
-	metadata, err := plugin.GetMetadata(mysql.MySQL, mysql.ConfigMode)
+	metadata, err := metadata.GetMetadata(mysql.MySQL)
 	if err != nil {
 		t.Errorf("plugin get metadata err:%v", err)
 		return
@@ -530,13 +533,15 @@ func TestMySQLConfigMetadata(t *testing.T) {
 }
 
 func TestMySQLMockMetadata(t *testing.T) {
-	metadata, err := plugin.GetMetadata(mysql.MySQL, mysql.ConfigMode)
+	metadata, err := metadata.GetMetadata(mysql.MySQL)
 	if err != nil {
 		t.Errorf("plugin get metadata err:%v", err)
 		return
 	}
 	cfg := map[string]interface{}{
-		"databases": mockDatabases(),
+		"data-source": mysql.MockDataSource,
+		"template":    mysql.CustomizeTemplate,
+		"databases":   mockDatabases(),
 	}
 	if err = metadata.Configure(pipeline, cfg); err != nil {
 		t.Errorf("plugin configure err:%v", err)
@@ -573,4 +578,111 @@ func TestMySQLMockMetadata(t *testing.T) {
 			}
 		}
 	})
+}
+
+func templateMetadata(template, datasource string) (err error) {
+	var md metadata.Metadata
+	if md, err = metadata.GetMetadata(mysql.MySQL); err != nil {
+		return
+	}
+	cfg := map[string]interface{}{
+		"data-source": datasource,
+		"template":    template,
+	}
+	if err = md.Configure(pipeline, cfg); err != nil {
+		return err
+	}
+	if err = md.Initialize(context.Background()); err != nil {
+		return
+	}
+	keys := md.SchemaKeys()
+	schema := md.SchemaStore()
+
+	for _, key := range keys {
+		log.Infof("id:%v", key.UniqueID())
+		var sc any
+		sc, err = schema.GetSchema(key)
+		if err != nil {
+			log.Errorf("plugin get schema err:%v", err)
+			return
+		}
+		tableDef, ok := sc.(*mysql_schema.Table)
+		if !ok {
+			log.Errorf("schema transformation *mysql.Table fail")
+			return
+		}
+		log.Infof("database:%s,table:%s primary:%v uniqueIndex:%v", tableDef.Database, tableDef.Table, tableDef.PrimaryIndex, tableDef.UniqueIndex)
+		for _, column := range tableDef.Columns {
+			log.Infof("column:%+v", column)
+		}
+	}
+	return nil
+}
+
+func TestMySQLTemplateMetadata(t *testing.T) {
+
+	t.Run("EcommerceTemplate", func(t *testing.T) {
+		if err := templateMetadata(metadata_template.EcommerceTemplate, mysql.MockDataSource); err != nil {
+			t.Errorf("plugin template err:%v", err)
+			return
+		}
+		t.Logf("plugin template success")
+	})
+
+	t.Run("SchoolTemplate", func(t *testing.T) {
+		if err := templateMetadata(metadata_template.SchoolTemplate, mysql.MockDataSource); err != nil {
+			t.Errorf("plugin template err:%v", err)
+			return
+		}
+		t.Logf("plugin template success")
+	})
+
+	t.Run("OfficeTemplate", func(t *testing.T) {
+		if err := templateMetadata(metadata_template.OfficeTemplate, mysql.MockDataSource); err != nil {
+			t.Errorf("plugin template err:%v", err)
+			return
+		}
+		t.Logf("plugin template success")
+	})
+
+	t.Run("HospitalTemplate", func(t *testing.T) {
+		if err := templateMetadata(metadata_template.HospitalTemplate, mysql.MockDataSource); err != nil {
+			t.Errorf("plugin template err:%v", err)
+			return
+		}
+		t.Logf("plugin template success")
+	})
+
+	t.Run("EcommerceTemplate", func(t *testing.T) {
+		if err := templateMetadata(metadata_template.EcommerceTemplate, mysql.MockDataSource); err != nil {
+			t.Errorf("plugin template err:%v", err)
+			return
+		}
+		t.Logf("plugin template success")
+	})
+
+	t.Run("SchoolTemplate", func(t *testing.T) {
+		if err := templateMetadata(metadata_template.SchoolTemplate, mysql.MockDataSource); err != nil {
+			t.Errorf("plugin template err:%v", err)
+			return
+		}
+		t.Logf("plugin template success")
+	})
+
+	t.Run("OfficeTemplate", func(t *testing.T) {
+		if err := templateMetadata(metadata_template.OfficeTemplate, mysql.MockDataSource); err != nil {
+			t.Errorf("plugin template err:%v", err)
+			return
+		}
+		t.Logf("plugin template success")
+	})
+
+	t.Run("HospitalTemplate", func(t *testing.T) {
+		if err := templateMetadata(metadata_template.HospitalTemplate, mysql.MockDataSource); err != nil {
+			t.Errorf("plugin template err:%v", err)
+			return
+		}
+		t.Logf("plugin template success")
+	})
+
 }

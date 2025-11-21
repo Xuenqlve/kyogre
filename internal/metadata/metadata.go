@@ -1,4 +1,4 @@
-package plugin
+package metadata
 
 import (
 	"context"
@@ -28,58 +28,62 @@ type Metadata interface {
 
 // MetadataType 元数据类型
 type MetadataType string
-type MetadataMode string
+
+//type MetadataMode string
 
 // MetadataFactory 元数据工厂函数
 type MetadataFactory func() Metadata
 
 var (
-	_metadata_registry map[MetadataType]map[MetadataMode]MetadataFactory
+	//_metadata_registry map[MetadataType]map[MetadataMode]MetadataFactory
+	_metadata_registry map[MetadataType]MetadataFactory
 	_metadata_mutex    sync.Mutex
 )
 
 // RegisterMetadataPlugin 注册元数据插件
-func RegisterMetadataPlugin(metadataType MetadataType, mode MetadataMode, factory MetadataFactory) {
+func RegisterMetadataPlugin(metadataType MetadataType, factory MetadataFactory) {
 	_metadata_mutex.Lock()
 	defer _metadata_mutex.Unlock()
 	if _metadata_registry == nil {
-		_metadata_registry = make(map[MetadataType]map[MetadataMode]MetadataFactory)
+		//_metadata_registry = make(map[MetadataType]map[MetadataMode]MetadataFactory)
+		_metadata_registry = make(map[MetadataType]MetadataFactory)
 	}
-	_, ok := _metadata_registry[metadataType]
-	if !ok {
-		_metadata_registry[metadataType] = make(map[MetadataMode]MetadataFactory)
-	}
+	//_, ok := _metadata_registry[metadataType]
+	//if !ok {
+	//	_metadata_registry[metadataType] = make(map[MetadataMode]MetadataFactory)
+	//}
 
-	_, ok = _metadata_registry[metadataType][mode]
+	//_, ok = _metadata_registry[metadataType][mode]
+	_, ok := _metadata_registry[metadataType]
 	if ok {
 		panic(fmt.Sprintf("metadata plugin already registered with type %s", metadataType))
 	}
-	_metadata_registry[metadataType][mode] = factory
+	_metadata_registry[metadataType] = factory
 }
 
 // RegisterMetadata 注册元数据实现
 // singleton 为 true 时返回同一个实例，为 false 时每次返回新实例
-func RegisterMetadata(metadataType MetadataType, mode MetadataMode, v Metadata, singleton bool) {
+func RegisterMetadata(metadataType MetadataType, v Metadata, singleton bool) {
 	var mf MetadataFactory
 	if singleton {
 		mf = func() Metadata { return v }
 	} else {
 		mf = func() Metadata { return reflect.New(reflect.TypeOf(v).Elem()).Interface().(Metadata) }
 	}
-	RegisterMetadataPlugin(metadataType, mode, mf)
+	RegisterMetadataPlugin(metadataType, mf)
 }
 
 // GetMetadata 根据类型获取元数据实例
-func GetMetadata(metadataType MetadataType, mode MetadataMode) (Metadata, error) {
+func GetMetadata(metadataType MetadataType) (Metadata, error) {
 	_metadata_mutex.Lock()
 	defer _metadata_mutex.Unlock()
-	plugins, ok := _metadata_registry[metadataType]
+	plugin, ok := _metadata_registry[metadataType]
 	if !ok {
 		return nil, fmt.Errorf("metadata plugin not registered type:%v", metadataType)
 	}
-	p, ok := plugins[mode]
-	if !ok {
-		return nil, fmt.Errorf("metadata plugin not registered type:%v mode:%v", metadataType, mode)
-	}
-	return p(), nil
+	//p, ok := plugins[mode]
+	//if !ok {
+	//	return nil, fmt.Errorf("metadata plugin not registered type:%v mode:%v", metadataType, mode)
+	//}
+	return plugin(), nil
 }

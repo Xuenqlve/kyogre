@@ -3,24 +3,27 @@ package mysql
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	"github.com/mitchellh/mapstructure"
 	"github.com/xuenqlve/common/errors"
 	"github.com/xuenqlve/common/log"
 	mysql_schema "github.com/xuenqlve/common/relational_database/mysql"
 	"github.com/xuenqlve/common/schema_store"
-	"github.com/xuenqlve/kyogre/internal/plugin"
+	"github.com/xuenqlve/kyogre/internal/metadata"
 	"github.com/xuenqlve/kyogre/pkg/data_source/mysql"
 )
 
 var (
-	MySQL             plugin.MetadataType = "mysql"
-	ConfigMode        plugin.MetadataMode = "config"
-	DefaultDataSource string              = "mock"
+	MySQL             metadata.MetadataType = "mysql"
+	CustomizeTemplate string                = "customize"
+	MockDataSource    string                = "mock"
+	DefaultDataSource string                = MockDataSource
 )
 
 type Config struct {
 	DataSource string   `mapstructure:"data-source" json:"data-source"`
+	Template   string   `mapstructure:"template" json:"template"`
 	Databases  Database `mapstructure:"databases" json:"databases"`
 }
 
@@ -28,11 +31,34 @@ func (c *Config) Validate() error {
 	if c.DataSource == "" {
 		c.DataSource = DefaultDataSource
 	}
-	return c.Databases.Validate()
+	if c.Template == "" {
+		c.Template = CustomizeTemplate
+	}
+	if c.Template == CustomizeTemplate {
+		return c.Databases.Validate()
+	} else {
+		return c.template()
+	}
+}
+
+func (c *Config) template() error {
+	exist, cfg := metadata.Template(c.Template)
+	if !exist {
+		return errors.New(fmt.Sprintf("template %s does not exist", c.Template))
+	}
+	databases, ok := cfg.(Database)
+	if !ok {
+		return errors.New(fmt.Sprintf("invalid Database config:%v by template: %s", cfg, c.Template))
+	}
+	if err := databases.Validate(); err != nil {
+		return err
+	}
+	c.Databases = databases
+	return nil
 }
 
 func init() {
-	plugin.RegisterMetadata(MySQL, ConfigMode, &Metadata{}, true)
+	metadata.RegisterMetadata(MySQL, &Metadata{}, false)
 }
 
 type Metadata struct {

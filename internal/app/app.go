@@ -7,6 +7,7 @@ import (
 	"github.com/xuenqlve/common/log"
 	"github.com/xuenqlve/kyogre/internal/config"
 	"github.com/xuenqlve/kyogre/internal/data_source"
+	"github.com/xuenqlve/kyogre/internal/metadata"
 )
 
 type Server struct {
@@ -38,6 +39,10 @@ func (s *Server) Configure() (err error) {
 		if err = dataSource.Configure(s.pipeline, dsCfg); err != nil {
 			return errors.Trace(err)
 		}
+	}
+
+	if err = metadata.MetaData.Configure(s.pipeline, s.cfg.Metadata); err != nil {
+		return errors.Trace(err)
 	}
 
 	return nil

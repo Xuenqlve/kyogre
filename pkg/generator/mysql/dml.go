@@ -9,6 +9,7 @@ import (
 	"github.com/mitchellh/mapstructure"
 	"github.com/xuenqlve/common/relational_database/mysql"
 	"github.com/xuenqlve/kyogre/internal/message"
+	"github.com/xuenqlve/kyogre/internal/metadata"
 	"github.com/xuenqlve/kyogre/internal/plugin"
 )
 
@@ -18,7 +19,7 @@ type Config struct {
 
 type DMLGenerator struct {
 	pipeline   string
-	metadata   plugin.Metadata
+	metadata   metadata.Metadata
 	config     Config
 	hitIndex   int
 	rowBuilder *RowBuilder
@@ -34,7 +35,7 @@ func (g *DMLGenerator) Configure(pipeline string, data map[string]any) (err erro
 	return nil
 }
 
-func (g *DMLGenerator) RegisterMetadata(metadata plugin.Metadata) {
+func (g *DMLGenerator) RegisterMetadata(metadata metadata.Metadata) {
 	g.metadata = metadata
 }
 
