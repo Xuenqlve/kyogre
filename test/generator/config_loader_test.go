@@ -1,17 +1,19 @@
-package plugin
+package generator
 
 import (
 	"testing"
+
+	"github.com/xuenqlve/kyogre/pkg/generator/mysql"
 )
 
 func TestConfigLoaderLoadDMLConfig(t *testing.T) {
-	loader := NewConfigLoader()
+	loader := mysql.NewConfigLoader()
 
 	data := map[string]any{
-		"type":          "dml",
-		"operation":     "insert",
-		"table_select":  "random",
-		"count":         "10",
+		"type":         "dml",
+		"operation":    "insert",
+		"table_select": "random",
+		"count":        "10",
 	}
 
 	config, err := loader.LoadDependencyConfig(data)
@@ -19,7 +21,7 @@ func TestConfigLoaderLoadDMLConfig(t *testing.T) {
 		t.Fatalf("LoadDependencyConfig() error = %v", err)
 	}
 
-	dmlConfig, ok := config.(*DMLConfig)
+	dmlConfig, ok := config.(*mysql.DMLConfig)
 	if !ok {
 		t.Fatalf("Expected *DMLConfig, got %T", config)
 	}
@@ -38,7 +40,7 @@ func TestConfigLoaderLoadDMLConfig(t *testing.T) {
 }
 
 func TestConfigLoaderLoadTransactionConfig(t *testing.T) {
-	loader := NewConfigLoader()
+	loader := mysql.NewConfigLoader()
 
 	data := map[string]any{
 		"type": "transaction",
@@ -56,7 +58,7 @@ func TestConfigLoaderLoadTransactionConfig(t *testing.T) {
 		t.Fatalf("LoadDependencyConfig() error = %v", err)
 	}
 
-	transConfig, ok := config.(*TransactionConfig)
+	transConfig, ok := config.(*mysql.TransactionConfig)
 	if !ok {
 		t.Fatalf("Expected *TransactionConfig, got %T", config)
 	}
@@ -71,7 +73,7 @@ func TestConfigLoaderLoadTransactionConfig(t *testing.T) {
 }
 
 func TestConfigLoaderLoadDDLConfig(t *testing.T) {
-	loader := NewConfigLoader()
+	loader := mysql.NewConfigLoader()
 
 	data := map[string]any{
 		"type":    "ddl",
@@ -83,7 +85,7 @@ func TestConfigLoaderLoadDDLConfig(t *testing.T) {
 		t.Fatalf("LoadDependencyConfig() error = %v", err)
 	}
 
-	ddlConfig, ok := config.(*DDLConfig)
+	ddlConfig, ok := config.(*mysql.DDLConfig)
 	if !ok {
 		t.Fatalf("Expected *DDLConfig, got %T", config)
 	}
@@ -98,7 +100,7 @@ func TestConfigLoaderLoadDDLConfig(t *testing.T) {
 }
 
 func TestConfigLoaderInvalidType(t *testing.T) {
-	loader := NewConfigLoader()
+	loader := mysql.NewConfigLoader()
 
 	data := map[string]any{
 		"type": "unknown",
@@ -111,7 +113,7 @@ func TestConfigLoaderInvalidType(t *testing.T) {
 }
 
 func TestConfigLoaderLoadFromJSON(t *testing.T) {
-	loader := NewConfigLoader()
+	loader := mysql.NewConfigLoader()
 
 	jsonStr := `{"type":"dml","operation":"update","table_select":"ordered","count":"5"}`
 
@@ -120,7 +122,7 @@ func TestConfigLoaderLoadFromJSON(t *testing.T) {
 		t.Fatalf("LoadDependencyConfigFromJSON() error = %v", err)
 	}
 
-	dmlConfig, ok := config.(*DMLConfig)
+	dmlConfig, ok := config.(*mysql.DMLConfig)
 	if !ok {
 		t.Fatalf("Expected *DMLConfig, got %T", config)
 	}

@@ -1,16 +1,70 @@
 package plugin
 
 import (
+	"github.com/xuenqlve/common/schema_store"
 	"github.com/xuenqlve/kyogre/internal/message"
 	"github.com/xuenqlve/kyogre/internal/metadata"
 	"github.com/xuenqlve/kyogre/pkg/generator/query_module"
 )
 
+type DependencyConfig interface {
+	// Validate 验证配置的有效性
+	Validate() error
+
+	// Type 返回配置类型标识（用于类型断言和日志记录）
+	Type() string
+}
+
+// GenerationMode 生成模式
+type GenerationMode string
+
+// GenerationDependency 生成数据的依赖条件接口
+type GenerationDependency interface {
+	// 获取此生成所需的表列表
+	GetSchemas() []schema_store.SchemaKey
+	// 获取生成模式
+	GetMode() GenerationMode
+
+	// 验证依赖条件是否完整
+	Validate() error
+
+	// 获取依赖类型名称（用于序列化）
+	DependencyType() string
+}
+
+// GenerationStrategy 生成策略配置
+type GenerationStrategy struct {
+	SequenceConfig *SequenceConfig `json:"sequence_config,omitempty"` // 序列化配置
+	RandomConfig   *RandomConfig   `json:"random_config,omitempty"`   // 随机配置
+	TemplateConfig *TemplateConfig `json:"template_config,omitempty"` // 模板配置
+	CustomConfig   map[string]any  `json:"custom_config,omitempty"`   // 自定义配置
+}
+
+// SequenceConfig 序列化生成配置
+type SequenceConfig struct {
+	Enabled      bool   `json:"enabled"`
+	Field        string `json:"field"` // 递增字段
+	StartValue   int64  `json:"start_value"`
+	EndValue     int64  `json:"end_value"`
+	CurrentValue int64  `json:"current_value"` // 由Worker维护
+	Step         int64  `json:"step"`          // 递增步长，默认1
+}
+
+// RandomConfig 随机生成配置
+type RandomConfig struct {
+	Seed int64 `json:"seed,omitempty"`
+}
+
+// TemplateConfig 模板生成配置（基于预设模板）
+type TemplateConfig struct {
+	TemplateName string         `json:"template_name"`
+	TemplateData map[string]any `json:"template_data"`
+}
+
 // Generator 生成器接口（两阶段设计）
 type Generator interface {
 	Configure(pipeline string, data map[string]any) error
 	RegisterMetadata(metadata metadata.Metadata)
-
 	// 第一阶段：收集依赖条件
 	// 根据配置和生成策略，确定需要哪些信息
 	CollectDependencies(req *DependencyRequest) (GenerationDependency, error)
@@ -46,7 +100,7 @@ type MessageGenerationRequest struct {
 	Dependency GenerationDependency `json:"-"`
 
 	// 反查模块查询到的结果
-	QueryResults map[string]*query_module.QueryResult `json:"-"`
+	QueryResults map[string]*QueryResult `json:"-"`
 
 	// 生成策略配置
 	GenerationStrategy *GenerationStrategy `json:"generation_strategy"`
@@ -62,7 +116,7 @@ func NewDependencyRequest(config DependencyConfig, strategy *GenerationStrategy)
 
 func NewMessageGenerationRequest(
 	dep GenerationDependency,
-	queryResults map[string]*query_module.QueryResult,
+	queryResults map[string]*QueryResult,
 	strategy *GenerationStrategy,
 ) *MessageGenerationRequest {
 	return &MessageGenerationRequest{
@@ -79,8 +133,8 @@ type MockParam struct {
 	Dependency GenerationDependency `json:"-"`
 
 	// 序列化字段（当从配置/消息反序列化时使用）
-	DependencyType string         `json:"dependency_type"`  // "dml"/"transaction"/"ddl"
-	DependencyData map[string]any `json:"dependency_data"`  // 具体的依赖条件数据
+	DependencyType string         `json:"dependency_type"` // "dml"/"transaction"/"ddl"
+	DependencyData map[string]any `json:"dependency_data"` // 具体的依赖条件数据
 
 	// 生成策略配置
 	GenerationStrategy *GenerationStrategy `json:"generation_strategy"`

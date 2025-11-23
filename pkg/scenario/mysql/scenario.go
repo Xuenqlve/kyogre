@@ -6,23 +6,21 @@ import (
 	"sync"
 
 	"github.com/mitchellh/mapstructure"
-	"github.com/xuenqlve/common/relational_database/mysql"
 	"github.com/xuenqlve/kyogre/internal/message"
 	"github.com/xuenqlve/kyogre/internal/metadata"
 	"github.com/xuenqlve/kyogre/internal/plugin"
-	"github.com/xuenqlve/kyogre/pkg/generator/query_module"
 )
 
 type Scenario struct {
-	pipeline   string
-	cfg        *Config
-	ctx        context.Context
-	metadata   metadata.Metadata
-	generator  []plugin.Generator
-	workers    []*Worker
+	pipeline  string
+	cfg       *Config
+	ctx       context.Context
+	metadata  metadata.Metadata
+	generator []plugin.Generator
+	workers   []*Worker
 
 	// 【新增】反查模块（可选）
-	queryModule query_module.IQueryModule
+	queryModule plugin.IQuery
 
 	// 【新增】预分段的映射，支持多表多字段
 	// key: "db.table:field", value: *SequenceSegment
@@ -63,30 +61,14 @@ func (s *Scenario) Configure(pipeline string, data map[string]any) (err error) {
 
 func (s *Scenario) Preparation(ctx context.Context) error {
 	s.ctx = ctx
-
-	// 1. 初始化metadata
-	// TODO: 从配置中初始化metadata
-	// metadata, err := initMetadata(...)
-	// if err != nil {
-	//     return err
-	// }
-	// s.metadata = metadata
-
-	// 2. 初始化Generator（每个worker一个）
-	// TODO: 根据配置创建generator实例
-	// s.generator = make([]plugin.Generator, s.cfg.WorkerCount)
-	// for i := 0; i < s.cfg.WorkerCount; i++ {
-	//     gen := NewDMLGenerator()
-	//     gen.RegisterMetadata(metadata)
-	//     gen.Configure(s.pipeline, ...)
-	//     s.generator[i] = gen
-	// }
-
 	// 3. 【关键】条件判断：是否启用反查模块
-	if s.cfg.QueryModule != nil && s.cfg.QueryModule.Enabled {
+	if s.cfg.EnableIQuery {
 		// 初始化反查模块
-		qm, err := s.initQueryModule()
+		qm, err := plugin.GetIQueryModule(plugin.IQueryType(s.cfg.IQueryModule.Type))
 		if err != nil {
+			return err
+		}
+		if err = qm.Configure(s.pipeline, s.cfg.IQueryModule.Config); err != nil {
 			return err
 		}
 		s.queryModule = qm
@@ -95,31 +77,13 @@ func (s *Scenario) Preparation(ctx context.Context) error {
 		if s.cfg.GenerationStrategy != nil &&
 			s.cfg.GenerationStrategy.SequenceConfig != nil &&
 			s.cfg.GenerationStrategy.SequenceConfig.Enabled {
-			if err := s.allocateSequenceSegments(); err != nil {
+			if err = s.allocateSequenceSegments(); err != nil {
 				return err
 			}
 		}
 	}
 
 	return nil
-}
-
-// 初始化反查模块
-func (s *Scenario) initQueryModule() (query_module.IQueryModule, error) {
-	cfg := s.cfg.QueryModule
-
-	switch cfg.QuerySource {
-	case "database":
-		// TODO: 需要从dataSource获取真实的数据库连接
-		return query_module.NewDatabaseQueryModule(nil, cfg)
-	case "memory":
-		return query_module.NewMemoryQueryModule(cfg)
-	case "composite":
-		// TODO: 需要从dataSource获取真实的数据库连接
-		return query_module.NewCompositeQueryModule(nil, cfg)
-	default:
-		return nil, fmt.Errorf("unsupported query source: %s", cfg.QuerySource)
-	}
 }
 
 // 预分段逻辑
@@ -141,25 +105,13 @@ func (s *Scenario) allocateSequenceSegments() error {
 
 	// 为每张表的指定字段进行分段
 	for _, schemaKey := range schemaKeys {
-		schema, err := s.metadata.SchemaStore().GetSchema(schemaKey)
-		if err != nil {
-			return err
-		}
-
-		table, ok := schema.(*mysql.Table)
-		if !ok {
-			return fmt.Errorf("schema %v is not a mysql table", schemaKey)
-		}
-
 		// 查询当前最大值
-		maxValue, err := s.queryModule.QueryMaxValue(s.ctx, table, seqConfig.Field)
+		maxValue, err := s.queryModule.QueryMaxValue(s.ctx, schemaKey, seqConfig.Field)
 		if err != nil {
 			return err
 		}
 
-		// 进行分段
-		db, tableName := table.Schema()
-		key := fmt.Sprintf("%s.%s:%s", db, tableName, seqConfig.Field)
+		key := fmt.Sprintf("%s:%s", schemaKey.UniqueID(), seqConfig.Field)
 		s.segmentMap[key] = s.divideSegments(maxValue, s.cfg.WorkerCount)
 	}
 
@@ -206,11 +158,11 @@ func (s *Scenario) Start(msgChan message.InPoint) error {
 			s.ctx,
 			msgChan,
 			s.generator[i],
-			s.queryModule,           // 传入反查模块（可能为nil）
-			s.segmentMap,            // 传入分段信息
-			i,                       // worker ID
-			dependencyConfig,        // 传入依赖配置
-			s.cfg.GenerationStrategy,// 传入生成策略
+			s.queryModule,            // 传入反查模块（可能为nil）
+			s.segmentMap,             // 传入分段信息
+			i,                        // worker ID
+			dependencyConfig,         // 传入依赖配置
+			s.cfg.GenerationStrategy, // 传入生成策略
 		)
 		worker.Start()
 		s.workers = append(s.workers, worker)

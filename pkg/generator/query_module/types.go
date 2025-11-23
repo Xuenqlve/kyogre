@@ -6,24 +6,25 @@ import (
 	"time"
 
 	"github.com/xuenqlve/common/relational_database/mysql"
+	"github.com/xuenqlve/kyogre/internal/metadata"
 )
 
 // QueryModuleConfig 反查模块的配置
 type QueryModuleConfig struct {
-	Enabled      bool   `json:"enabled"`       // 是否启用
-	QuerySource  string `json:"query_source"`  // "database" 或 "memory" 或 "composite"
-	CacheExpire  int    `json:"cache_expire"`  // 缓存过期时间（秒）
-	BatchSize    int    `json:"batch_size"`    // 批查询大小
+	Enabled     bool   `json:"enabled"`      // 是否启用
+	QuerySource string `json:"query_source"` // "database" 或 "memory" 或 "composite"
+	CacheExpire int    `json:"cache_expire"` // 缓存过期时间（秒）
+	BatchSize   int    `json:"batch_size"`   // 批查询大小
 }
 
 // QueryResult 反查结果，统一返回格式
 type QueryResult struct {
-	TableKey       string            // 表的唯一标识符 "db.table"
-	Field          string            // 反查的字段
-	MaxValue       int64             // 字段的最大值
-	CurrentRowCount int64            // 表的当前行数
-	Metadata       map[string]any    // 其他元数据
-	QueryTime      time.Time         // 查询时间
+	TableKey        string         // 表的唯一标识符 "db.table"
+	Field           string         // 反查的字段
+	MaxValue        int64          // 字段的最大值
+	CurrentRowCount int64          // 表的当前行数
+	Metadata        map[string]any // 其他元数据
+	QueryTime       time.Time      // 查询时间
 }
 
 // IQueryModule 反查模块接口
@@ -35,7 +36,7 @@ type IQueryModule interface {
 	QueryRowCount(ctx context.Context, table *mysql.Table) (int64, error)
 
 	// 批量查询多张表的信息
-	BatchQuery(ctx context.Context, tables []*mysql.Table, fields []string) ([]*QueryResult, error)
+	BatchQuery(ctx context.Context, metadata metadata.Metadata) ([]*QueryResult, error)
 
 	// 获取完整的查询结果（包含所有元信息）
 	GetQueryResult(ctx context.Context, table *mysql.Table, field string) (*QueryResult, error)
@@ -45,10 +46,10 @@ type IQueryModule interface {
 
 // DatabaseQueryModule 从数据库查询的实现
 type DatabaseQueryModule struct {
-	dataSource   any
-	cacheMap     map[string]*QueryResult
-	cacheMutex   sync.RWMutex
-	cacheExpire  time.Duration
+	dataSource  any
+	cacheMap    map[string]*QueryResult
+	cacheMutex  sync.RWMutex
+	cacheExpire time.Duration
 }
 
 // NewDatabaseQueryModule 创建数据库查询模块

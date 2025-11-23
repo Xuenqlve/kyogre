@@ -7,19 +7,18 @@ import (
 	"github.com/xuenqlve/common/log"
 	"github.com/xuenqlve/kyogre/internal/message"
 	"github.com/xuenqlve/kyogre/internal/plugin"
-	"github.com/xuenqlve/kyogre/pkg/generator/query_module"
 )
 
 type Worker struct {
-	ctx              context.Context
-	cancel           context.CancelFunc
-	wg               sync.WaitGroup
-	msgQueue         message.InPoint
-	generator        plugin.Generator
-	queryModule      query_module.IQueryModule  // 可能为nil
-	segmentMap       map[string]*SequenceSegment
-	workerID         int
-	once             sync.Once
+	ctx         context.Context
+	cancel      context.CancelFunc
+	wg          sync.WaitGroup
+	msgQueue    message.InPoint
+	generator   plugin.Generator
+	queryModule plugin.IQuery // 可能为nil
+	segmentMap  map[string]*SequenceSegment
+	workerID    int
+	once        sync.Once
 
 	// 从Scenario配置中获取的依赖配置和生成策略
 	dependencyConfig   plugin.DependencyConfig
@@ -30,7 +29,7 @@ func NewWorker(
 	ctx context.Context,
 	msgChan message.InPoint,
 	generator plugin.Generator,
-	queryModule query_module.IQueryModule,
+	queryModule plugin.IQuery,
 	segmentMap map[string]*SequenceSegment,
 	workerID int,
 	dependencyConfig plugin.DependencyConfig,
@@ -92,22 +91,18 @@ func (w *Worker) run() error {
 		}
 
 		// ========== 阶段2：执行反查（如果启用） ==========
-		var queryResults map[string]*query_module.QueryResult
+		var queryResults map[string]*plugin.QueryResult
 		if w.queryModule != nil {
-			tables := dep.GetTables()
-			fields := dep.GetFields()
+			keys := dep.GetSchemas()
+			results, err := w.queryModule.BatchQuery(w.ctx, keys)
+			if err != nil {
+				log.Errorf("[worker %d] failed to query: %v", w.workerID, err)
+				continue
+			}
 
-			if len(tables) > 0 && len(fields) > 0 {
-				results, err := w.queryModule.BatchQuery(w.ctx, tables, fields)
-				if err != nil {
-					log.Errorf("[worker %d] failed to query: %v", w.workerID, err)
-					continue
-				}
-
-				queryResults = make(map[string]*query_module.QueryResult)
-				for _, result := range results {
-					queryResults[result.TableKey] = result
-				}
+			queryResults = make(map[string]*plugin.QueryResult)
+			for _, result := range results {
+				queryResults[result.TableKey.UniqueID()] = result
 			}
 		}
 

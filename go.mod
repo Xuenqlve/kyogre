@@ -6,6 +6,7 @@ toolchain go1.24.9
 
 require (
 	github.com/ClickHouse/clickhouse-go/v2 v2.40.3
+	github.com/go-faster/errors v0.7.1
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/segmentio/kafka-go v0.4.49
 	github.com/xuenqlve/common v1.0.5
@@ -20,7 +21,6 @@ require (
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/go-faster/city v1.0.1 // indirect
-	github.com/go-faster/errors v0.7.1 // indirect
 	github.com/go-sql-driver/mysql v1.9.3 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/uuid v1.6.0 // indirect

@@ -1,18 +1,21 @@
-package plugin
+package generator
 
 import (
 	"testing"
+
+	"github.com/xuenqlve/kyogre/internal/plugin"
+	"github.com/xuenqlve/kyogre/pkg/generator/mysql"
 )
 
 func TestDMLConfigValidate(t *testing.T) {
 	tests := []struct {
 		name    string
-		config  *DMLConfig
+		config  *mysql.DMLConfig
 		wantErr bool
 	}{
 		{
 			name: "valid config",
-			config: &DMLConfig{
+			config: &mysql.DMLConfig{
 				Operation:   "insert",
 				TableSelect: "random",
 				Count:       "10",
@@ -21,7 +24,7 @@ func TestDMLConfigValidate(t *testing.T) {
 		},
 		{
 			name: "missing operation",
-			config: &DMLConfig{
+			config: &mysql.DMLConfig{
 				TableSelect: "random",
 				Count:       "10",
 			},
@@ -29,7 +32,7 @@ func TestDMLConfigValidate(t *testing.T) {
 		},
 		{
 			name: "empty table select (should default)",
-			config: &DMLConfig{
+			config: &mysql.DMLConfig{
 				Operation: "update",
 				Count:     "5",
 			},
@@ -37,7 +40,7 @@ func TestDMLConfigValidate(t *testing.T) {
 		},
 		{
 			name: "empty count (should default)",
-			config: &DMLConfig{
+			config: &mysql.DMLConfig{
 				Operation:   "delete",
 				TableSelect: "ordered",
 			},
@@ -63,13 +66,13 @@ func TestDMLConfigValidate(t *testing.T) {
 func TestTransactionConfigValidate(t *testing.T) {
 	tests := []struct {
 		name    string
-		config  *TransactionConfig
+		config  *mysql.TransactionConfig
 		wantErr bool
 	}{
 		{
 			name: "valid config",
-			config: &TransactionConfig{
-				Operations: map[string]TransactionOp{
+			config: &mysql.TransactionConfig{
+				Operations: map[string]mysql.TransactionOp{
 					"users": {
 						Operation: "insert",
 						Count:     5,
@@ -86,15 +89,15 @@ func TestTransactionConfigValidate(t *testing.T) {
 		},
 		{
 			name: "empty operations",
-			config: &TransactionConfig{
-				Operations: map[string]TransactionOp{},
+			config: &mysql.TransactionConfig{
+				Operations: map[string]mysql.TransactionOp{},
 			},
 			wantErr: true,
 		},
 		{
 			name: "zero count",
-			config: &TransactionConfig{
-				Operations: map[string]TransactionOp{
+			config: &mysql.TransactionConfig{
+				Operations: map[string]mysql.TransactionOp{
 					"users": {
 						Operation: "insert",
 						Count:     0,
@@ -124,14 +127,14 @@ func TestTransactionConfigValidate(t *testing.T) {
 func TestDDLConfigValidate(t *testing.T) {
 	tests := []struct {
 		name    string
-		config  *DDLConfig
+		config  *mysql.DDLConfig
 		wantErr bool
 	}{
 		{
 			name: "valid alter config",
-			config: &DDLConfig{
+			config: &mysql.DDLConfig{
 				DDLType: "ALTER",
-				Columns: []ColumnChange{
+				Columns: []mysql.ColumnChange{
 					{
 						Name:   "new_col",
 						Type:   "INT",
@@ -143,14 +146,14 @@ func TestDDLConfigValidate(t *testing.T) {
 		},
 		{
 			name: "missing ddl type",
-			config: &DDLConfig{
-				Columns: []ColumnChange{},
+			config: &mysql.DDLConfig{
+				Columns: []mysql.ColumnChange{},
 			},
 			wantErr: true,
 		},
 		{
 			name: "valid create config",
-			config: &DDLConfig{
+			config: &mysql.DDLConfig{
 				DDLType: "CREATE",
 			},
 			wantErr: false,
@@ -174,7 +177,7 @@ func TestDDLConfigValidate(t *testing.T) {
 
 func TestDependencyConfigInterface(t *testing.T) {
 	// 验证所有Config类型都实现了DependencyConfig接口
-	var _ DependencyConfig = (*DMLConfig)(nil)
-	var _ DependencyConfig = (*TransactionConfig)(nil)
-	var _ DependencyConfig = (*DDLConfig)(nil)
+	var _ plugin.DependencyConfig = (*mysql.DMLConfig)(nil)
+	var _ plugin.DependencyConfig = (*mysql.TransactionConfig)(nil)
+	var _ plugin.DependencyConfig = (*mysql.DDLConfig)(nil)
 }
