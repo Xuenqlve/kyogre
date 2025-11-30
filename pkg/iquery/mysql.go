@@ -12,6 +12,14 @@ import (
 	ds "github.com/xuenqlve/kyogre/pkg/data_source/mysql"
 )
 
+const (
+	MySQL plugin.IQueryType = "mysql"
+)
+
+func init() {
+	plugin.RegisterIQuery(MySQL, &MySQLIQuery{}, false)
+}
+
 type MySQLIQueryConfig struct {
 	DataSource string `mapstructure:"data-source" json:"data-source"`
 }

@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/xuenqlve/common/relational_database/mysql"
+	"github.com/xuenqlve/common/schema_store"
 	"github.com/xuenqlve/kyogre/internal/plugin"
 )
 
@@ -15,6 +16,12 @@ const (
 	ModeTransaction plugin.GenerationMode = "transaction"  // 多表事务
 )
 
+const (
+	DML         plugin.DependencyType = "dml"
+	Transaction plugin.DependencyType = "transaction"
+	DDL         plugin.DependencyType = "ddl"
+)
+
 // DMLConfig DML操作的配置
 type DMLConfig struct {
 	Operation   string // insert/update/delete/select
@@ -23,8 +30,8 @@ type DMLConfig struct {
 	WriteType   string // insert/replace/insert_ignore/insert_on_duplicate_key (可选)
 }
 
-func (c *DMLConfig) Type() string {
-	return "dml"
+func (c *DMLConfig) Type() plugin.DependencyType {
+	return DML
 }
 
 func (c *DMLConfig) Validate() error {
@@ -84,8 +91,8 @@ func (d *DMLDependency) Validate() error {
 	return nil
 }
 
-func (d *DMLDependency) DependencyType() string {
-	return "dml"
+func (d *DMLDependency) DependencyType() plugin.DependencyType {
+	return DML
 }
 
 // TransactionConfig 事务操作的配置
@@ -99,8 +106,8 @@ type TransactionOp struct {
 	WriteType string
 }
 
-func (c *TransactionConfig) Type() string {
-	return "transaction"
+func (c *TransactionConfig) Type() plugin.DependencyType {
+	return Transaction
 }
 
 func (c *TransactionConfig) Validate() error {
@@ -119,6 +126,10 @@ func (c *TransactionConfig) Validate() error {
 type TransactionDependency struct {
 	Tables     []*mysql.Table           // 涉及的多张表
 	Operations map[string]TransactionOp // key: table_name, value: 操作
+}
+
+func (d *TransactionDependency) GetSchemas() []schema_store.SchemaKey {
+	
 }
 
 func (d *TransactionDependency) GetFields() []string {
@@ -145,8 +156,8 @@ func (d *TransactionDependency) Validate() error {
 	return nil
 }
 
-func (d *TransactionDependency) DependencyType() string {
-	return "transaction"
+func (d *TransactionDependency) DependencyType() plugin.DependencyType {
+	return Transaction
 }
 
 // DDLConfig DDL操作的配置
@@ -155,8 +166,8 @@ type DDLConfig struct {
 	Columns []ColumnChange
 }
 
-func (c *DDLConfig) Type() string {
-	return "ddl"
+func (c *DDLConfig) Type() plugin.DependencyType {
+	return DDL
 }
 
 func (c *DDLConfig) Validate() error {
@@ -201,8 +212,8 @@ func (d *DDLDependency) Validate() error {
 	return nil
 }
 
-func (d *DDLDependency) DependencyType() string {
-	return "ddl"
+func (d *DDLDependency) DependencyType() plugin.DependencyType {
+	return DDL
 }
 
 // ParseDependency 将参数解析为具体的Dependency

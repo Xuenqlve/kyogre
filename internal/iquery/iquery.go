@@ -1,4 +1,4 @@
-package plugin
+package iquery
 
 import (
 	"context"
@@ -40,7 +40,7 @@ func RegisterIQueryPlugin(iQueryType IQueryType, factory IQueryFactory) {
 	_iquery_mutex.Lock()
 	defer _iquery_mutex.Unlock()
 	if _iquery_registry == nil {
-		_pressure_registry = make(map[PressureType]PressureFactory)
+		_iquery_registry = make(map[IQueryType]IQueryFactory)
 	}
 	if _, ok := _iquery_registry[iQueryType]; ok {
 		panic("pressure plugin already registered")

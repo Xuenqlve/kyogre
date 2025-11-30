@@ -5,20 +5,21 @@ import (
 	"sync"
 
 	"github.com/xuenqlve/common/log"
+	"github.com/xuenqlve/kyogre/internal/iquery"
 	"github.com/xuenqlve/kyogre/internal/message"
 	"github.com/xuenqlve/kyogre/internal/plugin"
 )
 
 type Worker struct {
-	ctx         context.Context
-	cancel      context.CancelFunc
-	wg          sync.WaitGroup
-	msgQueue    message.InPoint
-	generator   plugin.Generator
-	queryModule plugin.IQuery // 可能为nil
-	segmentMap  map[string]*SequenceSegment
-	workerID    int
-	once        sync.Once
+	ctx            context.Context
+	cancel         context.CancelFunc
+	wg             sync.WaitGroup
+	msgQueue       message.InPoint
+	generator      plugin.Generator
+	queryModule    iquery.IQuery          // 可能为nil
+	segmentManager *iquery.SegmentManager // 可能为nil
+	workerID       int
+	once           sync.Once
 
 	// 从Scenario配置中获取的依赖配置和生成策略
 	dependencyConfig   plugin.DependencyConfig
@@ -29,8 +30,8 @@ func NewWorker(
 	ctx context.Context,
 	msgChan message.InPoint,
 	generator plugin.Generator,
-	queryModule plugin.IQuery,
-	segmentMap map[string]*SequenceSegment,
+	queryModule iquery.IQuery,
+	segmentManager *iquery.SegmentManager,
 	workerID int,
 	dependencyConfig plugin.DependencyConfig,
 	generationStrategy *plugin.GenerationStrategy,
@@ -43,7 +44,7 @@ func NewWorker(
 		msgQueue:           msgChan,
 		generator:          generator,
 		queryModule:        queryModule,
-		segmentMap:         segmentMap,
+		segmentManager:     segmentManager,
 		workerID:           workerID,
 		once:               sync.Once{},
 		dependencyConfig:   dependencyConfig,
@@ -91,7 +92,7 @@ func (w *Worker) run() error {
 		}
 
 		// ========== 阶段2：执行反查（如果启用） ==========
-		var queryResults map[string]*plugin.QueryResult
+		var queryResults map[string]*iquery.QueryResult
 		if w.queryModule != nil {
 			keys := dep.GetSchemas()
 			results, err := w.queryModule.BatchQuery(w.ctx, keys)
@@ -100,7 +101,7 @@ func (w *Worker) run() error {
 				continue
 			}
 
-			queryResults = make(map[string]*plugin.QueryResult)
+			queryResults = make(map[string]*iquery.QueryResult)
 			for _, result := range results {
 				queryResults[result.TableKey.UniqueID()] = result
 			}
@@ -148,30 +149,34 @@ func (w *Worker) getGenerationStrategy() *plugin.GenerationStrategy {
 	}
 
 	// 如果启用了序列化，为该worker分配分段范围
-	if strategy.SequenceConfig != nil && strategy.SequenceConfig.Enabled && len(w.segmentMap) > 0 {
-		// 假设只处理第一个分段（实际可能需要支持多个）
-		for key, segment := range w.segmentMap {
-			if w.workerID < len(segment.Ranges) {
-				r := segment.Ranges[w.workerID]
+	if strategy.SequenceConfig != nil && strategy.SequenceConfig.Enabled && w.segmentManager != nil {
+		// 从 segmentManager 获取所有分段信息
+		segments := w.segmentManager.GetAllSegments()
+		if len(segments) > 0 {
+			// 假设只处理第一个分段（实际可能需要支持多个）
+			for key, segment := range segments {
+				if w.workerID < len(segment.Ranges) {
+					r := segment.Ranges[w.workerID]
 
-				// 从key解析出字段名 "db.table:field" -> "field"
-				var field string
-				if idx := len(key); idx > 0 {
-					for i := idx - 1; i >= 0; i-- {
-						if key[i] == ':' {
-							field = key[i+1:]
-							break
+					// 从key解析出字段名 "db.table:field" -> "field"
+					var field string
+					if idx := len(key); idx > 0 {
+						for i := idx - 1; i >= 0; i-- {
+							if key[i] == ':' {
+								field = key[i+1:]
+								break
+							}
 						}
 					}
-				}
 
-				// 为该worker分配分段范围
-				strategy.SequenceConfig.StartValue = r.StartValue
-				strategy.SequenceConfig.EndValue = r.EndValue
-				strategy.SequenceConfig.CurrentValue = r.StartValue
-				strategy.SequenceConfig.Field = field
-				// 只处理第一个分段
-				break
+					// 为该worker分配分段范围
+					strategy.SequenceConfig.StartValue = r.StartValue
+					strategy.SequenceConfig.EndValue = r.EndValue
+					strategy.SequenceConfig.CurrentValue = r.StartValue
+					strategy.SequenceConfig.Field = field
+					// 只处理第一个分段
+					break
+				}
 			}
 		}
 	}

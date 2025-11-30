@@ -6,8 +6,16 @@ import (
 
 	"github.com/mitchellh/mapstructure"
 	"github.com/xuenqlve/common/schema_store"
-	"github.com/xuenqlve/kyogre/internal/plugin"
+	"github.com/xuenqlve/kyogre/internal/iquery"
 )
+
+const (
+	Memory iquery.IQueryType = "memory"
+)
+
+func init() {
+	iquery.RegisterIQuery(Memory, &MemoryIQuery{}, false)
+}
 
 type MemoryConfig struct {
 	DefaultMaxValue int64 `mapstructure:"default-max-value" json:"default-max-value"`
@@ -96,8 +104,8 @@ func (q *MemoryIQuery) QueryRowCount(ctx context.Context, key schema_store.Schem
 	return rowCount, nil
 }
 
-func (q *MemoryIQuery) BatchQuery(ctx context.Context, keys []schema_store.SchemaKey) ([]*plugin.QueryResult, error) {
-	results := make([]*plugin.QueryResult, 0, len(keys))
+func (q *MemoryIQuery) BatchQuery(ctx context.Context, keys []schema_store.SchemaKey) ([]*iquery.QueryResult, error) {
+	results := make([]*iquery.QueryResult, 0, len(keys))
 	for _, key := range keys {
 		// Use default field name for batch query
 		result, err := q.GetQueryResult(ctx, key, "id")
@@ -109,7 +117,7 @@ func (q *MemoryIQuery) BatchQuery(ctx context.Context, keys []schema_store.Schem
 	return results, nil
 }
 
-func (q *MemoryIQuery) GetQueryResult(ctx context.Context, key schema_store.SchemaKey, field string) (*plugin.QueryResult, error) {
+func (q *MemoryIQuery) GetQueryResult(ctx context.Context, key schema_store.SchemaKey, field string) (*iquery.QueryResult, error) {
 	maxValue, err := q.QueryMaxValue(ctx, key, field)
 	if err != nil {
 		return nil, err
@@ -120,7 +128,7 @@ func (q *MemoryIQuery) GetQueryResult(ctx context.Context, key schema_store.Sche
 		return nil, err
 	}
 
-	return &plugin.QueryResult{
+	return &iquery.QueryResult{
 		TableKey:        key,
 		Field:           field,
 		MaxValue:        maxValue,

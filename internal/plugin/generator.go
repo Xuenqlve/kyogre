@@ -2,9 +2,9 @@ package plugin
 
 import (
 	"github.com/xuenqlve/common/schema_store"
+	"github.com/xuenqlve/kyogre/internal/iquery"
 	"github.com/xuenqlve/kyogre/internal/message"
 	"github.com/xuenqlve/kyogre/internal/metadata"
-	"github.com/xuenqlve/kyogre/pkg/generator/query_module"
 )
 
 type DependencyConfig interface {
@@ -100,7 +100,7 @@ type MessageGenerationRequest struct {
 	Dependency GenerationDependency `json:"-"`
 
 	// 反查模块查询到的结果
-	QueryResults map[string]*QueryResult `json:"-"`
+	QueryResults map[string]*iquery.QueryResult `json:"-"`
 
 	// 生成策略配置
 	GenerationStrategy *GenerationStrategy `json:"generation_strategy"`
@@ -116,7 +116,7 @@ func NewDependencyRequest(config DependencyConfig, strategy *GenerationStrategy)
 
 func NewMessageGenerationRequest(
 	dep GenerationDependency,
-	queryResults map[string]*QueryResult,
+	queryResults map[string]*iquery.QueryResult,
 	strategy *GenerationStrategy,
 ) *MessageGenerationRequest {
 	return &MessageGenerationRequest{
@@ -140,7 +140,7 @@ type MockParam struct {
 	GenerationStrategy *GenerationStrategy `json:"generation_strategy"`
 
 	// 反查结果（在Generator第二阶段接收）
-	QueryResults map[string]*query_module.QueryResult `json:"-"`
+	QueryResults map[string]*iquery.QueryResult `json:"-"`
 
 	// 【向后兼容】旧的参数字段，逐步迁移
 	Operation   string
