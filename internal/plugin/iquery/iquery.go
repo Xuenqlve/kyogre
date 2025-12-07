@@ -9,30 +9,44 @@ import (
 	"github.com/xuenqlve/common/schema_store"
 )
 
-type IQuery interface {
-	Configure(pipeline string, data map[string]any) (err error)
-	QueryMaxValue(ctx context.Context, key schema_store.SchemaKey, field string) (int64, error)
-	QueryRowCount(ctx context.Context, key schema_store.SchemaKey) (int64, error)
-	BatchQuery(ctx context.Context, keys []schema_store.SchemaKey) ([]*QueryResult, error)
-	GetQueryResult(ctx context.Context, key schema_store.SchemaKey, field string) (*QueryResult, error)
+type LookupRequest struct {
+	Items []LookupRequestItem
+}
+
+type LookupRequestItem struct {
+	Schema schema_store.SchemaKey
+	Field  string
+}
+
+type LookupResult struct {
+	Schema schema_store.SchemaKey
+	Field  string
+	Max    int64
+	Rows   int64
+	Extras map[string]any
+}
+
+type Lookup interface {
+	Configure(pipeline string, cfg map[string]any) error
+	Lookup(ctx context.Context, req LookupRequest) ([]LookupResult, error)
 	Close() error
 }
 
 type (
-	IQueryType    string
-	IQueryFactory func() IQuery
+	LookupType    string
+	LookupFactory func() Lookup
 )
 
 var (
-	_iquery_registry map[IQueryType]IQueryFactory
+	_iquery_registry map[LookupType]LookupFactory
 	_iquery_mutex    sync.Mutex
 )
 
-func RegisterIQueryPlugin(iQueryType IQueryType, factory IQueryFactory) {
+func RegisterIQueryPlugin(iQueryType LookupType, factory LookupFactory) {
 	_iquery_mutex.Lock()
 	defer _iquery_mutex.Unlock()
 	if _iquery_registry == nil {
-		_iquery_registry = make(map[IQueryType]IQueryFactory)
+		_iquery_registry = make(map[LookupType]LookupFactory)
 	}
 	if _, ok := _iquery_registry[iQueryType]; ok {
 		panic("pressure plugin already registered")
@@ -40,17 +54,17 @@ func RegisterIQueryPlugin(iQueryType IQueryType, factory IQueryFactory) {
 	_iquery_registry[iQueryType] = factory
 }
 
-func RegisterIQuery(iQueryType IQueryType, v IQuery, singleton bool) {
-	var pf IQueryFactory
+func RegisterIQuery(iQueryType LookupType, v Lookup, singleton bool) {
+	var pf LookupFactory
 	if singleton {
-		pf = func() IQuery { return v }
+		pf = func() Lookup { return v }
 	} else {
-		pf = func() IQuery { return reflect.New(reflect.TypeOf(v).Elem()).Interface().(IQuery) }
+		pf = func() Lookup { return reflect.New(reflect.TypeOf(v).Elem()).Interface().(Lookup) }
 	}
 	RegisterIQueryPlugin(iQueryType, pf)
 }
 
-func GetIQueryModule(iQueryType IQueryType) (IQuery, error) {
+func GetIQueryModule(iQueryType LookupType) (Lookup, error) {
 	_iquery_mutex.Lock()
 	defer _iquery_mutex.Unlock()
 	pf, ok := _iquery_registry[iQueryType]

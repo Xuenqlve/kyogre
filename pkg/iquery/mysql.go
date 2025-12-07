@@ -3,36 +3,39 @@ package iquery
 import (
 	"context"
 	"database/sql"
+	"fmt"
+	"strings"
 
 	"github.com/go-faster/errors"
 	"github.com/mitchellh/mapstructure"
 	mysql_schema "github.com/xuenqlve/common/relational_database/mysql"
 	"github.com/xuenqlve/common/schema_store"
-	"github.com/xuenqlve/kyogre/internal/plugin"
+	"github.com/xuenqlve/kyogre/internal/plugin/iquery"
 	ds "github.com/xuenqlve/kyogre/pkg/data_source/mysql"
 )
 
 const (
-	MySQL plugin.IQueryType = "mysql"
+	MySQL iquery.LookupType = "mysql"
 )
 
 func init() {
-	plugin.RegisterIQuery(MySQL, &MySQLIQuery{}, false)
+	iquery.RegisterIQuery(MySQL, &MySQLLookup{}, false)
 }
 
 type MySQLIQueryConfig struct {
 	DataSource string `mapstructure:"data-source" json:"data-source"`
 }
 
-type MySQLIQuery struct {
+type MySQLLookup struct {
 	pipeline string
 	db       *sql.DB
 	cfg      *MySQLIQueryConfig
 	schema   schema_store.SchemaStore
 }
 
-func (q *MySQLIQuery) Configure(pipeline string, data map[string]any) (err error) {
+func (q *MySQLLookup) Configure(pipeline string, data map[string]any) (err error) {
 	q.pipeline = pipeline
+	q.cfg = &MySQLIQueryConfig{}
 	if err = mapstructure.Decode(data, q.cfg); err != nil {
 		return
 	}
@@ -43,7 +46,43 @@ func (q *MySQLIQuery) Configure(pipeline string, data map[string]any) (err error
 	return
 }
 
-func (q *MySQLIQuery) queryTableDef(key schema_store.SchemaKey) (*mysql_schema.Table, error) {
+func (q *MySQLLookup) Lookup(ctx context.Context, req iquery.LookupRequest) ([]iquery.LookupResult, error) {
+	results := make([]iquery.LookupResult, 0, len(req.Items))
+	for _, item := range req.Items {
+		if item.Schema == nil || item.Field == "" {
+			continue
+		}
+		tableDef, err := q.queryTableDef(item.Schema)
+		if err != nil {
+			return nil, err
+		}
+		maxValue, err := q.queryMax(ctx, tableDef, item.Field)
+		if err != nil {
+			return nil, err
+		}
+		rowCount, err := q.queryRowCount(ctx, tableDef)
+		if err != nil {
+			return nil, err
+		}
+		results = append(results, iquery.LookupResult{
+			Schema: item.Schema,
+			Field:  item.Field,
+			Max:    maxValue,
+			Rows:   rowCount,
+			Extras: map[string]any{},
+		})
+	}
+	return results, nil
+}
+
+func (q *MySQLLookup) Close() error {
+	if q.db == nil {
+		return nil
+	}
+	return q.db.Close()
+}
+
+func (q *MySQLLookup) queryTableDef(key schema_store.SchemaKey) (*mysql_schema.Table, error) {
 	schema, err := q.schema.GetSchema(key)
 	if err != nil {
 		return nil, err
@@ -55,88 +94,34 @@ func (q *MySQLIQuery) queryTableDef(key schema_store.SchemaKey) (*mysql_schema.T
 	return tableDef, nil
 }
 
-func (q *MySQLIQuery) QueryMaxValue(ctx context.Context, key schema_store.SchemaKey, field string) (int64, error) {
-	tableDef, err := q.queryTableDef(key)
-	if err != nil {
-		return 0, err
-	}
-
-	query := "SELECT MAX(" + field + ") FROM " + tableDef.Database + "." + tableDef.Table
+func (q *MySQLLookup) queryMax(ctx context.Context, table *mysql_schema.Table, field string) (int64, error) {
+	query := fmt.Sprintf("SELECT MAX(%s) FROM %s.%s",
+		quoteIdentifier(field),
+		quoteIdentifier(table.Database),
+		quoteIdentifier(table.Table),
+	)
 	var maxValue sql.NullInt64
-	err = q.db.QueryRowContext(ctx, query).Scan(&maxValue)
-	if err != nil {
+	if err := q.db.QueryRowContext(ctx, query).Scan(&maxValue); err != nil {
 		return 0, err
 	}
-
 	if !maxValue.Valid {
 		return 0, nil
 	}
 	return maxValue.Int64, nil
 }
 
-func (q *MySQLIQuery) QueryRowCount(ctx context.Context, key schema_store.SchemaKey) (int64, error) {
-	tableDef, err := q.queryTableDef(key)
-	if err != nil {
-		return 0, err
-	}
-
-	query := "SELECT COUNT(*) FROM " + tableDef.Database + "." + tableDef.Table
+func (q *MySQLLookup) queryRowCount(ctx context.Context, table *mysql_schema.Table) (int64, error) {
+	query := fmt.Sprintf("SELECT COUNT(*) FROM %s.%s",
+		quoteIdentifier(table.Database),
+		quoteIdentifier(table.Table),
+	)
 	var count int64
-	err = q.db.QueryRowContext(ctx, query).Scan(&count)
-	if err != nil {
+	if err := q.db.QueryRowContext(ctx, query).Scan(&count); err != nil {
 		return 0, err
 	}
 	return count, nil
 }
 
-func (q *MySQLIQuery) BatchQuery(ctx context.Context, keys []schema_store.SchemaKey) ([]*plugin.QueryResult, error) {
-	results := make([]*plugin.QueryResult, 0, len(keys))
-	for _, key := range keys {
-		// For batch query, get the max value of the first primary key
-		tableDef, err := q.queryTableDef(key)
-		if err != nil {
-			return nil, err
-		}
-
-		var field string
-		if len(tableDef.PrimaryIndex) > 0 {
-			field = tableDef.PrimaryIndex[0]
-		} else if len(tableDef.Columns) > 0 {
-			field = tableDef.Columns[0].Name
-		} else {
-			// If no suitable field, continue to next key
-			continue
-		}
-
-		result, err := q.GetQueryResult(ctx, key, field)
-		if err != nil {
-			return nil, err
-		}
-		results = append(results, result)
-	}
-	return results, nil
-}
-
-func (q *MySQLIQuery) GetQueryResult(ctx context.Context, key schema_store.SchemaKey, field string) (*plugin.QueryResult, error) {
-	maxValue, err := q.QueryMaxValue(ctx, key, field)
-	if err != nil {
-		return nil, err
-	}
-
-	rowCount, err := q.QueryRowCount(ctx, key)
-	if err != nil {
-		return nil, err
-	}
-
-	return &plugin.QueryResult{
-		TableKey:        key,
-		Field:           field,
-		MaxValue:        maxValue,
-		CurrentRowCount: rowCount,
-		Metadata:        make(map[string]any),
-	}, nil
-}
-
-func (q *MySQLIQuery) Close() error {
-	return q.db.Close()
+func quoteIdentifier(name string) string {
+	return fmt.Sprintf("`%s`", strings.ReplaceAll(name, "`", "``"))
 }

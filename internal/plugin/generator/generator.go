@@ -34,10 +34,10 @@ type GenerationDependency interface {
 
 // GenerationStrategy 生成策略配置
 type GenerationStrategy struct {
-	IQueryConfig   *iquery.IQueryConfig `json:"sequence_config,omitempty"` // 序列化配置
-	RandomConfig   *RandomConfig        `json:"random_config,omitempty"`   // 随机配置
-	TemplateConfig *TemplateConfig      `json:"template_config,omitempty"` // 模板配置
-	CustomConfig   map[string]any       `json:"custom_config,omitempty"`   // 自定义配置
+	SequenceConfig *iquery.SequenceConfig `json:"sequence_config,omitempty"` // 序列化配置
+	RandomConfig   *RandomConfig          `json:"random_config,omitempty"`   // 随机配置
+	TemplateConfig *TemplateConfig        `json:"template_config,omitempty"` // 模板配置
+	CustomConfig   map[string]any         `json:"custom_config,omitempty"`   // 自定义配置
 }
 
 // SequenceConfig 序列化生成配置
@@ -92,7 +92,7 @@ type MessageGenerationRequest struct {
 	Dependency GenerationDependency `json:"-"`
 
 	// 反查模块查询到的结果
-	QueryResults map[string]*iquery.QueryResult `json:"-"`
+	QueryResults map[string]*iquery.LookupResult `json:"-"`
 
 	// 生成策略配置
 	GenerationStrategy *GenerationStrategy `json:"generation_strategy"`
@@ -108,7 +108,7 @@ func NewDependencyRequest(config DependencyConfig, strategy *GenerationStrategy)
 
 func NewMessageGenerationRequest(
 	dep GenerationDependency,
-	queryResults map[string]*iquery.QueryResult,
+	queryResults map[string]*iquery.LookupResult,
 	strategy *GenerationStrategy,
 ) *MessageGenerationRequest {
 	return &MessageGenerationRequest{
@@ -132,7 +132,7 @@ type MockParam struct {
 	GenerationStrategy *GenerationStrategy `json:"generation_strategy"`
 
 	// 反查结果（在Generator第二阶段接收）
-	QueryResults map[string]*iquery.QueryResult `json:"-"`
+	QueryResults map[string]*iquery.LookupResult `json:"-"`
 
 	// 【向后兼容】旧的参数字段，逐步迁移
 	Operation   string

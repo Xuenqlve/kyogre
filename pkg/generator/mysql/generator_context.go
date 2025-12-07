@@ -5,7 +5,6 @@ import (
 
 	"github.com/xuenqlve/common/relational_database/mysql"
 	"github.com/xuenqlve/common/schema_store"
-	"github.com/xuenqlve/kyogre/internal/plugin"
 	"github.com/xuenqlve/kyogre/internal/plugin/generator"
 )
 
@@ -18,9 +17,9 @@ const (
 )
 
 const (
-	DML         plugin.DependencyType = "dml"
-	Transaction plugin.DependencyType = "transaction"
-	DDL         plugin.DependencyType = "ddl"
+	DML         string = "dml"
+	Transaction string = "transaction"
+	DDL         string = "ddl"
 )
 
 // DMLConfig DML操作的配置
@@ -31,7 +30,7 @@ type DMLConfig struct {
 	WriteType   string // insert/replace/insert_ignore/insert_on_duplicate_key (可选)
 }
 
-func (c *DMLConfig) Type() plugin.DependencyType {
+func (c *DMLConfig) Type() string {
 	return DML
 }
 
@@ -58,6 +57,11 @@ type DMLDependency struct {
 	FieldFilter []string                 // 只生成指定字段（nil表示全部）
 }
 
+func (d *DMLDependency) DependencyType() string {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (d *DMLDependency) GetTables() []any {
 	return []any{d.Table}
 }
@@ -74,6 +78,13 @@ func (d *DMLDependency) GetFields() []string {
 	// 实际实现时需要根据Table的API来获取列
 	return []string{}
 }
+
+// 获取此生成所需的表列表
+func (d *DMLDependency) GetSchemas() []schema_store.SchemaKey {
+	return nil
+}
+
+// 获取生成模式
 
 func (d *DMLDependency) GetMode() generator.GenerationMode {
 	return d.Mode
@@ -92,7 +103,7 @@ func (d *DMLDependency) Validate() error {
 	return nil
 }
 
-func (d *DMLDependency) DependencyType() plugin.DependencyType {
+func (d *DMLDependency) Type() string {
 	return DML
 }
 
@@ -107,7 +118,7 @@ type TransactionOp struct {
 	WriteType string
 }
 
-func (c *TransactionConfig) Type() plugin.DependencyType {
+func (c *TransactionConfig) Type() string {
 	return Transaction
 }
 
@@ -130,7 +141,7 @@ type TransactionDependency struct {
 }
 
 func (d *TransactionDependency) GetSchemas() []schema_store.SchemaKey {
-
+	return nil
 }
 
 func (d *TransactionDependency) GetFields() []string {
@@ -157,7 +168,7 @@ func (d *TransactionDependency) Validate() error {
 	return nil
 }
 
-func (d *TransactionDependency) DependencyType() plugin.DependencyType {
+func (d *TransactionDependency) DependencyType() string {
 	return Transaction
 }
 
@@ -167,7 +178,7 @@ type DDLConfig struct {
 	Columns []ColumnChange
 }
 
-func (c *DDLConfig) Type() plugin.DependencyType {
+func (c *DDLConfig) Type() string {
 	return DDL
 }
 
@@ -191,8 +202,8 @@ type ColumnChange struct {
 	Change string // 修改类型
 }
 
-func (d *DDLDependency) GetTables() []any {
-	return []any{d.Table}
+func (d *DDLDependency) GetSchemas() []schema_store.SchemaKey {
+	return nil
 }
 
 func (d *DDLDependency) GetFields() []string {
@@ -213,7 +224,7 @@ func (d *DDLDependency) Validate() error {
 	return nil
 }
 
-func (d *DDLDependency) DependencyType() plugin.DependencyType {
+func (d *DDLDependency) DependencyType() string {
 	return DDL
 }
 

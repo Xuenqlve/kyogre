@@ -8,18 +8,19 @@ import (
 	"github.com/xuenqlve/kyogre/internal/message"
 	"github.com/xuenqlve/kyogre/internal/plugin/generator"
 	"github.com/xuenqlve/kyogre/internal/plugin/iquery"
+	"github.com/xuenqlve/kyogre/pkg/generator/mysql"
 )
 
 type Worker struct {
-	ctx            context.Context
-	cancel         context.CancelFunc
-	wg             sync.WaitGroup
-	msgQueue       message.InPoint
-	generator      generator.Generator
-	queryModule    iquery.IQuery          // 可能为nil
-	segmentManager *iquery.SegmentManager // 可能为nil
-	workerID       int
-	once           sync.Once
+	ctx       context.Context
+	cancel    context.CancelFunc
+	wg        sync.WaitGroup
+	msgQueue  message.InPoint
+	generator generator.Generator
+	lookup    iquery.Lookup
+	sequencer *iquery.Sequencer
+	workerID  int
+	once      sync.Once
 
 	// 从Scenario配置中获取的依赖配置和生成策略
 	dependencyConfig   generator.DependencyConfig
@@ -30,8 +31,8 @@ func NewWorker(
 	ctx context.Context,
 	msgChan message.InPoint,
 	generator generator.Generator,
-	queryModule iquery.IQuery,
-	segmentManager *iquery.SegmentManager,
+	lookup iquery.Lookup,
+	sequencer *iquery.Sequencer,
 	workerID int,
 	dependencyConfig generator.DependencyConfig,
 	generationStrategy *generator.GenerationStrategy,
@@ -43,8 +44,8 @@ func NewWorker(
 		wg:                 sync.WaitGroup{},
 		msgQueue:           msgChan,
 		generator:          generator,
-		queryModule:        queryModule,
-		segmentManager:     segmentManager,
+		lookup:             lookup,
+		sequencer:          sequencer,
 		workerID:           workerID,
 		once:               sync.Once{},
 		dependencyConfig:   dependencyConfig,
@@ -79,10 +80,12 @@ func (w *Worker) run() error {
 		default:
 		}
 
+		baseStrategy := w.cloneGenerationStrategy()
+
 		// ========== 阶段1：收集依赖条件 ==========
 		depReq := generator.NewDependencyRequest(
 			w.buildDependencyConfig(),
-			w.getGenerationStrategy(),
+			baseStrategy,
 		)
 
 		dep, err := w.generator.CollectDependencies(depReq)
@@ -92,26 +95,24 @@ func (w *Worker) run() error {
 		}
 
 		// ========== 阶段2：执行反查（如果启用） ==========
-		var queryResults map[string]*iquery.QueryResult
-		if w.queryModule != nil {
-			keys := dep.GetSchemas()
-			results, err := w.queryModule.BatchQuery(w.ctx, keys)
-			if err != nil {
-				log.Errorf("[worker %d] failed to query: %v", w.workerID, err)
-				continue
-			}
+		queryResults, err := w.executeLookup(dep)
+		if err != nil {
+			log.Errorf("[worker %d] failed to execute lookup: %v", w.workerID, err)
+			continue
+		}
 
-			queryResults = make(map[string]*iquery.QueryResult)
-			for _, result := range results {
-				queryResults[result.TableKey.UniqueID()] = result
-			}
+		// 根据分段配置调整策略
+		msgStrategy, err := w.applySequenceStrategy(dep, baseStrategy)
+		if err != nil {
+			log.Errorf("[worker %d] failed to apply sequence strategy: %v", w.workerID, err)
+			continue
 		}
 
 		// ========== 阶段3：生成消息 ==========
 		msgReq := generator.NewMessageGenerationRequest(
 			dep,
 			queryResults,
-			w.getGenerationStrategy(),
+			msgStrategy,
 		)
 
 		mockMessage, err := w.generator.MockMessage(msgReq)
@@ -138,50 +139,111 @@ func (w *Worker) buildDependencyConfig() generator.DependencyConfig {
 	return w.dependencyConfig
 }
 
-// getGenerationStrategy 获取该worker的生成策略（包括序列化配置）
-func (w *Worker) getGenerationStrategy() *generator.GenerationStrategy {
-	// 复制从Scenario传入的基础生成策略
+func (w *Worker) cloneGenerationStrategy() *generator.GenerationStrategy {
+	if w.generationStrategy == nil {
+		return &generator.GenerationStrategy{}
+	}
+
 	strategy := &generator.GenerationStrategy{
-		SequenceConfig: w.generationStrategy.SequenceConfig,
 		RandomConfig:   w.generationStrategy.RandomConfig,
 		TemplateConfig: w.generationStrategy.TemplateConfig,
 		CustomConfig:   w.generationStrategy.CustomConfig,
 	}
 
-	// 如果启用了序列化，为该worker分配分段范围
-	if strategy.SequenceConfig != nil && strategy.SequenceConfig.Enabled && w.segmentManager != nil {
-		// 从 segmentManager 获取所有分段信息
-		segments := w.segmentManager.GetAllSegments()
-		if len(segments) > 0 {
-			// 假设只处理第一个分段（实际可能需要支持多个）
-			for key, segment := range segments {
-				if w.workerID < len(segment.Ranges) {
-					r := segment.Ranges[w.workerID]
-
-					// 从key解析出字段名 "db.table:field" -> "field"
-					var field string
-					if idx := len(key); idx > 0 {
-						for i := idx - 1; i >= 0; i-- {
-							if key[i] == ':' {
-								field = key[i+1:]
-								break
-							}
-						}
-					}
-
-					// 为该worker分配分段范围
-					strategy.SequenceConfig.StartValue = r.StartValue
-					strategy.SequenceConfig.EndValue = r.EndValue
-					strategy.SequenceConfig.CurrentValue = r.StartValue
-					strategy.SequenceConfig.Field = field
-					// 只处理第一个分段
-					break
-				}
-			}
-		}
+	if w.generationStrategy.SequenceConfig != nil {
+		seq := *w.generationStrategy.SequenceConfig
+		strategy.SequenceConfig = &seq
 	}
 
 	return strategy
+}
+
+func (w *Worker) executeLookup(dep generator.GenerationDependency) (map[string]*iquery.LookupResult, error) {
+	if w.lookup == nil || dep == nil {
+		return nil, nil
+	}
+
+	schemas := dep.GetSchemas()
+	if len(schemas) == 0 {
+		return nil, nil
+	}
+
+	items := make([]iquery.LookupRequestItem, 0, len(schemas))
+	for _, key := range schemas {
+		items = append(items, iquery.LookupRequestItem{
+			Schema: key,
+		})
+	}
+
+	res, err := w.lookup.Lookup(w.ctx, iquery.LookupRequest{Items: items})
+	if err != nil {
+		return nil, err
+	}
+
+	if len(res) == 0 {
+		return nil, nil
+	}
+
+	queryResults := make(map[string]*iquery.LookupResult, len(res))
+	for i := range res {
+		item := res[i]
+		result := item
+		queryResults[item.Schema.UniqueID()] = &result
+	}
+
+	return queryResults, nil
+}
+
+func (w *Worker) applySequenceStrategy(
+	dep generator.GenerationDependency,
+	base *generator.GenerationStrategy,
+) (*generator.GenerationStrategy, error) {
+	if w.sequencer == nil || dep == nil || base == nil {
+		return base, nil
+	}
+
+	if base.SequenceConfig == nil || !base.SequenceConfig.Enabled {
+		return base, nil
+	}
+
+	schemas := dep.GetSchemas()
+	if len(schemas) == 0 {
+		return base, nil
+	}
+
+	seqCfg := *base.SequenceConfig
+	if seqCfg.Step <= 0 {
+		seqCfg.Step = 1
+	}
+
+	length := seqCfg.Width
+	if length <= 0 {
+		length = 1
+	}
+
+	if dmlDep, ok := dep.(*mysql.DMLDependency); ok {
+		if dmlDep.Count > 0 {
+			length = int64(dmlDep.Count)
+		}
+	}
+
+	start, end, err := w.sequencer.Reserve(w.ctx, w.workerID, iquery.SequenceSpec{
+		Schema: schemas[0],
+		Field:  seqCfg.Field,
+		Step:   seqCfg.Step,
+		Width:  seqCfg.Width,
+	}, length)
+	if err != nil {
+		return nil, err
+	}
+
+	seqCfg.StartValue = start
+	seqCfg.CurrentValue = start
+	seqCfg.EndValue = end
+
+	newStrategy := *base
+	newStrategy.SequenceConfig = &seqCfg
+	return &newStrategy, nil
 }
 
 func (w *Worker) Done() {

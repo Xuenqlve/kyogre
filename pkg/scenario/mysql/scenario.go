@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/mitchellh/mapstructure"
+	"github.com/xuenqlve/kyogre/internal/config"
 	"github.com/xuenqlve/kyogre/internal/message"
 	"github.com/xuenqlve/kyogre/internal/plugin/generator"
 	"github.com/xuenqlve/kyogre/internal/plugin/iquery"
@@ -19,11 +20,8 @@ type Scenario struct {
 	generator []generator.Generator
 	workers   []*Worker
 
-	// 【新增】反查模块（可选）
-	queryModule iquery.IQuery
-
-	// 【新增】分段管理器，负责管理序列化字段的分段分配和缓存
-	segmentManager *iquery.SegmentManager
+	lookup    iquery.Lookup
+	sequencer *iquery.Sequencer
 }
 
 func NewScenario() *Scenario {
@@ -47,28 +45,54 @@ func (s *Scenario) Configure(pipeline string, data map[string]any) (err error) {
 
 func (s *Scenario) Preparation(ctx context.Context) error {
 	s.ctx = ctx
-	// 3. 【关键】条件判断：是否启用反查模块
 	if s.cfg.EnableIQuery {
-		// 初始化反查模块
-		qm, err := iquery.GetIQueryModule(iquery.IQueryType(s.cfg.IQueryModule.Type))
+		if s.cfg.IQueryModule == nil {
+			return fmt.Errorf("iquery-module config is required when enable-iquery is true")
+		}
+		if err := iquery.IQueryManager.Configure(s.pipeline, map[string]config.ConfigureMold{
+			s.cfg.IQueryModule.Type: *s.cfg.IQueryModule,
+		}); err != nil {
+			return err
+		}
+		lookup, err := iquery.IQueryManager.GetIQueryLookup(s.cfg.IQueryModule.Type)
 		if err != nil {
 			return err
 		}
-		if err = qm.Configure(s.pipeline, s.cfg.IQueryModule.Config); err != nil {
+		sequencer, err := iquery.NewSequencer()
+		if err != nil {
 			return err
 		}
-		s.queryModule = qm
+		if err = sequencer.Configure(
+			s.pipeline,
+			iquery.WithWorkerCount(s.cfg.WorkerCount),
+			iquery.WithLookUpKey(s.cfg.IQueryModule.Type),
+		); err != nil {
+			return err
+		}
 
-		// 4. 执行预分段（仅当启用反查且配置了序列化时）
-		if s.cfg.GenerationStrategy != nil &&
+		// 预分段
+		if s.metadata != nil &&
+			s.cfg.GenerationStrategy != nil &&
 			s.cfg.GenerationStrategy.SequenceConfig != nil &&
 			s.cfg.GenerationStrategy.SequenceConfig.Enabled {
-			// 使用 SegmentManager 进行分段分配
-			s.segmentManager = iquery.NewSegmentManager(s.queryModule, s.metadata, s.cfg.WorkerCount)
-			if err = s.segmentManager.AllocateSegments(ctx, s.cfg.GenerationStrategy.SequenceConfig); err != nil {
-				return err
+			specs := make([]iquery.SequenceSpec, 0, len(s.metadata.SchemaKeys()))
+			for _, key := range s.metadata.SchemaKeys() {
+				specs = append(specs, iquery.SequenceSpec{
+					Schema: key,
+					Field:  s.cfg.GenerationStrategy.SequenceConfig.Field,
+					Step:   s.cfg.GenerationStrategy.SequenceConfig.Step,
+					Width:  s.cfg.GenerationStrategy.SequenceConfig.Width,
+				})
+			}
+			if len(specs) > 0 {
+				if err = sequencer.Preallocate(ctx, specs); err != nil {
+					return err
+				}
 			}
 		}
+
+		s.lookup = lookup
+		s.sequencer = sequencer
 	}
 
 	return nil
@@ -90,8 +114,8 @@ func (s *Scenario) Start(msgChan message.InPoint) error {
 			s.ctx,
 			msgChan,
 			s.generator[i],
-			s.queryModule,            // 传入反查模块（可能为nil）
-			s.segmentManager,         // 传入分段管理器（可能为nil）
+			s.lookup,
+			s.sequencer,
 			i,                        // worker ID
 			dependencyConfig,         // 传入依赖配置
 			s.cfg.GenerationStrategy, // 传入生成策略
@@ -107,11 +131,21 @@ func (s *Scenario) Close() error {
 		w.Close()
 	}
 
-	if s.queryModule != nil {
-		if err := s.queryModule.Close(); err != nil {
+	if s.sequencer != nil {
+		if err := s.sequencer.Close(); err != nil {
+			return err
+		}
+	}
+
+	if s.lookup != nil {
+		if err := s.lookup.Close(); err != nil {
 			return err
 		}
 	}
 
 	return nil
+}
+
+func (s *Scenario) RegisterMetadata(md metadata.Metadata) {
+	s.metadata = md
 }
