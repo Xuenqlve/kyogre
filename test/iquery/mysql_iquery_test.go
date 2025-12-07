@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	iquery2 "github.com/xuenqlve/kyogre/internal/iquery"
-	"github.com/xuenqlve/kyogre/internal/metadata"
+	iquery2 "github.com/xuenqlve/kyogre/internal/plugin/iquery"
+	"github.com/xuenqlve/kyogre/internal/plugin/metadata"
 	"github.com/xuenqlve/kyogre/pkg/iquery"
 	"github.com/xuenqlve/kyogre/pkg/metadata/mysql"
 	"github.com/xuenqlve/kyogre/pkg/metadata_template"

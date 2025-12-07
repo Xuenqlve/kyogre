@@ -4,15 +4,15 @@ import (
 	"fmt"
 
 	"github.com/xuenqlve/kyogre/internal/config"
-	"github.com/xuenqlve/kyogre/internal/plugin"
+	"github.com/xuenqlve/kyogre/internal/plugin/generator"
 	"github.com/xuenqlve/kyogre/pkg/generator/mysql"
 )
 
 type Config struct {
-	WorkerCount        int                        `mapstructure:"worker-count" yaml:"worker-count"`
-	EnableIQuery       bool                       `mapstructure:"enable-iquery" yaml:"enable-iquery"`
-	IQueryModule       *config.ConfigureMold      `mapstructure:"iquery-module,omitempty" yaml:"iquery-module,omitempty"` // 反查模块配置（可选）
-	GenerationStrategy *plugin.GenerationStrategy `mapstructure:"generation-strategy" yaml:"generation-strategy"`         // 生成策略
+	WorkerCount        int                           `mapstructure:"worker-count" yaml:"worker-count"`
+	EnableIQuery       bool                          `mapstructure:"enable-iquery" yaml:"enable-iquery"`
+	IQueryModule       *config.ConfigureMold         `mapstructure:"iquery-module,omitempty" yaml:"iquery-module,omitempty"` // 反查模块配置（可选）
+	GenerationStrategy *generator.GenerationStrategy `mapstructure:"generation-strategy" yaml:"generation-strategy"`         // 生成策略
 	// 依赖配置：支持DML、Transaction、DDL三种模式
 	DependencyConfig DependencyConfigData `mapstructure:"dependency-config" yaml:"dependency-config"` // 依赖配置
 }
@@ -26,7 +26,7 @@ type DependencyConfigData struct {
 }
 
 // GetDependencyConfig 获取对应类型的DependencyConfig
-func (d *DependencyConfigData) GetDependencyConfig() (plugin.DependencyConfig, error) {
+func (d *DependencyConfigData) GetDependencyConfig() (generator.DependencyConfig, error) {
 	switch d.Type {
 	case "dml":
 		if d.DML == nil {
@@ -55,8 +55,8 @@ func (c *Config) Validate() error {
 
 	// 设置默认的生成策略（如果没有指定）
 	if c.GenerationStrategy == nil {
-		c.GenerationStrategy = &plugin.GenerationStrategy{
-			RandomConfig: &plugin.RandomConfig{},
+		c.GenerationStrategy = &generator.GenerationStrategy{
+			RandomConfig: &generator.RandomConfig{},
 		}
 	}
 

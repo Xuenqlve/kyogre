@@ -1,7 +1,7 @@
 package metadata_template
 
 import (
-	"github.com/xuenqlve/kyogre/internal/metadata"
+	"github.com/xuenqlve/kyogre/internal/plugin/metadata"
 	"github.com/xuenqlve/kyogre/pkg/metadata/mysql"
 )
 

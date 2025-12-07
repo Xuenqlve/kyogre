@@ -5,8 +5,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/xuenqlve/kyogre/internal/metadata"
-	"github.com/xuenqlve/kyogre/internal/plugin"
+	"github.com/xuenqlve/kyogre/internal/plugin/metadata"
 )
 
 // SegmentManager 负责管理分段的分配和缓存
@@ -17,7 +16,7 @@ type SegmentManager struct {
 	workerCount int
 
 	// 分段缓存：key: "db.table:field", value: *SequenceSegment
-	segmentMap map[string]plugin.Scenario
+	segmentMap map[string]SequenceSegment
 	segMutex   sync.RWMutex
 }
 
@@ -27,14 +26,14 @@ func NewSegmentManager(queryModule IQuery, metadata metadata.Metadata, workerCou
 		queryModule: queryModule,
 		metadata:    metadata,
 		workerCount: workerCount,
-		segmentMap:  make(map[string]plugin.Scenario),
+		segmentMap:  make(map[string]SequenceSegment),
 	}
 }
 
 // AllocateSegments 为指定的表和字段分配分段
 // 该方法会根据配置，为每张表的指定字段进行分段分配
 // 分段信息会被缓存在内存中供后续使用
-func (sm *SegmentManager) AllocateSegments(ctx context.Context, sequenceConfig *plugin.SequenceConfig) error {
+func (sm *SegmentManager) AllocateSegments(ctx context.Context, sequenceConfig *SequenceConfig) error {
 	if sm.queryModule == nil {
 		return fmt.Errorf("query module is not initialized")
 	}
@@ -73,7 +72,7 @@ func (sm *SegmentManager) AllocateSegments(ctx context.Context, sequenceConfig *
 }
 
 // GetSegments 获取指定表和字段的分段信息
-func (sm *SegmentManager) GetSegments(schemaID, field string) plugin.Scenario {
+func (sm *SegmentManager) GetSegments(schemaID, field string) SequenceSegment {
 	key := fmt.Sprintf("%s:%s", schemaID, field)
 	sm.segMutex.RLock()
 	defer sm.segMutex.RUnlock()
@@ -81,7 +80,7 @@ func (sm *SegmentManager) GetSegments(schemaID, field string) plugin.Scenario {
 }
 
 // GetAllSegments 返回所有分段信息的副本
-func (sm *SegmentManager) GetAllSegments() map[string]plugin.Scenario {
+func (sm *SegmentManager) GetAllSegments() map[string]SequenceSegment {
 	//sm.segMutex.RLock()
 	//defer sm.segMutex.RUnlock()
 	//
@@ -115,7 +114,7 @@ func (sm *SegmentManager) GetWorkerSegmentRange(schemaID, field string, workerID
 
 // divideSegments 分段分配算法
 // 将 maxValue 分割成 workerCount 段，每个 worker 一段
-func (sm *SegmentManager) divideSegments(maxValue int64) plugin.Scenario {
+func (sm *SegmentManager) divideSegments(maxValue int64) SequenceSegment {
 	//seg := &mysql.SequenceSegment{
 	//	Ranges: make([]*mysql.SegmentRange, sm.workerCount),
 	//}

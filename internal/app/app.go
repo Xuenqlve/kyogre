@@ -7,7 +7,7 @@ import (
 	"github.com/xuenqlve/common/log"
 	"github.com/xuenqlve/kyogre/internal/config"
 	"github.com/xuenqlve/kyogre/internal/data_source"
-	"github.com/xuenqlve/kyogre/internal/metadata"
+	"github.com/xuenqlve/kyogre/internal/plugin/metadata"
 )
 
 type Server struct {

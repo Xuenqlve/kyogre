@@ -9,14 +9,6 @@ import (
 	"github.com/xuenqlve/common/schema_store"
 )
 
-type QueryResult struct {
-	TableKey        schema_store.SchemaKey // 表的唯一标识符 "db.table"
-	Field           string                 // 反查的字段
-	MaxValue        int64                  // 字段的最大值
-	CurrentRowCount int64                  // 表的当前行数
-	Metadata        map[string]any         // 其他元数据
-}
-
 type IQuery interface {
 	Configure(pipeline string, data map[string]any) (err error)
 	QueryMaxValue(ctx context.Context, key schema_store.SchemaKey, field string) (int64, error)

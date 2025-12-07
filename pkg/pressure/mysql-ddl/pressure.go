@@ -16,7 +16,7 @@ import (
 	"github.com/xuenqlve/common/log"
 	"github.com/xuenqlve/common/schema_store"
 	"github.com/xuenqlve/kyogre/internal/message"
-	"github.com/xuenqlve/kyogre/internal/plugin"
+	"github.com/xuenqlve/kyogre/internal/plugin/pressure"
 	ds "github.com/xuenqlve/kyogre/pkg/data_source/mysql"
 )
 
@@ -47,11 +47,11 @@ type Pressure struct {
 }
 
 const (
-	MySQLDDL plugin.PressureType = "mysql-ddl"
+	MySQLDDL pressure.PressureType = "mysql-ddl"
 )
 
 func init() {
-	plugin.RegisterPressure(MySQLDDL, &Pressure{}, true)
+	pressure.RegisterPressure(MySQLDDL, &Pressure{}, true)
 }
 
 // Configure 初始化压力测试配置

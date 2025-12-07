@@ -5,9 +5,9 @@ import (
 	"sync"
 
 	"github.com/xuenqlve/common/log"
-	"github.com/xuenqlve/kyogre/internal/iquery"
 	"github.com/xuenqlve/kyogre/internal/message"
-	"github.com/xuenqlve/kyogre/internal/plugin"
+	"github.com/xuenqlve/kyogre/internal/plugin/generator"
+	"github.com/xuenqlve/kyogre/internal/plugin/iquery"
 )
 
 type Worker struct {
@@ -15,26 +15,26 @@ type Worker struct {
 	cancel         context.CancelFunc
 	wg             sync.WaitGroup
 	msgQueue       message.InPoint
-	generator      plugin.Generator
+	generator      generator.Generator
 	queryModule    iquery.IQuery          // 可能为nil
 	segmentManager *iquery.SegmentManager // 可能为nil
 	workerID       int
 	once           sync.Once
 
 	// 从Scenario配置中获取的依赖配置和生成策略
-	dependencyConfig   plugin.DependencyConfig
-	generationStrategy *plugin.GenerationStrategy
+	dependencyConfig   generator.DependencyConfig
+	generationStrategy *generator.GenerationStrategy
 }
 
 func NewWorker(
 	ctx context.Context,
 	msgChan message.InPoint,
-	generator plugin.Generator,
+	generator generator.Generator,
 	queryModule iquery.IQuery,
 	segmentManager *iquery.SegmentManager,
 	workerID int,
-	dependencyConfig plugin.DependencyConfig,
-	generationStrategy *plugin.GenerationStrategy,
+	dependencyConfig generator.DependencyConfig,
+	generationStrategy *generator.GenerationStrategy,
 ) *Worker {
 	lctx, cancel := context.WithCancel(ctx)
 	return &Worker{
@@ -80,7 +80,7 @@ func (w *Worker) run() error {
 		}
 
 		// ========== 阶段1：收集依赖条件 ==========
-		depReq := plugin.NewDependencyRequest(
+		depReq := generator.NewDependencyRequest(
 			w.buildDependencyConfig(),
 			w.getGenerationStrategy(),
 		)
@@ -108,7 +108,7 @@ func (w *Worker) run() error {
 		}
 
 		// ========== 阶段3：生成消息 ==========
-		msgReq := plugin.NewMessageGenerationRequest(
+		msgReq := generator.NewMessageGenerationRequest(
 			dep,
 			queryResults,
 			w.getGenerationStrategy(),
@@ -132,16 +132,16 @@ func (w *Worker) run() error {
 
 // buildDependencyConfig 构建依赖条件的配置
 // 返回从Scenario传入的配置对象，确保所有Worker使用统一的配置
-func (w *Worker) buildDependencyConfig() plugin.DependencyConfig {
+func (w *Worker) buildDependencyConfig() generator.DependencyConfig {
 	// 直接返回从Scenario传入的配置
 	// 这样所有Worker都使用相同的配置策略
 	return w.dependencyConfig
 }
 
 // getGenerationStrategy 获取该worker的生成策略（包括序列化配置）
-func (w *Worker) getGenerationStrategy() *plugin.GenerationStrategy {
+func (w *Worker) getGenerationStrategy() *generator.GenerationStrategy {
 	// 复制从Scenario传入的基础生成策略
-	strategy := &plugin.GenerationStrategy{
+	strategy := &generator.GenerationStrategy{
 		SequenceConfig: w.generationStrategy.SequenceConfig,
 		RandomConfig:   w.generationStrategy.RandomConfig,
 		TemplateConfig: w.generationStrategy.TemplateConfig,

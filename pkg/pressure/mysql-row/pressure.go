@@ -10,16 +10,16 @@ import (
 	mysql_schema "github.com/xuenqlve/common/relational_database/mysql"
 	"github.com/xuenqlve/common/schema_store"
 	"github.com/xuenqlve/kyogre/internal/message"
-	"github.com/xuenqlve/kyogre/internal/plugin"
+	"github.com/xuenqlve/kyogre/internal/plugin/pressure"
 	"github.com/xuenqlve/kyogre/pkg/data_source/mysql"
 )
 
 const (
-	MySQLDML plugin.PressureType = "mysql-dml"
+	MySQLDML pressure.PressureType = "mysql-dml"
 )
 
 func init() {
-	plugin.RegisterPressure(MySQLDML, &Pressure{}, true)
+	pressure.RegisterPressure(MySQLDML, &Pressure{}, true)
 }
 
 type Pressure struct {

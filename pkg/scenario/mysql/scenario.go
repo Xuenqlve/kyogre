@@ -5,10 +5,10 @@ import (
 	"fmt"
 
 	"github.com/mitchellh/mapstructure"
-	"github.com/xuenqlve/kyogre/internal/iquery"
 	"github.com/xuenqlve/kyogre/internal/message"
-	"github.com/xuenqlve/kyogre/internal/metadata"
-	"github.com/xuenqlve/kyogre/internal/plugin"
+	"github.com/xuenqlve/kyogre/internal/plugin/generator"
+	"github.com/xuenqlve/kyogre/internal/plugin/iquery"
+	"github.com/xuenqlve/kyogre/internal/plugin/metadata"
 )
 
 type Scenario struct {
@@ -16,7 +16,7 @@ type Scenario struct {
 	cfg       *Config
 	ctx       context.Context
 	metadata  metadata.Metadata
-	generator []plugin.Generator
+	generator []generator.Generator
 	workers   []*Worker
 
 	// 【新增】反查模块（可选）
@@ -26,20 +26,9 @@ type Scenario struct {
 	segmentManager *iquery.SegmentManager
 }
 
-// SequenceSegment 分段信息
-type SequenceSegment struct {
-	Ranges []*SegmentRange
-}
-
-type SegmentRange struct {
-	WorkerID   int
-	StartValue int64
-	EndValue   int64
-}
-
 func NewScenario() *Scenario {
 	return &Scenario{
-		generator: make([]plugin.Generator, 0),
+		generator: make([]generator.Generator, 0),
 		workers:   make([]*Worker, 0),
 	}
 }

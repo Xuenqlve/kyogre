@@ -3,7 +3,7 @@ package generator
 import (
 	"testing"
 
-	"github.com/xuenqlve/kyogre/internal/plugin"
+	"github.com/xuenqlve/kyogre/internal/plugin/generator"
 	"github.com/xuenqlve/kyogre/pkg/generator/mysql"
 )
 
@@ -177,7 +177,7 @@ func TestDDLConfigValidate(t *testing.T) {
 
 func TestDependencyConfigInterface(t *testing.T) {
 	// 验证所有Config类型都实现了DependencyConfig接口
-	var _ plugin.DependencyConfig = (*mysql.DMLConfig)(nil)
-	var _ plugin.DependencyConfig = (*mysql.TransactionConfig)(nil)
-	var _ plugin.DependencyConfig = (*mysql.DDLConfig)(nil)
+	var _ generator.DependencyConfig = (*mysql.DMLConfig)(nil)
+	var _ generator.DependencyConfig = (*mysql.TransactionConfig)(nil)
+	var _ generator.DependencyConfig = (*mysql.DDLConfig)(nil)
 }

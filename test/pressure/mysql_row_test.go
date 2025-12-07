@@ -6,7 +6,7 @@ import (
 
 	"github.com/xuenqlve/common/schema_store"
 	"github.com/xuenqlve/kyogre/internal/message"
-	"github.com/xuenqlve/kyogre/internal/plugin"
+	"github.com/xuenqlve/kyogre/internal/plugin/pressure"
 	"github.com/xuenqlve/kyogre/pkg/pressure/mysql-row"
 
 	mysql_schema "github.com/xuenqlve/common/relational_database/mysql"
@@ -110,7 +110,7 @@ func MockDeleteMySQLRowMessage(writeType string) *message.MySQLRowMessage {
 
 func TestMySQL(t *testing.T) {
 	ctx := context.Background()
-	pressure, err := plugin.GetPressure(mysql_row.MySQLDML)
+	pressure, err := pressure.GetPressure(mysql_row.MySQLDML)
 	if err != nil {
 		t.Fatalf("GetPressure() failed: %v", err)
 		return

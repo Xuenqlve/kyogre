@@ -1,10 +1,10 @@
-package plugin
+package generator
 
 import (
 	"github.com/xuenqlve/common/schema_store"
-	"github.com/xuenqlve/kyogre/internal/iquery"
 	"github.com/xuenqlve/kyogre/internal/message"
-	"github.com/xuenqlve/kyogre/internal/metadata"
+	"github.com/xuenqlve/kyogre/internal/plugin/iquery"
+	"github.com/xuenqlve/kyogre/internal/plugin/metadata"
 )
 
 type DependencyConfig interface {
@@ -34,21 +34,13 @@ type GenerationDependency interface {
 
 // GenerationStrategy 生成策略配置
 type GenerationStrategy struct {
-	SequenceConfig *SequenceConfig `json:"sequence_config,omitempty"` // 序列化配置
-	RandomConfig   *RandomConfig   `json:"random_config,omitempty"`   // 随机配置
-	TemplateConfig *TemplateConfig `json:"template_config,omitempty"` // 模板配置
-	CustomConfig   map[string]any  `json:"custom_config,omitempty"`   // 自定义配置
+	IQueryConfig   *iquery.IQueryConfig `json:"sequence_config,omitempty"` // 序列化配置
+	RandomConfig   *RandomConfig        `json:"random_config,omitempty"`   // 随机配置
+	TemplateConfig *TemplateConfig      `json:"template_config,omitempty"` // 模板配置
+	CustomConfig   map[string]any       `json:"custom_config,omitempty"`   // 自定义配置
 }
 
 // SequenceConfig 序列化生成配置
-type SequenceConfig struct {
-	Enabled      bool   `json:"enabled"`
-	Field        string `json:"field"` // 递增字段
-	StartValue   int64  `json:"start_value"`
-	EndValue     int64  `json:"end_value"`
-	CurrentValue int64  `json:"current_value"` // 由Worker维护
-	Step         int64  `json:"step"`          // 递增步长，默认1
-}
 
 // RandomConfig 随机生成配置
 type RandomConfig struct {

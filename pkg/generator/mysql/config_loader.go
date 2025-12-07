@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/mitchellh/mapstructure"
-	"github.com/xuenqlve/kyogre/internal/plugin"
+	"github.com/xuenqlve/kyogre/internal/plugin/generator"
 )
 
 // ConfigLoader 配置加载器
@@ -14,7 +14,7 @@ type ConfigLoader struct{}
 
 // LoadDependencyConfig 从map中加载DependencyConfig
 // 该函数支持动态加载不同类型的配置
-func (cl *ConfigLoader) LoadDependencyConfig(data map[string]any) (plugin.DependencyConfig, error) {
+func (cl *ConfigLoader) LoadDependencyConfig(data map[string]any) (generator.DependencyConfig, error) {
 	// 首先获取type字段来确定配置类型
 	configType, ok := data["type"].(string)
 	if !ok {
@@ -79,7 +79,7 @@ func (cl *ConfigLoader) loadDDLConfig(data map[string]any) (*DDLConfig, error) {
 }
 
 // LoadDependencyConfigFromJSON 从JSON字符串加载DependencyConfig
-func (cl *ConfigLoader) LoadDependencyConfigFromJSON(jsonStr string) (plugin.DependencyConfig, error) {
+func (cl *ConfigLoader) LoadDependencyConfigFromJSON(jsonStr string) (generator.DependencyConfig, error) {
 	var data map[string]any
 	if err := json.Unmarshal([]byte(jsonStr), &data); err != nil {
 		return nil, fmt.Errorf("failed to parse JSON: %w", err)

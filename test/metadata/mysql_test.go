@@ -7,7 +7,7 @@ import (
 
 	"github.com/xuenqlve/common/log"
 	mysql_schema "github.com/xuenqlve/common/relational_database/mysql"
-	"github.com/xuenqlve/kyogre/internal/metadata"
+	"github.com/xuenqlve/kyogre/internal/plugin/metadata"
 	"github.com/xuenqlve/kyogre/pkg/metadata/mysql"
 	"github.com/xuenqlve/kyogre/pkg/metadata_template"
 )

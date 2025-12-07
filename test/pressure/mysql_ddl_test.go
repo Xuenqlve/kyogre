@@ -8,7 +8,7 @@ import (
 	"github.com/xuenqlve/common/relational_database/mysql"
 	"github.com/xuenqlve/common/schema_store"
 	"github.com/xuenqlve/kyogre/internal/message"
-	"github.com/xuenqlve/kyogre/internal/plugin"
+	"github.com/xuenqlve/kyogre/internal/plugin/pressure"
 	gh_ost "github.com/xuenqlve/kyogre/pkg/pressure/mysql-ddl"
 )
 
@@ -251,7 +251,7 @@ func MockAlterDropColumnDDLMessage() *message.MySQLDDLMessage {
 
 func TestGHost(t *testing.T) {
 	ctx := context.Background()
-	pressure, err := plugin.GetPressure(gh_ost.MySQLDDL)
+	pressure, err := pressure.GetPressure(gh_ost.MySQLDDL)
 	if err != nil {
 		t.Fatalf("GetPressure() failed: %v", err)
 		return

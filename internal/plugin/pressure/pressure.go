@@ -1,4 +1,4 @@
-package plugin
+package pressure
 
 import (
 	"context"

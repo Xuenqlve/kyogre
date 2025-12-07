@@ -6,7 +6,7 @@ import (
 
 	"github.com/mitchellh/mapstructure"
 	"github.com/xuenqlve/common/schema_store"
-	"github.com/xuenqlve/kyogre/internal/iquery"
+	"github.com/xuenqlve/kyogre/internal/plugin/iquery"
 )
 
 const (

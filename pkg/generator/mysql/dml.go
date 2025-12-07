@@ -10,8 +10,9 @@ import (
 	"github.com/mitchellh/mapstructure"
 	"github.com/xuenqlve/common/relational_database/mysql"
 	"github.com/xuenqlve/kyogre/internal/message"
-	"github.com/xuenqlve/kyogre/internal/metadata"
 	"github.com/xuenqlve/kyogre/internal/plugin"
+	"github.com/xuenqlve/kyogre/internal/plugin/generator"
+	"github.com/xuenqlve/kyogre/internal/plugin/metadata"
 )
 
 type Config struct {
@@ -45,7 +46,7 @@ func (g *DMLGenerator) RegisterMetadata(metadata metadata.Metadata) {
 }
 
 // CollectDependencies 第一阶段：收集生成所需的依赖条件
-func (g *DMLGenerator) CollectDependencies(req *plugin.DependencyRequest) (plugin.GenerationDependency, error) {
+func (g *DMLGenerator) CollectDependencies(req *generator.DependencyRequest) (generator.GenerationDependency, error) {
 	if req == nil {
 		return nil, fmt.Errorf("request is nil")
 	}
@@ -73,7 +74,7 @@ func (g *DMLGenerator) CollectDependencies(req *plugin.DependencyRequest) (plugi
 }
 
 // collectDMLDependency 收集DML操作的依赖条件
-func (g *DMLGenerator) collectDMLDependency(dmlConfig *plugin.DMLConfig) (plugin.GenerationDependency, error) {
+func (g *DMLGenerator) collectDMLDependency(dmlConfig *plugin.DMLConfig) (generator.GenerationDependency, error) {
 	// 解析行数
 	count, err := ParseCount(dmlConfig.Count)
 	if err != nil {
@@ -104,7 +105,7 @@ func (g *DMLGenerator) collectDMLDependency(dmlConfig *plugin.DMLConfig) (plugin
 }
 
 // collectTransactionDependency 收集事务操作的依赖条件
-func (g *DMLGenerator) collectTransactionDependency(transConfig *plugin.TransactionConfig) (plugin.GenerationDependency, error) {
+func (g *DMLGenerator) collectTransactionDependency(transConfig *plugin.TransactionConfig) (generator.GenerationDependency, error) {
 	// 获取所有涉及的表
 	tables := make([]*mysql.Table, 0, len(transConfig.Operations))
 	for tableName := range transConfig.Operations {
@@ -146,7 +147,7 @@ func (g *DMLGenerator) collectTransactionDependency(transConfig *plugin.Transact
 }
 
 // collectDDLDependency 收集DDL操作的依赖条件
-func (g *DMLGenerator) collectDDLDependency(ddlConfig *plugin.DDLConfig) (plugin.GenerationDependency, error) {
+func (g *DMLGenerator) collectDDLDependency(ddlConfig *plugin.DDLConfig) (generator.GenerationDependency, error) {
 	// 获取第一个表作为DDL操作的目标表
 	// 实际场景中，用户应该在DDLConfig中指定具体的表名
 	var table *mysql.Table
@@ -192,13 +193,13 @@ func (g *DMLGenerator) getNextIndex() int {
 func (g *DMLGenerator) getTableDef(tableSelect string) (*mysql.Table, error) {
 	var index int
 	switch tableSelect {
-	case plugin.RandomTableSelect:
+	case generator.RandomTableSelect:
 		index = rand.IntN(len(g.metadata.SchemaKeys()))
-	case plugin.OrderedTableSelect:
+	case generator.OrderedTableSelect:
 		index = g.getNextIndex()
-	case plugin.SameWithLastTableSelect:
+	case generator.SameWithLastTableSelect:
 		index = g.hitIndex
-	case plugin.DiffFromLastTableSelect:
+	case generator.DiffFromLastTableSelect:
 		index = g.getNextIndex()
 	}
 	key := g.metadata.SchemaKeys()[index]
@@ -215,7 +216,7 @@ func (g *DMLGenerator) getTableDef(tableSelect string) (*mysql.Table, error) {
 }
 
 // MockMessage 第二阶段：生成消息（接收反查结果）
-func (g *DMLGenerator) MockMessage(req *plugin.MessageGenerationRequest) (message.Message, error) {
+func (g *DMLGenerator) MockMessage(req *generator.MessageGenerationRequest) (message.Message, error) {
 	if req == nil {
 		return nil, fmt.Errorf("request is nil")
 	}
@@ -238,7 +239,7 @@ func (g *DMLGenerator) MockMessage(req *plugin.MessageGenerationRequest) (messag
 }
 
 // generateDMLMessage 生成单表DML消息
-func (g *DMLGenerator) generateDMLMessage(dmlDep *plugin.DMLDependency, req *plugin.MessageGenerationRequest) (message.Message, error) {
+func (g *DMLGenerator) generateDMLMessage(dmlDep *plugin.DMLDependency, req *generator.MessageGenerationRequest) (message.Message, error) {
 	if dmlDep.Table == nil {
 		return nil, fmt.Errorf("table is nil")
 	}
@@ -278,7 +279,7 @@ func (g *DMLGenerator) generateDMLMessage(dmlDep *plugin.DMLDependency, req *plu
 }
 
 // generateTransactionMessage 生成多表事务消息
-func (g *DMLGenerator) generateTransactionMessage(transDep *plugin.TransactionDependency, req *plugin.MessageGenerationRequest) (message.Message, error) {
+func (g *DMLGenerator) generateTransactionMessage(transDep *plugin.TransactionDependency, req *generator.MessageGenerationRequest) (message.Message, error) {
 	if len(transDep.Tables) == 0 {
 		return nil, fmt.Errorf("no tables in transaction dependency")
 	}
@@ -339,7 +340,7 @@ func (g *DMLGenerator) generateTransactionMessage(transDep *plugin.TransactionDe
 }
 
 // generateDDLMessage 生成DDL操作消息
-func (g *DMLGenerator) generateDDLMessage(ddlDep *plugin.DDLDependency, req *plugin.MessageGenerationRequest) (message.Message, error) {
+func (g *DMLGenerator) generateDDLMessage(ddlDep *plugin.DDLDependency, req *generator.MessageGenerationRequest) (message.Message, error) {
 	if ddlDep.Table == nil {
 		return nil, fmt.Errorf("table is nil")
 	}
@@ -365,7 +366,7 @@ func (g *DMLGenerator) generateDDLMessage(ddlDep *plugin.DDLDependency, req *plu
 }
 
 // buildSequenceRows 序列化行生成逻辑
-func (g *DMLGenerator) buildSequenceRows(dep *plugin.DMLDependency, seqConfig *plugin.SequenceConfig) []mysql.RowData {
+func (g *DMLGenerator) buildSequenceRows(dep *plugin.DMLDependency, seqConfig *generator.SequenceConfig) []mysql.RowData {
 	rowDataList := make([]mysql.RowData, 0, dep.Count)
 
 	if seqConfig == nil || !seqConfig.Enabled {

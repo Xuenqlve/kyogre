@@ -6,14 +6,15 @@ import (
 	"github.com/xuenqlve/common/relational_database/mysql"
 	"github.com/xuenqlve/common/schema_store"
 	"github.com/xuenqlve/kyogre/internal/plugin"
+	"github.com/xuenqlve/kyogre/internal/plugin/generator"
 )
 
 const (
-	ModeDMLRow      plugin.GenerationMode = "dml_row"      // 单表行级DML
-	ModeDMLBatch    plugin.GenerationMode = "dml_batch"    // 单表批量DML
-	ModeDMLSequence plugin.GenerationMode = "dml_sequence" // 单表序列化DML
-	ModeDDL         plugin.GenerationMode = "ddl"          // DDL操作
-	ModeTransaction plugin.GenerationMode = "transaction"  // 多表事务
+	ModeDMLRow      generator.GenerationMode = "dml_row"      // 单表行级DML
+	ModeDMLBatch    generator.GenerationMode = "dml_batch"    // 单表批量DML
+	ModeDMLSequence generator.GenerationMode = "dml_sequence" // 单表序列化DML
+	ModeDDL         generator.GenerationMode = "ddl"          // DDL操作
+	ModeTransaction generator.GenerationMode = "transaction"  // 多表事务
 )
 
 const (
@@ -39,7 +40,7 @@ func (c *DMLConfig) Validate() error {
 		return fmt.Errorf("operation is required")
 	}
 	if c.TableSelect == "" {
-		c.TableSelect = plugin.RandomTableSelect
+		c.TableSelect = generator.RandomTableSelect
 	}
 	if c.Count == "" {
 		c.Count = "1"
@@ -49,12 +50,12 @@ func (c *DMLConfig) Validate() error {
 
 // DMLDependency DML操作的依赖条件
 type DMLDependency struct {
-	Mode        plugin.GenerationMode // 生成模式
-	Table       *mysql.Table          // 目标表
-	Operation   string                // 操作类型：insert/update/delete/select
-	WriteType   string                // 写入类型：insert/replace/insert_ignore/insert_on_duplicate_key
-	Count       int                   // 生成数据条数
-	FieldFilter []string              // 只生成指定字段（nil表示全部）
+	Mode        generator.GenerationMode // 生成模式
+	Table       *mysql.Table             // 目标表
+	Operation   string                   // 操作类型：insert/update/delete/select
+	WriteType   string                   // 写入类型：insert/replace/insert_ignore/insert_on_duplicate_key
+	Count       int                      // 生成数据条数
+	FieldFilter []string                 // 只生成指定字段（nil表示全部）
 }
 
 func (d *DMLDependency) GetTables() []any {
@@ -74,7 +75,7 @@ func (d *DMLDependency) GetFields() []string {
 	return []string{}
 }
 
-func (d *DMLDependency) GetMode() plugin.GenerationMode {
+func (d *DMLDependency) GetMode() generator.GenerationMode {
 	return d.Mode
 }
 
@@ -129,7 +130,7 @@ type TransactionDependency struct {
 }
 
 func (d *TransactionDependency) GetSchemas() []schema_store.SchemaKey {
-	
+
 }
 
 func (d *TransactionDependency) GetFields() []string {
@@ -137,7 +138,7 @@ func (d *TransactionDependency) GetFields() []string {
 	return []string{}
 }
 
-func (d *TransactionDependency) GetMode() plugin.GenerationMode {
+func (d *TransactionDependency) GetMode() generator.GenerationMode {
 	return ModeTransaction
 }
 
@@ -198,7 +199,7 @@ func (d *DDLDependency) GetFields() []string {
 	return []string{}
 }
 
-func (d *DDLDependency) GetMode() plugin.GenerationMode {
+func (d *DDLDependency) GetMode() generator.GenerationMode {
 	return ModeDDL
 }
 
@@ -217,7 +218,7 @@ func (d *DDLDependency) DependencyType() plugin.DependencyType {
 }
 
 // ParseDependency 将参数解析为具体的Dependency
-func ParseDependency(depType string, data map[string]any) (plugin.GenerationDependency, error) {
+func ParseDependency(depType string, data map[string]any) (generator.GenerationDependency, error) {
 	switch depType {
 	case "dml":
 		return parseDMLDependency(data)
@@ -230,13 +231,13 @@ func ParseDependency(depType string, data map[string]any) (plugin.GenerationDepe
 	}
 }
 
-func parseDMLDependency(data map[string]any) (plugin.GenerationDependency, error) {
+func parseDMLDependency(data map[string]any) (generator.GenerationDependency, error) {
 	// 这里需要根据data反序列化为DMLDependency
 	// 简化实现，实际使用时可以用mapstructure
 	dep := &DMLDependency{}
 
 	if mode, ok := data["mode"].(string); ok {
-		dep.Mode = plugin.GenerationMode(mode)
+		dep.Mode = generator.GenerationMode(mode)
 	}
 
 	if operation, ok := data["operation"].(string); ok {
@@ -256,13 +257,13 @@ func parseDMLDependency(data map[string]any) (plugin.GenerationDependency, error
 	return dep, nil
 }
 
-func parseTransactionDependency(data map[string]any) (plugin.GenerationDependency, error) {
+func parseTransactionDependency(data map[string]any) (generator.GenerationDependency, error) {
 	dep := &TransactionDependency{}
 	dep.Operations = make(map[string]TransactionOp)
 	return dep, nil
 }
 
-func parseDDLDependency(data map[string]any) (plugin.GenerationDependency, error) {
+func parseDDLDependency(data map[string]any) (generator.GenerationDependency, error) {
 	dep := &DDLDependency{}
 
 	if ddlType, ok := data["ddl_type"].(string); ok {
