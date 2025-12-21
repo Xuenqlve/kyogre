@@ -1,8 +1,9 @@
-package cmd
+package main
 
 import (
 	"github.com/xuenqlve/kyogre/internal/app"
 	"github.com/xuenqlve/kyogre/internal/config"
+	_ "github.com/xuenqlve/kyogre/pkg/config"
 )
 
 func main() {

@@ -10,7 +10,14 @@ import (
 	"github.com/xuenqlve/kyogre/internal/plugin/generator"
 	"github.com/xuenqlve/kyogre/internal/plugin/iquery"
 	"github.com/xuenqlve/kyogre/internal/plugin/metadata"
+	plugin_scenario "github.com/xuenqlve/kyogre/internal/plugin/scenario"
 )
+
+const ScenarioType plugin_scenario.Type = "mysql"
+
+func init() {
+	plugin_scenario.RegisterScenario(ScenarioType, NewScenario(), false)
+}
 
 type Scenario struct {
 	pipeline  string
@@ -45,18 +52,38 @@ func (s *Scenario) Configure(pipeline string, data map[string]any) (err error) {
 
 func (s *Scenario) Preparation(ctx context.Context) error {
 	s.ctx = ctx
+	if len(s.generator) == 0 {
+		return fmt.Errorf("no generators registered")
+	}
+	if len(s.generator) < s.cfg.WorkerCount {
+		return fmt.Errorf("generator count %d less than worker count %d", len(s.generator), s.cfg.WorkerCount)
+	}
 	if s.cfg.EnableIQuery {
-		if s.cfg.IQueryModule == nil {
-			return fmt.Errorf("iquery-module config is required when enable-iquery is true")
-		}
-		if err := iquery.IQueryManager.Configure(s.pipeline, map[string]config.ConfigureMold{
-			s.cfg.IQueryModule.Type: *s.cfg.IQueryModule,
-		}); err != nil {
-			return err
-		}
-		lookup, err := iquery.IQueryManager.GetIQueryLookup(s.cfg.IQueryModule.Type)
-		if err != nil {
-			return err
+		var (
+			lookup    iquery.Lookup
+			err       error
+			lookupKey string
+		)
+		if s.cfg.IQueryKey != "" {
+			lookupKey = s.cfg.IQueryKey
+			lookup, err = iquery.IQueryManager.GetIQueryLookup(s.cfg.IQueryKey)
+			if err != nil {
+				return err
+			}
+		} else {
+			if s.cfg.IQueryModule == nil {
+				return fmt.Errorf("iquery-module config is required when enable-iquery is true")
+			}
+			lookupKey = s.cfg.IQueryModule.Type
+			if err = iquery.IQueryManager.Configure(s.pipeline, map[string]config.ConfigureMold{
+				s.cfg.IQueryModule.Type: *s.cfg.IQueryModule,
+			}); err != nil {
+				return err
+			}
+			lookup, err = iquery.IQueryManager.GetIQueryLookup(lookupKey)
+			if err != nil {
+				return err
+			}
 		}
 		sequencer, err := iquery.NewSequencer()
 		if err != nil {
@@ -65,7 +92,7 @@ func (s *Scenario) Preparation(ctx context.Context) error {
 		if err = sequencer.Configure(
 			s.pipeline,
 			iquery.WithWorkerCount(s.cfg.WorkerCount),
-			iquery.WithLookUpKey(s.cfg.IQueryModule.Type),
+			iquery.WithLookUpKey(lookupKey),
 		); err != nil {
 			return err
 		}
@@ -148,4 +175,8 @@ func (s *Scenario) Close() error {
 
 func (s *Scenario) RegisterMetadata(md metadata.Metadata) {
 	s.metadata = md
+}
+
+func (s *Scenario) RegisterGenerator(gen generator.Generator) {
+	s.generator = append(s.generator, gen)
 }

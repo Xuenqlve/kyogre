@@ -1,6 +1,10 @@
 package generator
 
 import (
+	"fmt"
+	"reflect"
+	"sync"
+
 	"github.com/xuenqlve/common/schema_store"
 	"github.com/xuenqlve/kyogre/internal/message"
 	"github.com/xuenqlve/kyogre/internal/plugin/iquery"
@@ -68,6 +72,51 @@ type Generator interface {
 	Close()
 }
 
+type (
+	Type    string
+	Factory func() Generator
+)
+
+var (
+	_generatorRegistry map[Type]Factory
+	_generatorMutex    sync.Mutex
+)
+
+// RegisterGenerator 注册生成器实例
+func RegisterGenerator(generatorType Type, v Generator, singleton bool) {
+	var gf Factory
+	if singleton {
+		gf = func() Generator { return v }
+	} else {
+		gf = func() Generator { return reflect.New(reflect.TypeOf(v).Elem()).Interface().(Generator) }
+	}
+	RegisterGeneratorFactory(generatorType, gf)
+}
+
+// RegisterGeneratorFactory 注册生成器工厂
+func RegisterGeneratorFactory(generatorType Type, factory Factory) {
+	_generatorMutex.Lock()
+	defer _generatorMutex.Unlock()
+	if _generatorRegistry == nil {
+		_generatorRegistry = make(map[Type]Factory)
+	}
+	if _, ok := _generatorRegistry[generatorType]; ok {
+		panic(fmt.Sprintf("generator already exists, type:%s", generatorType))
+	}
+	_generatorRegistry[generatorType] = factory
+}
+
+// GetGenerator 根据类型创建生成器实例
+func GetGenerator(generatorType Type) (Generator, error) {
+	_generatorMutex.Lock()
+	defer _generatorMutex.Unlock()
+	factory, ok := _generatorRegistry[generatorType]
+	if !ok {
+		return nil, fmt.Errorf("generator not registered type:%s", generatorType)
+	}
+	return factory(), nil
+}
+
 var (
 	RandomTableSelect       = "random"
 	OrderedTableSelect      = "ordered"
@@ -106,11 +155,7 @@ func NewDependencyRequest(config DependencyConfig, strategy *GenerationStrategy)
 	}
 }
 
-func NewMessageGenerationRequest(
-	dep GenerationDependency,
-	queryResults map[string]*iquery.LookupResult,
-	strategy *GenerationStrategy,
-) *MessageGenerationRequest {
+func NewMessageGenerationRequest(dep GenerationDependency, queryResults map[string]*iquery.LookupResult, strategy *GenerationStrategy) *MessageGenerationRequest {
 	return &MessageGenerationRequest{
 		Dependency:         dep,
 		QueryResults:       queryResults,

@@ -15,6 +15,12 @@ import (
 	"github.com/xuenqlve/kyogre/internal/plugin/metadata"
 )
 
+const MySQLDML generator.Type = "mysql-dml"
+
+func init() {
+	generator.RegisterGenerator(MySQLDML, &DMLGenerator{}, false)
+}
+
 type Config struct {
 	Metadata string `mapstructure:"metadata" json:"metadata"`
 }

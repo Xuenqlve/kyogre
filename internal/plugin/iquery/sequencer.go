@@ -10,6 +10,7 @@ import (
 )
 
 // SequenceSpec 定义需要预分配的序列信息
+// SequenceSpec 定义需要预分配的序列信息
 type SequenceSpec struct {
 	Schema schema_store.SchemaKey
 	Field  string
@@ -23,25 +24,30 @@ type Segment struct {
 	EndValue   int64
 }
 
+// SequencerOptions 允许通过可选参数配置 sequencer
 type SequencerOptions func(*SequencerConfig)
 
+// WithWorkerCount 设置 worker 数量
 func WithWorkerCount(workerCount int) SequencerOptions {
 	return func(cfg *SequencerConfig) {
 		cfg.WorkerCount = workerCount
 	}
 }
 
+// WithLookUpKey 指定用于反查的 lookup key
 func WithLookUpKey(lookup string) SequencerOptions {
 	return func(cfg *SequencerConfig) {
 		cfg.LookupKey = lookup
 	}
 }
 
+// SequencerConfig 保存 sequencer 的基础配置
 type SequencerConfig struct {
 	WorkerCount int    `mapstructure:"worker-count" json:"worker-count"`
 	LookupKey   string `mapstructure:"lookup-key" json:"lookup-key"`
 }
 
+// ValidateAndSetDefault 校验配置并补充默认值
 func (cfg *SequencerConfig) ValidateAndSetDefault() error {
 	if cfg.WorkerCount <= 0 {
 		cfg.WorkerCount = 1
@@ -54,6 +60,7 @@ func (cfg *SequencerConfig) ValidateAndSetDefault() error {
 
 var ErrSegmentExhausted = errors.New("sequence segment exhausted, need reallocate")
 
+// Sequencer 负责向反查模块申请序列区间并按 worker 切段
 type Sequencer struct {
 	pipeline string
 	lookup   Lookup
@@ -69,11 +76,46 @@ type sequenceState struct {
 	mu       sync.Mutex
 }
 
+// reserve 从 worker 可用段落中取出连续序列
+func (st *sequenceState) reserve(workerID int, step, length int64) (int64, int64, error) {
+	if workerID < 0 || workerID >= len(st.segments) {
+		return 0, 0, fmt.Errorf("invalid worker id %d", workerID)
+	}
+	if step <= 0 {
+		step = 1
+	}
+	if length <= 0 {
+		length = 1
+	}
+
+	st.mu.Lock()
+	defer st.mu.Unlock()
+
+	seg := st.segments[workerID]
+	if seg.next > seg.EndValue {
+		return 0, 0, ErrSegmentExhausted
+	}
+
+	maxLen := ((seg.EndValue - seg.next) / step) + 1
+	if maxLen <= 0 {
+		return 0, 0, ErrSegmentExhausted
+	}
+	if length > maxLen {
+		length = maxLen
+	}
+
+	start := seg.next
+	end := start + (length-1)*step
+	seg.next = end + step
+	return start, end, nil
+}
+
 type workerSegment struct {
 	Segment
 	next int64
 }
 
+// NewSequencer 创建 sequencer 并初始化内部状态
 func NewSequencer() (*Sequencer, error) {
 	return &Sequencer{
 		cfg:    &SequencerConfig{},
@@ -81,6 +123,7 @@ func NewSequencer() (*Sequencer, error) {
 	}, nil
 }
 
+// Configure 结合可选项初始化 lookup 和配置
 func (s *Sequencer) Configure(pipeline string, opts ...SequencerOptions) (err error) {
 	s.pipeline = pipeline
 	for _, option := range opts {
@@ -96,6 +139,7 @@ func (s *Sequencer) Configure(pipeline string, opts ...SequencerOptions) (err er
 	return nil
 }
 
+// Preallocate 调用反查模块，按照 worker 数拆分区间
 func (s *Sequencer) Preallocate(ctx context.Context, specs []SequenceSpec) error {
 	specMap := make(map[string]SequenceSpec)
 	req := LookupRequest{Items: make([]LookupRequestItem, 0, len(specs))}
@@ -143,6 +187,7 @@ func (s *Sequencer) Preallocate(ctx context.Context, specs []SequenceSpec) error
 	return nil
 }
 
+// buildSegments 根据反查结果切割各 worker 的连续区间
 func (s *Sequencer) buildSegments(res LookupResult, spec SequenceSpec) []*workerSegment {
 	if s.cfg.WorkerCount <= 0 {
 		return nil
@@ -176,6 +221,7 @@ func (s *Sequencer) buildSegments(res LookupResult, spec SequenceSpec) []*worker
 	return segs
 }
 
+// setState 将分配的段写入状态表
 func (s *Sequencer) setState(key string, spec SequenceSpec, segs []*workerSegment) {
 	s.stateMu.Lock()
 	defer s.stateMu.Unlock()
@@ -185,6 +231,7 @@ func (s *Sequencer) setState(key string, spec SequenceSpec, segs []*workerSegmen
 	}
 }
 
+// getState 返回序列状态，未命中则 false
 func (s *Sequencer) getState(key string) (*sequenceState, bool) {
 	s.stateMu.RLock()
 	defer s.stateMu.RUnlock()
@@ -192,6 +239,7 @@ func (s *Sequencer) getState(key string) (*sequenceState, bool) {
 	return state, ok
 }
 
+// Reserve 为指定 worker 预留 length 个序列号，必要时触发再切段
 func (s *Sequencer) Reserve(ctx context.Context, workerID int, spec SequenceSpec, length int64) (int64, int64, error) {
 	if spec.Schema == nil || spec.Field == "" {
 		return 0, 0, fmt.Errorf("invalid sequence spec: missing schema or field")
@@ -219,6 +267,7 @@ func (s *Sequencer) Reserve(ctx context.Context, workerID int, spec SequenceSpec
 	}
 }
 
+// ensureState 确保序列状态存在，不存在则重新申请
 func (s *Sequencer) ensureState(ctx context.Context, key string, spec SequenceSpec) (*sequenceState, error) {
 	if state, ok := s.getState(key); ok {
 		return state, nil
@@ -233,39 +282,7 @@ func (s *Sequencer) ensureState(ctx context.Context, key string, spec SequenceSp
 	return state, nil
 }
 
-func (st *sequenceState) reserve(workerID int, step, length int64) (int64, int64, error) {
-	if workerID < 0 || workerID >= len(st.segments) {
-		return 0, 0, fmt.Errorf("invalid worker id %d", workerID)
-	}
-	if step <= 0 {
-		step = 1
-	}
-	if length <= 0 {
-		length = 1
-	}
-
-	st.mu.Lock()
-	defer st.mu.Unlock()
-
-	seg := st.segments[workerID]
-	if seg.next > seg.EndValue {
-		return 0, 0, ErrSegmentExhausted
-	}
-
-	maxLen := ((seg.EndValue - seg.next) / step) + 1
-	if maxLen <= 0 {
-		return 0, 0, ErrSegmentExhausted
-	}
-	if length > maxLen {
-		length = maxLen
-	}
-
-	start := seg.next
-	end := start + (length-1)*step
-	seg.next = end + step
-	return start, end, nil
-}
-
+// Close 关闭底层 lookup 资源
 func (s *Sequencer) Close() error {
 	if s.lookup == nil {
 		return nil
@@ -273,6 +290,7 @@ func (s *Sequencer) Close() error {
 	return s.lookup.Close()
 }
 
+// sequenceKey 将 schema 与字段组合成唯一 key
 func sequenceKey(schema schema_store.SchemaKey, field string) string {
 	return fmt.Sprintf("%s:%s", schema.UniqueID(), field)
 }

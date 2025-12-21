@@ -9,27 +9,33 @@ import (
 	"github.com/xuenqlve/common/schema_store"
 )
 
+// LookupRequest 描述一次反查任务需要查询的表及字段
 type LookupRequest struct {
-	Items []LookupRequestItem
+    Items []LookupRequestItem
 }
 
+// LookupRequestItem 指定单个 schema 与字段的反查需求
 type LookupRequestItem struct {
-	Schema schema_store.SchemaKey
-	Field  string
+    Schema schema_store.SchemaKey
+    Field  string
 }
 
+// LookupResult 承载反查模块返回的最大值、行数等信息
 type LookupResult struct {
-	Schema schema_store.SchemaKey
-	Field  string
-	Max    int64
-	Rows   int64
-	Extras map[string]any
+    Schema schema_store.SchemaKey
+    Field  string
+    Max    int64
+    Rows   int64
+    Extras map[string]any
 }
 
 type Lookup interface {
-	Configure(pipeline string, cfg map[string]any) error
-	Lookup(ctx context.Context, req LookupRequest) ([]LookupResult, error)
-	Close() error
+    // Configure 根据配置初始化反查插件
+    Configure(pipeline string, cfg map[string]any) error
+    // Lookup 执行反查并返回结果
+    Lookup(ctx context.Context, req LookupRequest) ([]LookupResult, error)
+    // Close 释放资源
+    Close() error
 }
 
 type (
@@ -42,6 +48,7 @@ var (
 	_iquery_mutex    sync.Mutex
 )
 
+// RegisterIQueryPlugin 注册反查工厂方法
 func RegisterIQueryPlugin(iQueryType LookupType, factory LookupFactory) {
 	_iquery_mutex.Lock()
 	defer _iquery_mutex.Unlock()
@@ -54,6 +61,7 @@ func RegisterIQueryPlugin(iQueryType LookupType, factory LookupFactory) {
 	_iquery_registry[iQueryType] = factory
 }
 
+// RegisterIQuery 注册反查插件，支持单例/多例
 func RegisterIQuery(iQueryType LookupType, v Lookup, singleton bool) {
 	var pf LookupFactory
 	if singleton {
@@ -64,6 +72,7 @@ func RegisterIQuery(iQueryType LookupType, v Lookup, singleton bool) {
 	RegisterIQueryPlugin(iQueryType, pf)
 }
 
+// GetIQueryModule 根据类型创建反查实例
 func GetIQueryModule(iQueryType LookupType) (Lookup, error) {
 	_iquery_mutex.Lock()
 	defer _iquery_mutex.Unlock()

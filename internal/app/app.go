@@ -2,12 +2,20 @@ package app
 
 import (
 	"context"
+	"fmt"
+	"net/http"
 
 	"github.com/xuenqlve/common/errors"
 	"github.com/xuenqlve/common/log"
 	"github.com/xuenqlve/kyogre/internal/config"
 	"github.com/xuenqlve/kyogre/internal/data_source"
-	"github.com/xuenqlve/kyogre/internal/plugin/metadata"
+	"github.com/xuenqlve/kyogre/internal/pipeline"
+	"github.com/xuenqlve/kyogre/internal/plugin/iquery"
+	_ "github.com/xuenqlve/kyogre/pkg/generator"
+	_ "github.com/xuenqlve/kyogre/pkg/iquery"
+	_ "github.com/xuenqlve/kyogre/pkg/metadata"
+	_ "github.com/xuenqlve/kyogre/pkg/pressure"
+	_ "github.com/xuenqlve/kyogre/pkg/scenario"
 )
 
 type Server struct {
@@ -15,6 +23,8 @@ type Server struct {
 	cfg      config.Config
 	ctx      context.Context
 	cancel   context.CancelFunc
+	engine   *pipeline.PipelineEngine
+	httpSrv  *http.Server
 }
 
 func NewServer(cfg config.Config) (*Server, error) {
@@ -41,7 +51,14 @@ func (s *Server) Configure() (err error) {
 		}
 	}
 
-	if err = metadata.MetaData.Configure(s.pipeline, s.cfg.Metadata); err != nil {
+	if len(s.cfg.IQuery) > 0 {
+		if err = iquery.IQueryManager.Configure(s.pipeline, s.cfg.IQuery); err != nil {
+			return errors.Trace(err)
+		}
+	}
+
+	s.engine = pipeline.NewEngine(s.pipeline)
+	if err = s.engine.Build(s.cfg); err != nil {
 		return errors.Trace(err)
 	}
 
@@ -49,5 +66,22 @@ func (s *Server) Configure() (err error) {
 }
 
 func (s *Server) Run() error {
-	return nil
+	if s.engine == nil {
+		return fmt.Errorf("pipeline engine not initialized")
+	}
+	if err := s.engine.StartAll(s.ctx); err != nil {
+		return err
+	}
+	apiErr := make(chan error, 1)
+	go func() {
+		apiErr <- s.startAPI(s.ctx)
+	}()
+	select {
+	case <-s.ctx.Done():
+		s.engine.StopAll()
+		return <-apiErr
+	case err := <-apiErr:
+		s.engine.StopAll()
+		return err
+	}
 }

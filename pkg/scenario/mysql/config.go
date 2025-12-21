@@ -11,6 +11,7 @@ import (
 type Config struct {
 	WorkerCount        int                           `mapstructure:"worker-count" yaml:"worker-count"`
 	EnableIQuery       bool                          `mapstructure:"enable-iquery" yaml:"enable-iquery"`
+	IQueryKey          string                        `mapstructure:"iquery-key" yaml:"iquery-key"`
 	IQueryModule       *config.ConfigureMold         `mapstructure:"iquery-module,omitempty" yaml:"iquery-module,omitempty"` // 反查模块配置（可选）
 	GenerationStrategy *generator.GenerationStrategy `mapstructure:"generation-strategy" yaml:"generation-strategy"`         // 生成策略
 	// 依赖配置：支持DML、Transaction、DDL三种模式
@@ -51,6 +52,10 @@ func (d *DependencyConfigData) GetDependencyConfig() (generator.DependencyConfig
 func (c *Config) Validate() error {
 	if c.WorkerCount == 0 {
 		c.WorkerCount = 1
+	}
+
+	if c.EnableIQuery && c.IQueryKey == "" && c.IQueryModule == nil {
+		return fmt.Errorf("enable-iquery 为 true 时需要配置 iquery-key 或 iquery-module")
 	}
 
 	// 设置默认的生成策略（如果没有指定）

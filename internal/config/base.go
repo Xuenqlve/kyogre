@@ -12,13 +12,31 @@ type Config struct {
 	LogFile    string                    `mapstructure:"log-file" json:"log-file" yaml:"log-file" toml:"log-file"`
 	ApiConfig  map[string]any            `mapstructure:"api-config" json:"api-config" yaml:"api-config" toml:"api-config"`
 	DataSource map[string]map[string]any `mapstructure:"data-source" json:"data-source" yaml:"data-source" toml:"data-source"`
+	IQuery     map[string]ConfigureMold  `mapstructure:"iquery" json:"iquery" yaml:"iquery" toml:"iquery"`
 	Metadata   map[string]ConfigureMold  `mapstructure:"metadata" json:"metadata" yaml:"metadata" toml:"metadata"`
-	// 场景配置
-	Scenario ConfigureMold `mapstructure:"scenario" json:"scenario" yaml:"scenario" toml:"scenario"`
-	// 压测配置
-	Pressure ConfigureMold `mapstructure:"pressure" json:"pressure" yaml:"pressure" toml:"pressure"`
-	// 监控和报告配置
-	Monitor ConfigureMold `mapstructure:"monitor" json:"monitor" yaml:"monitor" toml:"monitor"`
+	Pipelines  []PipelineSpec            `mapstructure:"pipelines" json:"pipelines" yaml:"pipelines" toml:"pipelines"`
+}
+
+type PipelineSpec struct {
+	Name       string                   `mapstructure:"name" json:"name" yaml:"name" toml:"name"`
+	Metadata   map[string]ConfigureMold `mapstructure:"metadata" json:"metadata" yaml:"metadata" toml:"metadata"`
+	Generators []GeneratorSpec          `mapstructure:"generators" json:"generators" yaml:"generators" toml:"generators"`
+	Scenario   ScenarioSpec             `mapstructure:"scenario" json:"scenario" yaml:"scenario" toml:"scenario"`
+	Pressure   ConfigureMold            `mapstructure:"pressure" json:"pressure" yaml:"pressure" toml:"pressure"`
+}
+
+type GeneratorSpec struct {
+	Name        string         `mapstructure:"name" json:"name" yaml:"name" toml:"name"`
+	Type        string         `mapstructure:"type" json:"type" yaml:"type" toml:"type"`
+	Config      map[string]any `mapstructure:"config" json:"config" yaml:"config" toml:"config"`
+	MetadataRef string         `mapstructure:"metadata-ref" json:"metadata-ref" yaml:"metadata-ref" toml:"metadata-ref"`
+}
+
+type ScenarioSpec struct {
+	Type        string         `mapstructure:"type" json:"type" yaml:"type" toml:"type"`
+	Config      map[string]any `mapstructure:"config" json:"config" yaml:"config" toml:"config"`
+	MetadataRef string         `mapstructure:"metadata-ref" json:"metadata-ref" yaml:"metadata-ref" toml:"metadata-ref"`
+	Generators  []string       `mapstructure:"generators" json:"generators" yaml:"generators" toml:"generators"`
 }
 
 type ConfigureMold struct {
