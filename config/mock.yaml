@@ -23,7 +23,7 @@ pipelines:
       generators:
         - mock-generator
       config:
-        message-count: 5
+        message-count: 1000
         interval-ms: 50
     pressure:
       type: mock

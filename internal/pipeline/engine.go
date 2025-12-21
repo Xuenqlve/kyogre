@@ -265,7 +265,9 @@ func (p *Pipeline) execute(ctx context.Context) error {
 	}()
 	go func() {
 		<-ctx.Done()
-		p.point.Close()
+		if p.point != nil {
+			p.point.Close()
+		}
 	}()
 	if err := p.scenario.Start(p.point.InPoint()); err != nil {
 		return err
