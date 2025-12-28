@@ -32,6 +32,7 @@ type Generator struct {
 	pipeline string
 	cfg      Config
 	seq      atomic.Int64
+	md       metadata.Metadata
 }
 
 func init() {
@@ -49,7 +50,9 @@ func (g *Generator) Configure(pipeline string, data map[string]any) error {
 	return nil
 }
 
-func (g *Generator) RegisterMetadata(metadata.Metadata) {}
+func (g *Generator) RegisterMetadata(md metadata.Metadata) {
+	g.md = md
+}
 
 func (g *Generator) CollectDependencies(req *generator.DependencyRequest) (generator.GenerationDependency, error) {
 	if cfg, ok := req.Config.(*MockDependencyConfig); ok && cfg.ForceValue != "" {
@@ -57,10 +60,6 @@ func (g *Generator) CollectDependencies(req *generator.DependencyRequest) (gener
 	}
 	next := g.seq.Add(1)
 	return &mockDependency{value: fmt.Sprintf("%s-%d", g.cfg.Prefix, next)}, nil
-}
-
-func (g *Generator) Metadata() string {
-
 }
 
 func (g *Generator) MockMessage(req *generator.MessageGenerationRequest) (message.Message, error) {

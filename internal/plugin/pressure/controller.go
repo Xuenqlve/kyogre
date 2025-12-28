@@ -4,8 +4,8 @@ import (
 	"context"
 	"sync"
 
+	"github.com/xuenqlve/common/log"
 	"github.com/xuenqlve/kyogre/internal/message"
-	"gitlab.com/zeroteam/common/log"
 )
 
 type Controller struct {
@@ -52,9 +52,9 @@ func (c *Controller) Start(ctx context.Context, msgChan message.OutPoint) error 
 	return nil
 }
 
-func (e *Controller) Close() error {
-	e.wg.Wait()
-	for _, pressure := range e.pressures {
+func (c *Controller) Close() error {
+	c.wg.Wait()
+	for _, pressure := range c.pressures {
 		if err := pressure.Close(); err != nil {
 			log.Errorf("pressure %s close error: %v", pressure.MessageType(), err)
 		}

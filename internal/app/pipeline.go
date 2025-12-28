@@ -1,4 +1,4 @@
-package pipeline
+package app
 
 import (
 	"context"
@@ -39,20 +39,27 @@ func NewEngine(pipelineName string) *PipelineEngine {
 }
 
 // Build 根据配置创建所有 Pipeline 模板
-func (e *PipelineEngine) Build(cfg []config.PipelineSpec) error {
+//
+//	func (e *PipelineEngine) Build(cfg []config.PipelineSpec) error {
+//		e.mu.Lock()
+//		defer e.mu.Unlock()
+//		if len(cfg) == 0 {
+//			return fmt.Errorf("no pipelines configured")
+//		}
+//		for _, spec := range cfg {
+//			if spec.Name == "" {
+//				return fmt.Errorf("pipeline name is required")
+//			}
+//
+//			//e.pipelines[spec.Name] = newPipeline(e.pipelineName, spec)
+//		}
+//		return nil
+//	}
+func (e *PipelineEngine) RegisterPipeline(name string, pipeline *Pipeline) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
-	if len(cfg) == 0 {
-		return fmt.Errorf("no pipelines configured")
-	}
-	for _, spec := range cfg {
-		if spec.Name == "" {
-			return fmt.Errorf("pipeline name is required")
-		}
-
-		//e.pipelines[spec.Name] = newPipeline(e.pipelineName, spec)
-	}
-	return nil
+	e.pipelines[name] = pipeline
+	return
 }
 
 // StartAll 启动所有已创建的管线
@@ -126,35 +133,53 @@ func (e *PipelineEngine) getPipeline(name string) (*Pipeline, error) {
 
 // Pipeline 表示一条可启动/停止的链路
 type Pipeline struct {
-	name         string
-	pipelineName string
-	spec         config.PipelineSpec
-
-	mu       sync.Mutex
-	state    PipelineState
-	lastErr  error
-	cancel   context.CancelFunc
-	done     chan struct{}
-	scenario scenario.Scenario
-	pressure pressure.Pressure
-	point    message.Point
+	name        string
+	spec        config.PipelineSpec
+	scenarioMgr *scenario.Manager
+	pressureMgr *pressure.Manager
+	mu          sync.Mutex
+	state       PipelineState
+	lastErr     error
+	cancel      context.CancelFunc
+	done        chan struct{}
+	scenario    scenario.Scenario
+	pressure    *pressure.Controller
+	point       message.Point
 }
 
-func NewPipeline(pipelineName string, scenario scenario.Scenario, pressure pressure.Pressure) *Pipeline {
+func NewPipeline(spec config.PipelineSpec, scenarioMgr *scenario.Manager, pressureMgr *pressure.Manager) *Pipeline {
 	return &Pipeline{
-		pipelineName: pipelineName,
-		scenario:     scenario,
-		pressure:     pressure,
+		name:        spec.Name,
+		spec:        spec,
+		scenarioMgr: scenarioMgr,
+		pressureMgr: pressureMgr,
+		state:       StateStopped,
 	}
 }
 
 func (p *Pipeline) Start(ctx context.Context) error {
 	p.mu.Lock()
-	defer p.mu.Unlock()
+	if p.state == StateRunning || p.state == StateStopping {
+		state := p.state
+		p.mu.Unlock()
+		return fmt.Errorf("pipeline %s is %s", p.name, state)
+	}
+	if err := p.ensureModulesLocked(); err != nil {
+		p.mu.Unlock()
+		return err
+	}
 	runCtx, cancel := context.WithCancel(ctx)
+	ready := make(chan error, 1)
 	p.cancel = cancel
 	p.done = make(chan struct{})
-	go p.runLoop(runCtx)
+	p.state = StateRunning
+	p.lastErr = nil
+	go p.runLoop(runCtx, ready)
+	p.mu.Unlock()
+	if err := <-ready; err != nil {
+		p.waitUntilStopped()
+		return err
+	}
 	return nil
 }
 
@@ -195,8 +220,33 @@ func (p *Pipeline) Status() PipelineStatus {
 	return status
 }
 
-func (p *Pipeline) runLoop(ctx context.Context) {
-	err := p.execute(ctx)
+func (p *Pipeline) ensureModulesLocked() error {
+	if p.scenario == nil {
+		if p.scenarioMgr == nil {
+			return fmt.Errorf("scenario manager not configured for pipeline %s", p.name)
+		}
+		sc, err := p.scenarioMgr.GetScenario(p.spec.Scenario)
+		if err != nil {
+			return err
+		}
+		p.scenario = sc
+	}
+	if p.pressure == nil {
+		if p.pressureMgr == nil {
+			return fmt.Errorf("pressure manager not configured for pipeline %s", p.name)
+		}
+		ctrl, err := p.pressureMgr.GetPressureController(p.spec.Pressure)
+		if err != nil {
+			return err
+		}
+		p.pressure = ctrl
+	}
+	return nil
+}
+
+func (p *Pipeline) runLoop(ctx context.Context, ready chan<- error) {
+	err := p.execute(ctx, &ready)
+	signalReady(&ready, err)
 	p.mu.Lock()
 	p.lastErr = err
 	p.state = StateStopped
@@ -209,46 +259,33 @@ func (p *Pipeline) runLoop(ctx context.Context) {
 	p.mu.Unlock()
 }
 
-func (p *Pipeline) execute(ctx context.Context) error {
+func (p *Pipeline) execute(ctx context.Context, ready *chan<- error) error {
 	defer p.shutdown()
-	if err := p.initializeMetadata(ctx); err != nil {
-		return err
-	}
-	if err := p.pressure.Start(ctx); err != nil {
+	p.point = make(message.Point, 1024)
+	if err := p.pressure.Start(ctx, p.point.OutPoint()); err != nil {
+		signalReady(ready, err)
 		return err
 	}
 	if err := p.scenario.Preparation(ctx); err != nil {
+		signalReady(ready, err)
 		return err
 	}
-	p.point = make(message.Point, 1024)
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		for msg := range p.point.OutPoint() {
-			p.pressure.Execute(msg)
-		}
-	}()
-	go func() {
 		<-ctx.Done()
 		if p.point != nil {
 			p.point.Close()
 		}
 	}()
 	if err := p.scenario.Start(p.point.InPoint()); err != nil {
+		signalReady(ready, err)
 		return err
 	}
+	signalReady(ready, nil)
 	<-ctx.Done()
 	wg.Wait()
-	return nil
-}
-
-func (p *Pipeline) initializeMetadata(ctx context.Context) error {
-	//for key, md := range p.metadata {
-	//	if err := md.Initialize(ctx); err != nil {
-	//		return fmt.Errorf("metadata %s initialize failed: %w", key, err)
-	//	}
-	//}
 	return nil
 }
 
@@ -265,4 +302,22 @@ func (p *Pipeline) cleanupModules() {
 	p.point = nil
 	p.pressure = nil
 	p.scenario = nil
+}
+
+func (p *Pipeline) waitUntilStopped() {
+	p.mu.Lock()
+	done := p.done
+	p.mu.Unlock()
+	if done != nil {
+		<-done
+	}
+}
+
+func signalReady(ch *chan<- error, err error) {
+	if ch == nil || *ch == nil {
+		return
+	}
+	(*ch) <- err
+	close(*ch)
+	*ch = nil
 }

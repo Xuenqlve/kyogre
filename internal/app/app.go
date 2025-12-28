@@ -9,7 +9,6 @@ import (
 	"github.com/xuenqlve/common/log"
 	"github.com/xuenqlve/kyogre/internal/config"
 	"github.com/xuenqlve/kyogre/internal/data_source"
-	"github.com/xuenqlve/kyogre/internal/pipeline"
 	"github.com/xuenqlve/kyogre/internal/plugin/generator"
 	"github.com/xuenqlve/kyogre/internal/plugin/iquery"
 	"github.com/xuenqlve/kyogre/internal/plugin/metadata"
@@ -27,7 +26,7 @@ type Server struct {
 	cfg       config.Config
 	ctx       context.Context
 	cancel    context.CancelFunc
-	engine    *pipeline.PipelineEngine
+	engine    *PipelineEngine
 	iquery    *iquery.Manager
 	scenarios *scenario.Manager
 	pressure  *pressure.Manager
@@ -65,60 +64,29 @@ func (s *Server) Configure() (err error) {
 			return errors.Trace(err)
 		}
 	}
-	if err = s.initMetadata(); err != nil {
-		return errors.Trace(err)
-	}
-
-	if err = s.initGenerator(); err != nil {
-		return errors.Trace(err)
-	}
-
-	if s.scenarios, err = scenario.ManagerScenario(s.pipeline, s.cfg.Scenario); err != nil {
-		return errors.Trace(err)
-	}
-
-	if s.pressure, err = pressure.ManagerPressure(s.pipeline, s.cfg.Pressure); err != nil {
-		return errors.Trace(err)
-	}
-
-	s.engine = pipeline.NewEngine(s.pipeline)
-	//if err = s.engine.Build(s.cfg.Pipelines); err != nil {
-	//	return errors.Trace(err)
-	//}
-	return nil
-}
-
-func (s *Server) initMetadata() error {
 	s.metadata = metadata.NewManager()
-	return s.metadata.Configure(s.pipeline, s.cfg.Metadata)
-}
+	if err = s.metadata.Configure(s.pipeline, s.cfg.Metadata); err != nil {
+		return errors.Trace(err)
+	}
 
-func (s *Server) initGenerator() error {
 	s.generator = generator.NewManager()
-	if err := s.generator.Configure(s.pipeline, s.cfg.Generator, s.metadata); err != nil {
+	if err = s.generator.Configure(s.pipeline, s.cfg.Generator, s.metadata); err != nil {
 		return errors.Trace(err)
 	}
-	return nil
-}
 
-func (s *Server) initScenario() error {
 	s.scenarios = scenario.NewManager()
-	if err := s.scenarios.Configure(s.pipeline, s.cfg.Scenario, s.generator, s.iquery); err != nil {
+	if err = s.scenarios.Configure(s.pipeline, s.cfg.Scenario, s.generator, s.iquery); err != nil {
 		return errors.Trace(err)
 	}
-	return nil
-}
-
-func (s *Server) BuildPipeline() error {
-	for _, cfg := range s.cfg.Pipelines {
-
-		scenario, err := s.scenarios.GetScenario(cfg.Scenario)
-		if err != nil {
-			return errors.Trace(err)
-		}
-
-		pipeline.NewPipeline(s.pipeline)
+	s.pressure = pressure.NewManager()
+	if err = s.pressure.Configure(s.pipeline, s.cfg.Pressure); err != nil {
+		return errors.Trace(err)
 	}
+	s.engine = NewEngine(s.pipeline)
+	for _, spec := range s.cfg.Pipelines {
+		s.engine.RegisterPipeline(spec.Name, NewPipeline(spec, s.scenarios, s.pressure))
+	}
+	return nil
 }
 
 func (s *Server) Run() error {

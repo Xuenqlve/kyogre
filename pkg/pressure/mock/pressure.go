@@ -37,6 +37,10 @@ func (p *Pressure) Configure(pipeline string, data map[string]any) error {
 	return nil
 }
 
+func (p *Pressure) MessageType() string {
+	return message.MockType
+}
+
 func (p *Pressure) Start(ctx context.Context) error {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -46,6 +50,7 @@ func (p *Pressure) Start(ctx context.Context) error {
 
 func (p *Pressure) Execute(msg message.Message) {
 	if msg == nil {
+		log.Infof("[%s] pipeline idle message received", p.cfg.Name)
 		return
 	}
 	log.Infof("[%s] recv message type=%s value=%v\n", p.cfg.Name, msg.Type(), msg)
