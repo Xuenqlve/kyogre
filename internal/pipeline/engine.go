@@ -7,8 +7,6 @@ import (
 
 	"github.com/xuenqlve/kyogre/internal/config"
 	"github.com/xuenqlve/kyogre/internal/message"
-	"github.com/xuenqlve/kyogre/internal/plugin/generator"
-	"github.com/xuenqlve/kyogre/internal/plugin/metadata"
 	"github.com/xuenqlve/kyogre/internal/plugin/pressure"
 	"github.com/xuenqlve/kyogre/internal/plugin/scenario"
 )
@@ -41,17 +39,18 @@ func NewEngine(pipelineName string) *PipelineEngine {
 }
 
 // Build 根据配置创建所有 Pipeline 模板
-func (e *PipelineEngine) Build(cfg config.Config) error {
+func (e *PipelineEngine) Build(cfg []config.PipelineSpec) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
-	if len(cfg.Pipelines) == 0 {
+	if len(cfg) == 0 {
 		return fmt.Errorf("no pipelines configured")
 	}
-	for _, spec := range cfg.Pipelines {
+	for _, spec := range cfg {
 		if spec.Name == "" {
 			return fmt.Errorf("pipeline name is required")
 		}
-		e.pipelines[spec.Name] = newPipeline(e.pipelineName, spec)
+
+		//e.pipelines[spec.Name] = newPipeline(e.pipelineName, spec)
 	}
 	return nil
 }
@@ -131,41 +130,30 @@ type Pipeline struct {
 	pipelineName string
 	spec         config.PipelineSpec
 
-	mu         sync.Mutex
-	state      PipelineState
-	lastErr    error
-	cancel     context.CancelFunc
-	done       chan struct{}
-	metadata   map[string]metadata.Metadata
-	generators map[string]generator.Generator
-	scenario   scenario.Scenario
-	pressure   pressure.Pressure
-	point      message.Point
+	mu       sync.Mutex
+	state    PipelineState
+	lastErr  error
+	cancel   context.CancelFunc
+	done     chan struct{}
+	scenario scenario.Scenario
+	pressure pressure.Pressure
+	point    message.Point
 }
 
-func newPipeline(pipelineName string, spec config.PipelineSpec) *Pipeline {
+func NewPipeline(pipelineName string, scenario scenario.Scenario, pressure pressure.Pressure) *Pipeline {
 	return &Pipeline{
-		name:         spec.Name,
 		pipelineName: pipelineName,
-		spec:         spec,
-		state:        StateStopped,
+		scenario:     scenario,
+		pressure:     pressure,
 	}
 }
 
 func (p *Pipeline) Start(ctx context.Context) error {
 	p.mu.Lock()
 	defer p.mu.Unlock()
-	if p.state == StateRunning {
-		return fmt.Errorf("pipeline %s already running", p.name)
-	}
-	if err := p.prepareModules(); err != nil {
-		p.cleanupModules()
-		return err
-	}
 	runCtx, cancel := context.WithCancel(ctx)
 	p.cancel = cancel
 	p.done = make(chan struct{})
-	p.state = StateRunning
 	go p.runLoop(runCtx)
 	return nil
 }
@@ -207,22 +195,6 @@ func (p *Pipeline) Status() PipelineStatus {
 	return status
 }
 
-func (p *Pipeline) prepareModules() error {
-	if err := p.buildMetadata(); err != nil {
-		return err
-	}
-	if err := p.buildGenerators(); err != nil {
-		return err
-	}
-	if err := p.buildScenario(); err != nil {
-		return err
-	}
-	if err := p.buildPressure(); err != nil {
-		return err
-	}
-	return nil
-}
-
 func (p *Pipeline) runLoop(ctx context.Context) {
 	err := p.execute(ctx)
 	p.mu.Lock()
@@ -254,12 +226,6 @@ func (p *Pipeline) execute(ctx context.Context) error {
 	go func() {
 		defer wg.Done()
 		for msg := range p.point.OutPoint() {
-			if msg == nil {
-				if p.cancel != nil {
-					p.cancel()
-				}
-				return
-			}
 			p.pressure.Execute(msg)
 		}
 	}()
@@ -277,93 +243,12 @@ func (p *Pipeline) execute(ctx context.Context) error {
 	return nil
 }
 
-func (p *Pipeline) buildMetadata() error {
-	p.metadata = make(map[string]metadata.Metadata)
-	for key, mold := range p.spec.Metadata {
-		md, err := metadata.GetMetadata(metadata.MetadataType(mold.Type))
-		if err != nil {
-			return err
-		}
-		if err = md.Configure(p.pipelineName, mold.Config); err != nil {
-			return err
-		}
-		p.metadata[key] = md
-	}
-	return nil
-}
-
-func (p *Pipeline) buildGenerators() error {
-	p.generators = make(map[string]generator.Generator)
-	for _, spec := range p.spec.Generators {
-		gen, err := generator.GetGenerator(generator.Type(spec.Type))
-		if err != nil {
-			return err
-		}
-		if err = gen.Configure(p.pipelineName, spec.Config); err != nil {
-			return err
-		}
-		if spec.MetadataRef != "" {
-			md, ok := p.metadata[spec.MetadataRef]
-			if !ok {
-				return fmt.Errorf("generator %s metadata-ref %s not found", spec.Name, spec.MetadataRef)
-			}
-			gen.RegisterMetadata(md)
-		}
-		p.generators[spec.Name] = gen
-	}
-	return nil
-}
-
-func (p *Pipeline) buildScenario() error {
-	if p.spec.Scenario.Type == "" {
-		return fmt.Errorf("scenario type required")
-	}
-	sc, err := scenario.GetScenario(scenario.Type(p.spec.Scenario.Type))
-	if err != nil {
-		return err
-	}
-	if err = sc.Configure(p.pipelineName, p.spec.Scenario.Config); err != nil {
-		return err
-	}
-	if ref := p.spec.Scenario.MetadataRef; ref != "" {
-		md, ok := p.metadata[ref]
-		if !ok {
-			return fmt.Errorf("scenario metadata-ref %s not found", ref)
-		}
-		sc.RegisterMetadata(md)
-	}
-	for _, name := range p.spec.Scenario.Generators {
-		gen, ok := p.generators[name]
-		if !ok {
-			return fmt.Errorf("scenario generator %s not found", name)
-		}
-		sc.RegisterGenerator(gen)
-	}
-	p.scenario = sc
-	return nil
-}
-
-func (p *Pipeline) buildPressure() error {
-	if p.spec.Pressure.Type == "" {
-		return fmt.Errorf("pressure type required")
-	}
-	pr, err := pressure.GetPressure(pressure.PressureType(p.spec.Pressure.Type))
-	if err != nil {
-		return err
-	}
-	if err = pr.Configure(p.pipelineName, p.spec.Pressure.Config); err != nil {
-		return err
-	}
-	p.pressure = pr
-	return nil
-}
-
 func (p *Pipeline) initializeMetadata(ctx context.Context) error {
-	for key, md := range p.metadata {
-		if err := md.Initialize(ctx); err != nil {
-			return fmt.Errorf("metadata %s initialize failed: %w", key, err)
-		}
-	}
+	//for key, md := range p.metadata {
+	//	if err := md.Initialize(ctx); err != nil {
+	//		return fmt.Errorf("metadata %s initialize failed: %w", key, err)
+	//	}
+	//}
 	return nil
 }
 
@@ -374,18 +259,10 @@ func (p *Pipeline) shutdown() {
 	if p.pressure != nil {
 		_ = p.pressure.Close()
 	}
-	for _, md := range p.metadata {
-		_ = md.Close()
-	}
-	for _, gen := range p.generators {
-		gen.Close()
-	}
 }
 
 func (p *Pipeline) cleanupModules() {
-	p.metadata = nil
-	p.generators = nil
-	p.scenario = nil
-	p.pressure = nil
 	p.point = nil
+	p.pressure = nil
+	p.scenario = nil
 }

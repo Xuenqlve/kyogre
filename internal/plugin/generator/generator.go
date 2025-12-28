@@ -38,17 +38,8 @@ type GenerationDependency interface {
 
 // GenerationStrategy 生成策略配置
 type GenerationStrategy struct {
-	SequenceConfig *iquery.SequenceConfig `json:"sequence_config,omitempty"` // 序列化配置
-	RandomConfig   *RandomConfig          `json:"random_config,omitempty"`   // 随机配置
-	TemplateConfig *TemplateConfig        `json:"template_config,omitempty"` // 模板配置
-	CustomConfig   map[string]any         `json:"custom_config,omitempty"`   // 自定义配置
-}
-
-// SequenceConfig 序列化生成配置
-
-// RandomConfig 随机生成配置
-type RandomConfig struct {
-	Seed int64 `json:"seed,omitempty"`
+	TemplateConfig *TemplateConfig `json:"template_config,omitempty"` // 模板配置
+	CustomConfig   map[string]any  `json:"custom_config,omitempty"`   // 自定义配置
 }
 
 // TemplateConfig 模板生成配置（基于预设模板）
@@ -60,11 +51,12 @@ type TemplateConfig struct {
 // Generator 生成器接口（两阶段设计）
 type Generator interface {
 	Configure(pipeline string, data map[string]any) error
+	//Metadata() string
 	RegisterMetadata(metadata metadata.Metadata)
+
 	// 第一阶段：收集依赖条件
 	// 根据配置和生成策略，确定需要哪些信息
 	CollectDependencies(req *DependencyRequest) (GenerationDependency, error)
-
 	// 第二阶段：生成消息（接收反查结果）
 	// 基于依赖条件、反查结果和生成策略，生成实际数据
 	MockMessage(req *MessageGenerationRequest) (message.Message, error)

@@ -375,7 +375,7 @@ func (g *DMLGenerator) generateDDLMessage(ddlDep *DDLDependency, req *generator.
 func (g *DMLGenerator) buildSequenceRows(dep *DMLDependency, seqConfig *iquery.SequenceConfig) []mysql.RowData {
 	rowDataList := make([]mysql.RowData, 0, dep.Count)
 
-	if seqConfig == nil || !seqConfig.Enabled {
+	if seqConfig == nil {
 		return rowDataList
 	}
 

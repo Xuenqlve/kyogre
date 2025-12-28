@@ -11,6 +11,7 @@ import (
 
 type Pressure interface {
 	Configure(pipeline string, data map[string]any) (err error)
+	MessageType() string
 	Start(ctx context.Context) error
 	Execute(msg message.Message)
 	Close() error

@@ -48,12 +48,6 @@ func RegisterMetadataPlugin(metadataType MetadataType, factory MetadataFactory) 
 		//_metadata_registry = make(map[MetadataType]map[MetadataMode]MetadataFactory)
 		_metadata_registry = make(map[MetadataType]MetadataFactory)
 	}
-	//_, ok := _metadata_registry[metadataType]
-	//if !ok {
-	//	_metadata_registry[metadataType] = make(map[MetadataMode]MetadataFactory)
-	//}
-
-	//_, ok = _metadata_registry[metadataType][mode]
 	_, ok := _metadata_registry[metadataType]
 	if ok {
 		panic(fmt.Sprintf("metadata plugin already registered with type %s", metadataType))
@@ -81,9 +75,5 @@ func GetMetadata(metadataType MetadataType) (Metadata, error) {
 	if !ok {
 		return nil, fmt.Errorf("metadata plugin not registered type:%v", metadataType)
 	}
-	//p, ok := plugins[mode]
-	//if !ok {
-	//	return nil, fmt.Errorf("metadata plugin not registered type:%v mode:%v", metadataType, mode)
-	//}
 	return plugin(), nil
 }

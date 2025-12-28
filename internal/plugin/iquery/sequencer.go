@@ -10,7 +10,6 @@ import (
 )
 
 // SequenceSpec 定义需要预分配的序列信息
-// SequenceSpec 定义需要预分配的序列信息
 type SequenceSpec struct {
 	Schema schema_store.SchemaKey
 	Field  string
@@ -132,10 +131,10 @@ func (s *Sequencer) Configure(pipeline string, opts ...SequencerOptions) (err er
 	if err = s.cfg.ValidateAndSetDefault(); err != nil {
 		return err
 	}
-	s.lookup, err = IQueryManager.GetIQueryLookup(s.cfg.LookupKey)
-	if err != nil {
-		return err
-	}
+	//s.lookup, err = IQueryManager.GetIQueryLookup(s.cfg.LookupKey)
+	//if err != nil {
+	//	return err
+	//}
 	return nil
 }
 

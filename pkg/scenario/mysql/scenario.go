@@ -58,25 +58,25 @@ func (s *Scenario) Preparation(ctx context.Context) error {
 	if len(s.generator) < s.cfg.WorkerCount {
 		return fmt.Errorf("generator count %d less than worker count %d", len(s.generator), s.cfg.WorkerCount)
 	}
-	if s.cfg.EnableIQuery {
+	if s.cfg.IQuery.Enabled {
 		var (
 			lookup    iquery.Lookup
 			err       error
 			lookupKey string
 		)
-		if s.cfg.IQueryKey != "" {
-			lookupKey = s.cfg.IQueryKey
-			lookup, err = iquery.IQueryManager.GetIQueryLookup(s.cfg.IQueryKey)
+		if s.cfg.IQuery.Key != "" {
+			lookupKey = s.cfg.IQuery.Key
+			lookup, err = iquery.IQueryManager.GetIQueryLookup(s.cfg.IQuery.Key)
 			if err != nil {
 				return err
 			}
 		} else {
-			if s.cfg.IQueryModule == nil {
-				return fmt.Errorf("iquery-module config is required when enable-iquery is true")
+			if s.cfg.IQuery.Module == nil {
+				return fmt.Errorf("iquery.module config is required when enable-iquery is true")
 			}
-			lookupKey = s.cfg.IQueryModule.Type
+			lookupKey = s.cfg.IQuery.Module.Type
 			if err = iquery.IQueryManager.Configure(s.pipeline, map[string]config.ConfigureMold{
-				s.cfg.IQueryModule.Type: *s.cfg.IQueryModule,
+				s.cfg.IQuery.Module.Type: *s.cfg.IQuery.Module,
 			}); err != nil {
 				return err
 			}

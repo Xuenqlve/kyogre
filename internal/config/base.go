@@ -7,41 +7,41 @@ import (
 )
 
 type Config struct {
-	Name       string                    `mapstructure:"name" json:"name" yaml:"name" toml:"name"`
-	LogLevel   string                    `mapstructure:"log-level" json:"log-level" yaml:"log-level" toml:"log-level"`
-	LogFile    string                    `mapstructure:"log-file" json:"log-file" yaml:"log-file" toml:"log-file"`
-	ApiConfig  map[string]any            `mapstructure:"api-config" json:"api-config" yaml:"api-config" toml:"api-config"`
-	DataSource map[string]map[string]any `mapstructure:"data-source" json:"data-source" yaml:"data-source" toml:"data-source"`
-	IQuery     map[string]ConfigureMold  `mapstructure:"iquery" json:"iquery" yaml:"iquery" toml:"iquery"`
-	Metadata   map[string]ConfigureMold  `mapstructure:"metadata" json:"metadata" yaml:"metadata" toml:"metadata"`
-	Pipelines  []PipelineSpec            `mapstructure:"pipelines" json:"pipelines" yaml:"pipelines" toml:"pipelines"`
+	Name       string                            `mapstructure:"name" json:"name" yaml:"name" toml:"name"`
+	LogLevel   string                            `mapstructure:"log-level" json:"log-level" yaml:"log-level" toml:"log-level"`
+	LogFile    string                            `mapstructure:"log-file" json:"log-file" yaml:"log-file" toml:"log-file"`
+	ApiConfig  map[string]any                    `mapstructure:"api-config" json:"api-config" yaml:"api-config" toml:"api-config"`
+	DataSource map[string]map[string]any         `mapstructure:"data-source" json:"data-source" yaml:"data-source" toml:"data-source"`
+	IQuery     map[string]ConfigureMold          `mapstructure:"iquery" json:"iquery" yaml:"iquery" toml:"iquery"`
+	Metadata   map[string]ConfigureMold          `mapstructure:"metadata" json:"metadata" yaml:"metadata" toml:"metadata"`
+	Generator  map[string]GeneratorConfigureMold `mapstructure:"generator" json:"generator" yaml:"generator" toml:"generator"`
+	Scenario   map[string]ScenarioConfigureMold  `mapstructure:"scenario" json:"scenario" yaml:"scenario" toml:"scenario"`
+	Pressure   map[string]ConfigureMold          `mapstructure:"pressure" json:"pressure" yaml:"pressure" toml:"pressure"`
+	Pipelines  []PipelineSpec                    `mapstructure:"pipelines" json:"pipelines" yaml:"pipelines" toml:"pipelines"`
 }
 
 type PipelineSpec struct {
-	Name       string                   `mapstructure:"name" json:"name" yaml:"name" toml:"name"`
-	Metadata   map[string]ConfigureMold `mapstructure:"metadata" json:"metadata" yaml:"metadata" toml:"metadata"`
-	Generators []GeneratorSpec          `mapstructure:"generators" json:"generators" yaml:"generators" toml:"generators"`
-	Scenario   ScenarioSpec             `mapstructure:"scenario" json:"scenario" yaml:"scenario" toml:"scenario"`
-	Pressure   ConfigureMold            `mapstructure:"pressure" json:"pressure" yaml:"pressure" toml:"pressure"`
-}
-
-type GeneratorSpec struct {
-	Name        string         `mapstructure:"name" json:"name" yaml:"name" toml:"name"`
-	Type        string         `mapstructure:"type" json:"type" yaml:"type" toml:"type"`
-	Config      map[string]any `mapstructure:"config" json:"config" yaml:"config" toml:"config"`
-	MetadataRef string         `mapstructure:"metadata-ref" json:"metadata-ref" yaml:"metadata-ref" toml:"metadata-ref"`
-}
-
-type ScenarioSpec struct {
-	Type        string         `mapstructure:"type" json:"type" yaml:"type" toml:"type"`
-	Config      map[string]any `mapstructure:"config" json:"config" yaml:"config" toml:"config"`
-	MetadataRef string         `mapstructure:"metadata-ref" json:"metadata-ref" yaml:"metadata-ref" toml:"metadata-ref"`
-	Generators  []string       `mapstructure:"generators" json:"generators" yaml:"generators" toml:"generators"`
+	Name     string   `mapstructure:"name" json:"name" yaml:"name" toml:"name"`
+	Scenario string   `mapstructure:"scenario" json:"scenario" yaml:"scenario" toml:"scenario"`
+	Pressure []string `mapstructure:"pressure,omitempty" json:"pressure,omitempty" yaml:"pressure,omitempty" toml:"pressure,omitempty"`
 }
 
 type ConfigureMold struct {
-	Type   string         `json:"type,omitempty" yaml:"type,omitempty" toml:"type,omitempty"`
-	Config map[string]any `json:"config,omitempty" yaml:"config,omitempty" toml:"config,omitempty"`
+	Type   string         `mapstructure:"type" json:"type,omitempty" yaml:"type,omitempty" toml:"type,omitempty"`
+	Config map[string]any `mapstructure:"config" json:"config,omitempty" yaml:"config,omitempty" toml:"config,omitempty"`
+}
+
+type GeneratorConfigureMold struct {
+	Type     string         `mapstructure:"type" json:"type,omitempty" yaml:"type,omitempty" toml:"type,omitempty"`
+	Metadata string         `mapstructure:"metadata" json:"metadata,omitempty" yaml:"metadata,omitempty" toml:"metadata,omitempty"`
+	Config   map[string]any `mapstructure:"config" json:"config,omitempty" yaml:"config,omitempty" toml:"config,omitempty"`
+}
+
+type ScenarioConfigureMold struct {
+	Type       string         `mapstructure:"type" json:"type,omitempty" yaml:"type,omitempty" toml:"type,omitempty"`
+	IQuery     string         `mapstructure:"iquery,omitempty" json:"iquery,omitempty" yaml:"iquery,omitempty" toml:"iquery,omitempty"`
+	Generators []string       `mapstructure:"workers,omitempty" json:"workers,,omitempty" yaml:"workers,omitempty" toml:"workers,omitempty"`
+	Config     map[string]any `mapstructure:"config" json:"config,omitempty" yaml:"config,omitempty" toml:"config,omitempty"`
 }
 
 type Manager interface {

@@ -19,6 +19,11 @@ type Config struct {
 	Prefix string `mapstructure:"prefix"`
 }
 
+// MockDependencyConfig 允许外部（如 Scenario）直接指定一次性值，用于对接 iquery 生成有序数据
+type MockDependencyConfig struct {
+	ForceValue string `mapstructure:"force-value" json:"force-value"`
+}
+
 type mockDependency struct {
 	value string
 }
@@ -47,8 +52,15 @@ func (g *Generator) Configure(pipeline string, data map[string]any) error {
 func (g *Generator) RegisterMetadata(metadata.Metadata) {}
 
 func (g *Generator) CollectDependencies(req *generator.DependencyRequest) (generator.GenerationDependency, error) {
+	if cfg, ok := req.Config.(*MockDependencyConfig); ok && cfg.ForceValue != "" {
+		return &mockDependency{value: cfg.ForceValue}, nil
+	}
 	next := g.seq.Add(1)
 	return &mockDependency{value: fmt.Sprintf("%s-%d", g.cfg.Prefix, next)}, nil
+}
+
+func (g *Generator) Metadata() string {
+
 }
 
 func (g *Generator) MockMessage(req *generator.MessageGenerationRequest) (message.Message, error) {
@@ -67,5 +79,10 @@ func (d *mockDependency) GetMode() generator.GenerationMode    { return "mock" }
 func (d *mockDependency) Validate() error                      { return nil }
 func (d *mockDependency) DependencyType() string               { return "mock" }
 
+// ensure interface implementation for custom dependency config
+func (c *MockDependencyConfig) Validate() error { return nil }
+func (c *MockDependencyConfig) Type() string    { return "mock" }
+
 // ensure schema_store imported
 var _ generator.GenerationDependency = (*mockDependency)(nil)
+var _ generator.DependencyConfig = (*MockDependencyConfig)(nil)

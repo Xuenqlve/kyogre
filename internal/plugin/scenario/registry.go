@@ -1,10 +1,24 @@
 package scenario
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 	"sync"
+
+	"github.com/xuenqlve/kyogre/internal/message"
+	"github.com/xuenqlve/kyogre/internal/plugin/generator"
+	"github.com/xuenqlve/kyogre/internal/plugin/iquery"
 )
+
+type Scenario interface {
+	Configure(pipeline string, data map[string]any) (err error)
+	RegisterIQueryLookup(lookup iquery.Lookup)
+	RegisterGenerator(gen generator.Generator)
+	Preparation(ctx context.Context) error
+	Start(msgChan message.InPoint) error
+	Close() error
+}
 
 type (
 	Type    string
