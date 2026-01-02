@@ -1,7 +1,0 @@
-./column.go
-./column_type.go
-./ddl.go
-./filter.go
-./row.go
-./schema.go
-./table.go
