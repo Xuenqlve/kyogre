@@ -1,9 +1,0 @@
-./digester.go
-./generate.go
-./hintparser.go
-./hintparserimpl.go
-./keywords.go
-./lexer.go
-./misc.go
-./parser.go
-./yy_parser.go

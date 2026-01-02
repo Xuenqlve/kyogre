@@ -1,3 +1,0 @@
-./mysql_ddl_test.go
-./mysql_row_test.go
-./pressure_test.go

@@ -1,6 +1,0 @@
-./config_loader.go
-./data_generator.go
-./ddl.go
-./dml.go
-./generator_context.go
-./row_builder.go
