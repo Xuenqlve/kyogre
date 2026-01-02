@@ -1,6 +1,9 @@
 package iquery
 
-import "fmt"
+import (
+	"fmt"
+	"math"
+)
 
 type SequencerOptions func(*SequencerConfig)
 
@@ -22,6 +25,11 @@ type SequencerConfig struct {
 	// WrapAt, when >0, enables cyclic reuse for inserts. Inserts will try to wrap
 	// into the already-deleted low region [BaseMin, ExistMin).
 	WrapAt int64
+
+	// AliveSetCapacity controls in-memory tuple cache size for non-int / composite unique constraints.
+	AliveSetCapacity int
+	// AliveSetBatchSize controls ScanValues page size.
+	AliveSetBatchSize int
 }
 
 func WithLookUpKey(key string) SequencerOptions {
@@ -48,6 +56,16 @@ func (cfg *SequencerConfig) ValidateAndSetDefault() error {
 	if cfg.InsertWindowSize <= 0 {
 		cfg.InsertWindowSize = 10000
 	}
+	if cfg.WrapAt == 0 {
+		// Default to hard upper bound (will be further capped by column type if needed).
+		cfg.WrapAt = math.MaxInt64
+	}
+	if cfg.AliveSetCapacity <= 0 {
+		cfg.AliveSetCapacity = 10000
+	}
+	if cfg.AliveSetBatchSize <= 0 {
+		cfg.AliveSetBatchSize = 1000
+	}
 	for _, s := range cfg.AllowedSizes {
 		if s <= 0 {
 			return fmt.Errorf("invalid allowed size %d", s)
@@ -55,4 +73,3 @@ func (cfg *SequencerConfig) ValidateAndSetDefault() error {
 	}
 	return nil
 }
-

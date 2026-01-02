@@ -25,6 +25,19 @@ type LookupResult struct {
 	Bounds []Bound
 }
 
+type ValuesRequest struct {
+	Schema  schema_store.SchemaKey
+	Columns []BoundParam
+	Cursor  any
+	Limit   int
+}
+
+type ValuesResult struct {
+	Rows       [][]any
+	NextCursor any
+	HasMore    bool
+}
+
 type BoundParam struct {
 	Column string
 	Type   string
@@ -40,8 +53,10 @@ type Bound struct {
 type Lookup interface {
 	// Configure 根据配置初始化反查插件
 	Configure(pipeline string, cfg map[string]any) error
-	// Lookup 执行反查并返回结果
-	Lookup(ctx context.Context, req LookupRequest) (LookupResult, error)
+	// LookupBounds 返回字段的边界信息（min/max/count），用于 sequencer 初始化和高水位刷新。
+	LookupBounds(ctx context.Context, req LookupRequest) (LookupResult, error)
+	// ScanValues 按游标分页扫描值集合，用于 AliveSet 等“非 int/联合唯一”场景。
+	ScanValues(ctx context.Context, req ValuesRequest) (ValuesResult, error)
 	// Close 释放资源
 	Close() error
 }

@@ -1,0 +1,6 @@
+./byte.go
+./data_type.go
+./file.go
+./hash.go
+./struct.go
+./time.go

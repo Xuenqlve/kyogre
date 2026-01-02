@@ -1,0 +1,4 @@
+./auth.go
+./caching_sha2.go
+./mysql_native_password.go
+./tidb_sm3.go
