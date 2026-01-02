@@ -82,7 +82,7 @@ func (s *Server) Configure() (err error) {
 	}
 
 	s.generator = generator.NewManager()
-	if err = s.generator.Configure(s.pipeline, s.cfg.Generator, s.metadata); err != nil {
+	if err = s.generator.Configure(s.pipeline, s.cfg.Generator); err != nil {
 		return errors.Trace(err)
 	}
 

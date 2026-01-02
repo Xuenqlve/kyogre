@@ -3,6 +3,8 @@ package iquery
 import (
 	"context"
 	"fmt"
+	"math"
+	"strings"
 	"sync"
 
 	"github.com/xuenqlve/common/schema_store"
@@ -54,6 +56,9 @@ type sequenceState struct {
 
 	mu   sync.Mutex
 	pool *rangePool
+
+	wrapAt int64
+	alive  *aliveSet
 
 	// nextNew is the next id in the "new high-water" region to allocate for inserts.
 	nextNew int64
@@ -127,11 +132,23 @@ func (s *Sequencer) initState(ctx context.Context, spec SequenceSpec) (*sequence
 		return nil, fmt.Errorf("invalid spec: empty fields")
 	}
 
+	// Strategy split:
+	// - Single numeric field: use range pool
+	// - Otherwise: use AliveSet (ScanValues)
+	if len(params) != 1 || !isNumericType(params[0].Type) {
+		st := &sequenceState{
+			spec:  spec,
+			alive: newAliveSet(params, s.cfg.AliveSetCapacity, s.cfg.AliveSetBatchSize),
+		}
+		s.setState(key, st)
+		return st, nil
+	}
+
 	req := LookupRequest{
 		Schema: spec.Schema,
 		Params: params,
 	}
-	res, err := s.lookup.Lookup(ctx, req)
+	res, err := s.lookup.LookupBounds(ctx, req)
 	if err != nil {
 		return nil, err
 	}
@@ -154,6 +171,7 @@ func (s *Sequencer) initState(ctx context.Context, spec SequenceSpec) (*sequence
 		nextNew: maxV + 1,
 		newEnd:  maxV,
 	}
+	st.wrapAt = minInt64(s.cfg.WrapAt, hardMaxInt64(params[0].Type))
 	s.setState(key, st)
 	return st, nil
 }
@@ -176,6 +194,10 @@ func (s *Sequencer) ReserveInsert(ctx context.Context, spec SequenceSpec, need i
 	st.mu.Lock()
 	defer st.mu.Unlock()
 
+	if st.alive != nil {
+		return nil, fmt.Errorf("ReserveInsert not supported for AliveSet strategy (use ReserveInsertProvider)")
+	}
+
 	size, err := normalizeSize(need, s.cfg.AllowedSizes, s.cfg.StrictSizes)
 	if err != nil {
 		return nil, err
@@ -196,10 +218,13 @@ func (s *Sequencer) ReserveInsert(ctx context.Context, spec SequenceSpec, need i
 	}
 
 	// 2) allocate from new high-water window. Refill window by refreshing max from lookup when needed.
+	if st.wrapAt > 0 && st.nextNew > st.wrapAt {
+		return nil, fmt.Errorf("insert range exhausted for %s: next=%d wrapAt=%d", key, st.nextNew, st.wrapAt)
+	}
 	if st.nextNew > st.newEnd {
 		// Refresh high-water.
 		req := LookupRequest{Schema: spec.Schema, Params: []BoundParam{{Column: st.specField()}}}
-		res, err := s.lookup.Lookup(ctx, req)
+		res, err := s.lookup.LookupBounds(ctx, req)
 		if err != nil {
 			return nil, err
 		}
@@ -219,8 +244,14 @@ func (s *Sequencer) ReserveInsert(ctx context.Context, spec SequenceSpec, need i
 
 	start := st.nextNew
 	end := start + size - 1
+	if st.wrapAt > 0 && end > st.wrapAt {
+		end = st.wrapAt
+	}
 	if end > st.newEnd {
 		end = st.newEnd
+	}
+	if end < start {
+		return nil, fmt.Errorf("insert range exhausted for %s: next=%d wrapAt=%d", key, st.nextNew, st.wrapAt)
 	}
 	st.nextNew = end + 1
 	r := IntRange{Start: start, End: end}
@@ -236,6 +267,109 @@ func (s *Sequencer) ReserveInsert(ctx context.Context, spec SequenceSpec, need i
 		Width:        r.Len(),
 		Schema:       st.spec.Schema,
 	}, nil
+}
+
+func (s *Sequencer) ReserveInsertProvider(ctx context.Context, spec SequenceSpec, need int64) (RowProvider, *SequenceConfig, error) {
+	key := spec.Key()
+	if key == "" {
+		return nil, nil, fmt.Errorf("invalid spec")
+	}
+	mu := s.keyLock(key)
+	mu.Lock()
+	defer mu.Unlock()
+
+	st, err := s.initState(ctx, spec)
+	if err != nil {
+		return nil, nil, err
+	}
+	st.mu.Lock()
+	defer st.mu.Unlock()
+
+	// Numeric: range provider
+	if st.pool != nil {
+		size, err := normalizeSize(need, s.cfg.AllowedSizes, s.cfg.StrictSizes)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		if r, ok := st.pool.reserveFromFreeForInsert(size); ok {
+			cfg := &SequenceConfig{
+				Key:          key,
+				Field:        st.specField(),
+				StartValue:   r.Start,
+				EndValue:     r.End,
+				CurrentValue: r.Start,
+				Step:         1,
+				Width:        r.Len(),
+				Schema:       st.spec.Schema,
+			}
+			return newRangeProvider(cfg.Field, cfg.StartValue, cfg.EndValue, cfg.Step), cfg, nil
+		}
+
+		if st.wrapAt > 0 && st.nextNew > st.wrapAt {
+			return nil, nil, fmt.Errorf("insert range exhausted for %s: next=%d wrapAt=%d", key, st.nextNew, st.wrapAt)
+		}
+		if st.nextNew > st.newEnd {
+			req := LookupRequest{Schema: spec.Schema, Params: []BoundParam{{Column: st.specField()}}}
+			res, err := s.lookup.LookupBounds(ctx, req)
+			if err != nil {
+				return nil, nil, err
+			}
+			if len(res.Bounds) == 0 {
+				return nil, nil, fmt.Errorf("lookup returned empty bounds for %s", key)
+			}
+			maxV, err := toInt64(res.Bounds[0].MaxValue)
+			if err != nil {
+				return nil, nil, err
+			}
+			if maxV >= st.nextNew {
+				st.nextNew = maxV + 1
+			}
+			st.newEnd = st.nextNew + s.cfg.InsertWindowSize - 1
+		}
+
+		start := st.nextNew
+		end := start + size - 1
+		if st.wrapAt > 0 && end > st.wrapAt {
+			end = st.wrapAt
+		}
+		if end > st.newEnd {
+			end = st.newEnd
+		}
+		if end < start {
+			return nil, nil, fmt.Errorf("insert range exhausted for %s: next=%d wrapAt=%d", key, st.nextNew, st.wrapAt)
+		}
+		st.nextNew = end + 1
+		r := IntRange{Start: start, End: end}
+		st.pool.markPendingInsert(r)
+
+		cfg := &SequenceConfig{
+			Key:          key,
+			Field:        st.specField(),
+			StartValue:   r.Start,
+			EndValue:     r.End,
+			CurrentValue: r.Start,
+			Step:         1,
+			Width:        r.Len(),
+			Schema:       st.spec.Schema,
+		}
+		return newRangeProvider(cfg.Field, cfg.StartValue, cfg.EndValue, cfg.Step), cfg, nil
+	}
+
+	// AliveSet: tuple provider -> map[column]any for IN batch usage
+	rows, err := st.alive.take(ctx, s.lookup, spec.Schema, int(need))
+	if err != nil {
+		return nil, nil, err
+	}
+	cols := make([]string, 0, len(st.alive.columns))
+	for _, c := range st.alive.columns {
+		cols = append(cols, c.Column)
+	}
+	tp, err := newTupleProvider(cols, rows)
+	if err != nil {
+		return nil, nil, err
+	}
+	return tp, nil, nil
 }
 
 // ReserveUpdate picks an existing live range for UPDATE.
@@ -254,6 +388,10 @@ func (s *Sequencer) ReserveUpdate(ctx context.Context, spec SequenceSpec, need i
 	}
 	st.mu.Lock()
 	defer st.mu.Unlock()
+
+	if st.alive != nil {
+		return nil, fmt.Errorf("ReserveUpdate not supported for AliveSet strategy (use ReserveUpdateProvider)")
+	}
 
 	size, err := normalizeSize(need, s.cfg.AllowedSizes, s.cfg.StrictSizes)
 	if err != nil {
@@ -287,6 +425,70 @@ func (s *Sequencer) ReserveUpdate(ctx context.Context, spec SequenceSpec, need i
 	}, nil
 }
 
+func (s *Sequencer) ReserveUpdateProvider(ctx context.Context, spec SequenceSpec, need int64) (RowProvider, *SequenceConfig, error) {
+	key := spec.Key()
+	if key == "" {
+		return nil, nil, fmt.Errorf("invalid spec")
+	}
+	mu := s.keyLock(key)
+	mu.Lock()
+	defer mu.Unlock()
+
+	st, err := s.initState(ctx, spec)
+	if err != nil {
+		return nil, nil, err
+	}
+	st.mu.Lock()
+	defer st.mu.Unlock()
+
+	if st.pool != nil {
+		size, err := normalizeSize(need, s.cfg.AllowedSizes, s.cfg.StrictSizes)
+		if err != nil {
+			return nil, nil, err
+		}
+		r, ok := st.pool.takeFromLive(size)
+		if !ok {
+			if st.pool.existMax >= st.pool.existMin && st.pool.existMax > 0 {
+				start := st.pool.existMin
+				end := start + size - 1
+				if end > st.pool.existMax {
+					end = st.pool.existMax
+				}
+				r = IntRange{Start: start, End: end}
+				ok = r.Valid()
+			}
+		}
+		if !ok {
+			return nil, nil, fmt.Errorf("no live range available for update: %s", key)
+		}
+		cfg := &SequenceConfig{
+			Key:          key,
+			Field:        st.specField(),
+			StartValue:   r.Start,
+			EndValue:     r.End,
+			CurrentValue: r.Start,
+			Step:         1,
+			Width:        r.Len(),
+			Schema:       st.spec.Schema,
+		}
+		return newRangeProvider(cfg.Field, cfg.StartValue, cfg.EndValue, cfg.Step), cfg, nil
+	}
+
+	rows, err := st.alive.take(ctx, s.lookup, spec.Schema, int(need))
+	if err != nil {
+		return nil, nil, err
+	}
+	cols := make([]string, 0, len(st.alive.columns))
+	for _, c := range st.alive.columns {
+		cols = append(cols, c.Column)
+	}
+	tp, err := newTupleProvider(cols, rows)
+	if err != nil {
+		return nil, nil, err
+	}
+	return tp, nil, nil
+}
+
 // ReserveDelete reserves an existing live range for DELETE and moves it to free pool on success.
 // Since we don't have a success callback here, we optimistically move it to free pool.
 func (s *Sequencer) ReserveDelete(ctx context.Context, spec SequenceSpec, need int64) (*SequenceConfig, error) {
@@ -304,6 +506,10 @@ func (s *Sequencer) ReserveDelete(ctx context.Context, spec SequenceSpec, need i
 	}
 	st.mu.Lock()
 	defer st.mu.Unlock()
+
+	if st.alive != nil {
+		return nil, fmt.Errorf("ReserveDelete not supported for AliveSet strategy (use ReserveDeleteProvider)")
+	}
 
 	size, err := normalizeSize(need, s.cfg.AllowedSizes, s.cfg.StrictSizes)
 	if err != nil {
@@ -339,6 +545,71 @@ func (s *Sequencer) ReserveDelete(ctx context.Context, spec SequenceSpec, need i
 	}, nil
 }
 
+func (s *Sequencer) ReserveDeleteProvider(ctx context.Context, spec SequenceSpec, need int64) (RowProvider, *SequenceConfig, error) {
+	key := spec.Key()
+	if key == "" {
+		return nil, nil, fmt.Errorf("invalid spec")
+	}
+	mu := s.keyLock(key)
+	mu.Lock()
+	defer mu.Unlock()
+
+	st, err := s.initState(ctx, spec)
+	if err != nil {
+		return nil, nil, err
+	}
+	st.mu.Lock()
+	defer st.mu.Unlock()
+
+	if st.pool != nil {
+		size, err := normalizeSize(need, s.cfg.AllowedSizes, s.cfg.StrictSizes)
+		if err != nil {
+			return nil, nil, err
+		}
+		r, ok := st.pool.takeFromLive(size)
+		if !ok {
+			if st.pool.existMax >= st.pool.existMin && st.pool.existMax > 0 {
+				start := st.pool.existMin
+				end := start + size - 1
+				if end > st.pool.existMax {
+					end = st.pool.existMax
+				}
+				r = IntRange{Start: start, End: end}
+				ok = r.Valid()
+			}
+		}
+		if !ok {
+			return nil, nil, fmt.Errorf("no live range available for delete: %s", key)
+		}
+		_ = st.pool.reserveDelete(r)
+		cfg := &SequenceConfig{
+			Key:          key,
+			Field:        st.specField(),
+			StartValue:   r.Start,
+			EndValue:     r.End,
+			CurrentValue: r.Start,
+			Step:         1,
+			Width:        r.Len(),
+			Schema:       st.spec.Schema,
+		}
+		return newRangeProvider(cfg.Field, cfg.StartValue, cfg.EndValue, cfg.Step), cfg, nil
+	}
+
+	rows, err := st.alive.take(ctx, s.lookup, spec.Schema, int(need))
+	if err != nil {
+		return nil, nil, err
+	}
+	cols := make([]string, 0, len(st.alive.columns))
+	for _, c := range st.alive.columns {
+		cols = append(cols, c.Column)
+	}
+	tp, err := newTupleProvider(cols, rows)
+	if err != nil {
+		return nil, nil, err
+	}
+	return tp, nil, nil
+}
+
 func (st *sequenceState) specField() string {
 	if st.spec.Field != "" {
 		return st.spec.Field
@@ -347,6 +618,63 @@ func (st *sequenceState) specField() string {
 		return st.spec.Fields[0].Column
 	}
 	return ""
+}
+
+func hardMaxInt64(typ string) int64 {
+	if typ == "" {
+		return math.MaxInt64
+	}
+	t := strings.ToLower(strings.TrimSpace(typ))
+	switch {
+	case strings.Contains(t, "bigint unsigned"):
+		return math.MaxInt64 // cannot represent full uint64 in int64, cap for safety
+	case strings.Contains(t, "bigint"):
+		return math.MaxInt64
+	case strings.Contains(t, "int unsigned"):
+		return math.MaxInt32
+	case strings.Contains(t, "int"):
+		return math.MaxInt32
+	case strings.Contains(t, "smallint unsigned"):
+		return math.MaxInt16
+	case strings.Contains(t, "smallint"):
+		return math.MaxInt16
+	case strings.Contains(t, "tinyint unsigned"):
+		return math.MaxInt8
+	case strings.Contains(t, "tinyint"):
+		return math.MaxInt8
+	default:
+		return math.MaxInt64
+	}
+}
+
+func isNumericType(typ string) bool {
+	if typ == "" {
+		return true
+	}
+	t := strings.ToLower(strings.TrimSpace(typ))
+	switch {
+	case strings.Contains(t, "int"),
+		strings.Contains(t, "decimal"),
+		strings.Contains(t, "numeric"),
+		strings.Contains(t, "float"),
+		strings.Contains(t, "double"):
+		return true
+	default:
+		return false
+	}
+}
+
+func minInt64(a, b int64) int64 {
+	if a <= 0 {
+		return b
+	}
+	if b <= 0 {
+		return a
+	}
+	if a < b {
+		return a
+	}
+	return b
 }
 
 // CommitInsert marks a previously reserved insert range as "exists".

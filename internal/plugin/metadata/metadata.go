@@ -7,7 +7,7 @@ import (
 	"sync"
 
 	"github.com/xuenqlve/common/schema_store"
-	"github.com/xuenqlve/kyogre/internal/models"
+	"github.com/xuenqlve/kyogre/internal/plugin/iquery"
 )
 
 // Metadata 元数据接口
@@ -21,7 +21,7 @@ type Metadata interface {
 
 	SchemaKeys() []schema_store.SchemaKey
 
-	SchemaPrimaryField(key schema_store.SchemaKey) ([]models.FieldParam, error)
+	SchemaPrimaryField(key schema_store.SchemaKey) ([]iquery.BoundParam, error)
 
 	// IQueryEnabled 表示该 metadata 是否启用 lookup（默认应为 true，可在 metadata config 中关闭）。
 	IQueryEnabled() bool

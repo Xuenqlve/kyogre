@@ -10,7 +10,7 @@ import (
 	"github.com/xuenqlve/common/log"
 	mysql_schema "github.com/xuenqlve/common/relational_database/mysql"
 	"github.com/xuenqlve/common/schema_store"
-	"github.com/xuenqlve/kyogre/internal/models"
+	"github.com/xuenqlve/kyogre/internal/plugin/iquery"
 	"github.com/xuenqlve/kyogre/internal/plugin/metadata"
 	"github.com/xuenqlve/kyogre/pkg/data_source/mysql"
 )
@@ -126,34 +126,34 @@ func (m *Metadata) SchemaKeys() []schema_store.SchemaKey {
 	return m.keys
 }
 
-func (m *Metadata) SchemaPrimaryField(key schema_store.SchemaKey) ([]models.FieldParam, error) {
+func (m *Metadata) SchemaPrimaryField(key schema_store.SchemaKey) ([]iquery.BoundParam, error) {
 	if m.schema == nil {
 		return nil, errors.New("schema store not initialized")
 	}
 	schema, err := m.schema.GetSchema(key)
 	if err != nil {
-		return []models.FieldParam{}, errors.Trace(err)
+		return []iquery.BoundParam{}, errors.Trace(err)
 	}
 	tableDef, ok := schema.(*mysql_schema.Table)
 	if !ok {
-		return []models.FieldParam{}, errors.New(fmt.Sprintf("invalid schema:%v", schema))
+		return []iquery.BoundParam{}, errors.New(fmt.Sprintf("invalid schema:%v", schema))
 	}
 	// 优先主键；若无主键则退化为任意可扫描索引。
-	fields := make([]models.FieldParam, 0)
+	fields := make([]iquery.BoundParam, 0)
 	if len(tableDef.PrimaryIndex) > 0 {
 		for _, column := range tableDef.PrimaryIndex {
 			columnDef := tableDef.ColumnMap[column]
-			fields = append(fields, models.FieldParam{Column: column, Type: columnDef.DataType})
+			fields = append(fields, iquery.BoundParam{Column: column, Type: columnDef.DataType})
 		}
 		return fields, nil
 	}
 	keys, err := tableDef.ScanIndexes()
 	if err != nil {
-		return []models.FieldParam{}, errors.Trace(err)
+		return []iquery.BoundParam{}, errors.Trace(err)
 	}
 	for column := range keys {
 		columnDef := tableDef.ColumnMap[column]
-		fields = append(fields, models.FieldParam{Column: column, Type: columnDef.DataType})
+		fields = append(fields, iquery.BoundParam{Column: column, Type: columnDef.DataType})
 	}
 	return fields, nil
 }

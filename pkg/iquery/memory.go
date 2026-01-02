@@ -1,4 +1,4 @@
-package lookup
+package iquery
 
 import (
 	"context"
@@ -95,3 +95,4 @@ func (q *MemoryLookup) ScanValues(ctx context.Context, req iquery.ValuesRequest)
 }
 
 func (q *MemoryLookup) Close() error { return nil }
+

@@ -5,7 +5,6 @@ import (
 	"sync"
 
 	"github.com/xuenqlve/kyogre/internal/config"
-	"github.com/xuenqlve/kyogre/internal/models"
 	"github.com/xuenqlve/kyogre/internal/plugin/generator"
 	"github.com/xuenqlve/kyogre/internal/plugin/iquery"
 	"github.com/xuenqlve/kyogre/internal/plugin/metadata"
@@ -115,12 +114,8 @@ func (m *Manager) wireSequencer(sc Scenario, cfg config.ScenarioConfigureMold) e
 
 func (m *Manager) buildSequenceSpecs(cfg config.ScenarioConfigureMold) ([]iquery.SequenceSpec, error) {
 	metadataKeys := make(map[string]struct{})
-	for _, generatorKey := range cfg.Generators {
-		mold, ok := m.generators.GetConfigureMold(generatorKey)
-		if !ok || mold.Metadata == "" {
-			continue
-		}
-		metadataKeys[mold.Metadata] = struct{}{}
+	for _, metadataKey := range cfg.Metadata {
+		metadataKeys[metadataKey] = struct{}{}
 	}
 	specs := make([]iquery.SequenceSpec, 0)
 	for metadataKey := range metadataKeys {
@@ -132,16 +127,16 @@ func (m *Manager) buildSequenceSpecs(cfg config.ScenarioConfigureMold) ([]iquery
 			continue
 		}
 		for _, schemaKey := range md.SchemaKeys() {
-			fields := []models.FieldParam{}
+			fields := []iquery.BoundParam{}
 			if fields, err = md.SchemaPrimaryField(schemaKey); err != nil {
 				return nil, err
 			}
-			for _, field := range fields {
-				specs = append(specs, iquery.SequenceSpec{
-					Schema: schemaKey,
-					Field:  field,
-				})
-			}
+
+			specs = append(specs, iquery.SequenceSpec{
+				Schema: schemaKey,
+				//todo Field
+				Fields: fields,
+			})
 		}
 	}
 	return specs, nil

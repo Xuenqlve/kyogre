@@ -7,7 +7,7 @@ import (
 	"github.com/mitchellh/mapstructure"
 	"github.com/xuenqlve/common/errors"
 	"github.com/xuenqlve/common/schema_store"
-	"github.com/xuenqlve/kyogre/internal/models"
+	"github.com/xuenqlve/kyogre/internal/plugin/iquery"
 	"github.com/xuenqlve/kyogre/internal/plugin/metadata"
 )
 
@@ -60,9 +60,9 @@ func (m *Metadata) SchemaKeys() []schema_store.SchemaKey {
 	return m.keys
 }
 
-func (m *Metadata) SchemaPrimaryField(key schema_store.SchemaKey) ([]models.FieldParam, error) {
+func (m *Metadata) SchemaPrimaryField(key schema_store.SchemaKey) ([]iquery.BoundParam, error) {
 	// mock metadata 默认使用 id 作为主键字段
-	return []models.FieldParam{{Column: "id", Type: "int"}}, nil
+	return []iquery.BoundParam{{Column: "id", Type: "int"}}, nil
 }
 
 func (m *Metadata) IQueryEnabled() bool {
