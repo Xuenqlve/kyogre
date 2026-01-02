@@ -5,22 +5,21 @@ import (
 	"fmt"
 
 	"github.com/mitchellh/mapstructure"
-	"github.com/xuenqlve/kyogre/internal/config"
 	"github.com/xuenqlve/kyogre/internal/message"
 	"github.com/xuenqlve/kyogre/internal/plugin/generator"
 	"github.com/xuenqlve/kyogre/internal/plugin/iquery"
 	"github.com/xuenqlve/kyogre/internal/plugin/metadata"
-	plugin_scenario "github.com/xuenqlve/kyogre/internal/plugin/scenario"
+	"github.com/xuenqlve/kyogre/internal/plugin/scenario"
 )
 
-const ScenarioType plugin_scenario.Type = "mysql"
+const ScenarioType scenario.Type = "mysql"
 
 func init() {
-	plugin_scenario.RegisterScenario(ScenarioType, NewScenario(), false)
+	scenario.RegisterScenario(ScenarioType, NewScenario(), false)
 }
 
 type Scenario struct {
-	pipeline  string
+	*scenario.BaseScenario
 	cfg       *Config
 	ctx       context.Context
 	metadata  metadata.Metadata
@@ -39,7 +38,7 @@ func NewScenario() *Scenario {
 }
 
 func (s *Scenario) Configure(pipeline string, data map[string]any) (err error) {
-	s.pipeline = pipeline
+	s.BaseScenario = scenario.NewBaseScenario(pipeline)
 	s.cfg = &Config{}
 	if err = mapstructure.Decode(data, s.cfg); err != nil {
 		return
@@ -58,70 +57,6 @@ func (s *Scenario) Preparation(ctx context.Context) error {
 	if len(s.generator) < s.cfg.WorkerCount {
 		return fmt.Errorf("generator count %d less than worker count %d", len(s.generator), s.cfg.WorkerCount)
 	}
-	if s.cfg.IQuery.Enabled {
-		var (
-			lookup    iquery.Lookup
-			err       error
-			lookupKey string
-		)
-		if s.cfg.IQuery.Key != "" {
-			lookupKey = s.cfg.IQuery.Key
-			lookup, err = iquery.IQueryManager.GetIQueryLookup(s.cfg.IQuery.Key)
-			if err != nil {
-				return err
-			}
-		} else {
-			if s.cfg.IQuery.Module == nil {
-				return fmt.Errorf("iquery.module config is required when enable-iquery is true")
-			}
-			lookupKey = s.cfg.IQuery.Module.Type
-			if err = iquery.IQueryManager.Configure(s.pipeline, map[string]config.ConfigureMold{
-				s.cfg.IQuery.Module.Type: *s.cfg.IQuery.Module,
-			}); err != nil {
-				return err
-			}
-			lookup, err = iquery.IQueryManager.GetIQueryLookup(lookupKey)
-			if err != nil {
-				return err
-			}
-		}
-		sequencer, err := iquery.NewSequencer()
-		if err != nil {
-			return err
-		}
-		if err = sequencer.Configure(
-			s.pipeline,
-			iquery.WithWorkerCount(s.cfg.WorkerCount),
-			iquery.WithLookUpKey(lookupKey),
-		); err != nil {
-			return err
-		}
-
-		// 预分段
-		if s.metadata != nil &&
-			s.cfg.GenerationStrategy != nil &&
-			s.cfg.GenerationStrategy.SequenceConfig != nil &&
-			s.cfg.GenerationStrategy.SequenceConfig.Enabled {
-			specs := make([]iquery.SequenceSpec, 0, len(s.metadata.SchemaKeys()))
-			for _, key := range s.metadata.SchemaKeys() {
-				specs = append(specs, iquery.SequenceSpec{
-					Schema: key,
-					Field:  s.cfg.GenerationStrategy.SequenceConfig.Field,
-					Step:   s.cfg.GenerationStrategy.SequenceConfig.Step,
-					Width:  s.cfg.GenerationStrategy.SequenceConfig.Width,
-				})
-			}
-			if len(specs) > 0 {
-				if err = sequencer.Preallocate(ctx, specs); err != nil {
-					return err
-				}
-			}
-		}
-
-		s.lookup = lookup
-		s.sequencer = sequencer
-	}
-
 	return nil
 }
 

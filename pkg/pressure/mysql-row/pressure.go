@@ -32,6 +32,10 @@ type Pressure struct {
 	index       int
 }
 
+func (p *Pressure) MessageType() string {
+	return message.MySQLRow
+}
+
 func (p *Pressure) Configure(pipeline string, data map[string]any) (err error) {
 	p.pipeline = pipeline
 	if err = mapstructure.Decode(data, &p.cfg); err != nil {

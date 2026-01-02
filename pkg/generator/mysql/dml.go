@@ -253,15 +253,7 @@ func (g *DMLGenerator) generateDMLMessage(dmlDep *DMLDependency, req *generator.
 	// 根据生成策略生成数据
 	var rowDataList []mysql.RowData
 
-	if req.GenerationStrategy != nil &&
-		req.GenerationStrategy.SequenceConfig != nil &&
-		req.GenerationStrategy.SequenceConfig.Enabled {
-		// 序列化生成模式
-		rowDataList = g.buildSequenceRows(dmlDep, req.GenerationStrategy.SequenceConfig)
-	} else {
-		// 随机生成模式（原有逻辑）
-		rowDataList = g.rowBuilder.BuildRows(dmlDep.Table, dmlDep.Operation, dmlDep.Count)
-	}
+	rowDataList = g.rowBuilder.BuildRows(dmlDep.Table, dmlDep.Operation, dmlDep.Count)
 
 	if len(rowDataList) == 0 {
 		return nil, nil

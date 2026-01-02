@@ -19,20 +19,22 @@ import (
 	_ "github.com/xuenqlve/kyogre/pkg/metadata"
 	_ "github.com/xuenqlve/kyogre/pkg/pressure"
 	_ "github.com/xuenqlve/kyogre/pkg/scenario"
+	mockScenario "github.com/xuenqlve/kyogre/pkg/scenario/mock"
 )
 
 type Server struct {
-	pipeline  string
-	cfg       config.Config
-	ctx       context.Context
-	cancel    context.CancelFunc
-	engine    *PipelineEngine
-	iquery    *iquery.Manager
-	scenarios *scenario.Manager
-	pressure  *pressure.Manager
-	metadata  *metadata.Manager
-	generator *generator.Manager
-	httpSrv   *http.Server
+	pipeline       string
+	exitOnComplete bool
+	cfg            config.Config
+	ctx            context.Context
+	cancel         context.CancelFunc
+	engine         *PipelineEngine
+	iquery         *iquery.Manager
+	scenarios      *scenario.Manager
+	pressure       *pressure.Manager
+	metadata       *metadata.Manager
+	generator      *generator.Manager
+	httpSrv        *http.Server
 }
 
 func NewServer(cfg config.Config) (*Server, error) {
@@ -68,6 +70,16 @@ func (s *Server) Configure() (err error) {
 	if err = s.metadata.Configure(s.pipeline, s.cfg.Metadata); err != nil {
 		return errors.Trace(err)
 	}
+	// metadata 需要在 scenario/iquery 编排前初始化，确保 SchemaStore 可用。
+	for key := range s.cfg.Metadata {
+		md, mdErr := s.metadata.GetMetadata(key)
+		if mdErr != nil {
+			return errors.Trace(mdErr)
+		}
+		if mdErr = md.Initialize(s.ctx); mdErr != nil {
+			return errors.Trace(mdErr)
+		}
+	}
 
 	s.generator = generator.NewManager()
 	if err = s.generator.Configure(s.pipeline, s.cfg.Generator, s.metadata); err != nil {
@@ -75,7 +87,7 @@ func (s *Server) Configure() (err error) {
 	}
 
 	s.scenarios = scenario.NewManager()
-	if err = s.scenarios.Configure(s.pipeline, s.cfg.Scenario, s.generator, s.iquery); err != nil {
+	if err = s.scenarios.Configure(s.pipeline, s.cfg.Scenario, s.generator, s.iquery, s.metadata); err != nil {
 		return errors.Trace(err)
 	}
 	s.pressure = pressure.NewManager()
@@ -86,6 +98,7 @@ func (s *Server) Configure() (err error) {
 	for _, spec := range s.cfg.Pipelines {
 		s.engine.RegisterPipeline(spec.Name, NewPipeline(spec, s.scenarios, s.pressure))
 	}
+	s.exitOnComplete = s.shouldExitOnComplete()
 	return nil
 }
 
@@ -95,6 +108,18 @@ func (s *Server) Run() error {
 	}
 	if err := s.engine.StartAll(s.ctx); err != nil {
 		return err
+	}
+	if s.exitOnComplete {
+		go func() {
+			s.engine.WaitAllStopped(s.ctx)
+			// Context may already be canceled if shutdown was requested elsewhere.
+			if s.ctx.Err() != nil {
+				return
+			}
+			log.Infof("[%s] mock pipelines finished, shutting down server", s.pipeline)
+			log.Infof("pipeline status snapshot: %+v", s.engine.ListStatus())
+			s.cancel()
+		}()
 	}
 
 	apiErr := make(chan error, 1)
@@ -109,4 +134,21 @@ func (s *Server) Run() error {
 		s.engine.StopAll()
 		return err
 	}
+}
+
+func (s *Server) shouldExitOnComplete() bool {
+	if len(s.cfg.Pipelines) == 0 {
+		return false
+	}
+	mockType := string(mockScenario.ScenarioType)
+	for _, spec := range s.cfg.Pipelines {
+		scCfg, ok := s.cfg.Scenario[spec.Scenario]
+		if !ok {
+			return false
+		}
+		if scCfg.Type != mockType && scCfg.Type != "mock" {
+			return false
+		}
+	}
+	return true
 }

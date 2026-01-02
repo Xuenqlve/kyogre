@@ -1,0 +1,4 @@
+./config_loader_test.go
+./generator_context_test.go
+./generator_test.go
+./mysql_dml_test.go

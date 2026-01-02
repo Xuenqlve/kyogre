@@ -4,10 +4,8 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/xuenqlve/kyogre/internal/config"
-	"github.com/xuenqlve/kyogre/internal/plugin/metadata"
-
 	"github.com/xuenqlve/common/errors"
+	"github.com/xuenqlve/kyogre/internal/config"
 )
 
 //func ManagerGenerator(pipeline string, data map[string]config.ConfigureMold, metadataHit map[string]string, manager *metadata.Manager) (*Manager, error) {
@@ -49,7 +47,7 @@ type Manager struct {
 	storage  map[string]Generator
 }
 
-func (m *Manager) Configure(pipeline string, data map[string]config.GeneratorConfigureMold, metadataManager *metadata.Manager) error {
+func (m *Manager) Configure(pipeline string, data map[string]config.ConfigureMold) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.pipeline = pipeline
@@ -60,16 +58,6 @@ func (m *Manager) Configure(pipeline string, data map[string]config.GeneratorCon
 		}
 		if err = generator.Configure(pipeline, cfg.Config); err != nil {
 			return err
-		}
-		if cfg.Metadata != "" {
-			if metadataManager == nil {
-				return fmt.Errorf("metadata manager not initialized when binding generator %s", key)
-			}
-			md, err := metadataManager.GetMetadata(cfg.Metadata)
-			if err != nil {
-				return errors.Trace(err)
-			}
-			generator.RegisterMetadata(md)
 		}
 		m.storage[key] = generator
 	}

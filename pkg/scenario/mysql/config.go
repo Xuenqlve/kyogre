@@ -65,13 +65,6 @@ func (c *Config) Validate() error {
 	}
 
 	// 设置默认的生成策略（如果没有指定）
-	if c.GenerationStrategy == nil {
-		c.GenerationStrategy = &generator.GenerationStrategy{
-			RandomConfig: &generator.RandomConfig{},
-		}
-	} else if c.GenerationStrategy.RandomConfig == nil {
-		c.GenerationStrategy.RandomConfig = &generator.RandomConfig{}
-	}
 
 	// 规范化依赖配置并做完整校验
 	if err := c.DependencyConfig.Normalize(); err != nil {

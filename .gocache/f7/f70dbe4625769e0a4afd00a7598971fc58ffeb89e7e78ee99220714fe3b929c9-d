@@ -1,0 +1,3 @@
+./iquery_test.go
+./memory_iquery_test.go
+./mysql_iquery_test.go

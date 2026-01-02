@@ -8,7 +8,6 @@ import (
 	"github.com/xuenqlve/kyogre/internal/message"
 	"github.com/xuenqlve/kyogre/internal/plugin/generator"
 	"github.com/xuenqlve/kyogre/internal/plugin/iquery"
-	"github.com/xuenqlve/kyogre/pkg/generator/mysql"
 )
 
 type Worker struct {
@@ -145,16 +144,9 @@ func (w *Worker) cloneGenerationStrategy() *generator.GenerationStrategy {
 	}
 
 	strategy := &generator.GenerationStrategy{
-		RandomConfig:   w.generationStrategy.RandomConfig,
 		TemplateConfig: w.generationStrategy.TemplateConfig,
 		CustomConfig:   w.generationStrategy.CustomConfig,
 	}
-
-	if w.generationStrategy.SequenceConfig != nil {
-		seq := *w.generationStrategy.SequenceConfig
-		strategy.SequenceConfig = &seq
-	}
-
 	return strategy
 }
 
@@ -202,48 +194,11 @@ func (w *Worker) applySequenceStrategy(
 		return base, nil
 	}
 
-	if base.SequenceConfig == nil || !base.SequenceConfig.Enabled {
-		return base, nil
-	}
-
 	schemas := dep.GetSchemas()
 	if len(schemas) == 0 {
 		return base, nil
 	}
-
-	seqCfg := *base.SequenceConfig
-	if seqCfg.Step <= 0 {
-		seqCfg.Step = 1
-	}
-
-	length := seqCfg.Width
-	if length <= 0 {
-		length = 1
-	}
-
-	if dmlDep, ok := dep.(*mysql.DMLDependency); ok {
-		if dmlDep.Count > 0 {
-			length = int64(dmlDep.Count)
-		}
-	}
-
-	start, end, err := w.sequencer.Reserve(w.ctx, w.workerID, iquery.SequenceSpec{
-		Schema: schemas[0],
-		Field:  seqCfg.Field,
-		Step:   seqCfg.Step,
-		Width:  seqCfg.Width,
-	}, length)
-	if err != nil {
-		return nil, err
-	}
-
-	seqCfg.StartValue = start
-	seqCfg.CurrentValue = start
-	seqCfg.EndValue = end
-
-	newStrategy := *base
-	newStrategy.SequenceConfig = &seqCfg
-	return &newStrategy, nil
+	return nil, nil
 }
 
 func (w *Worker) Done() {

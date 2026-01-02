@@ -10,32 +10,40 @@ import (
 )
 
 // LookupRequest 描述一次反查任务需要查询的表及字段
-type LookupRequest struct {
-    Items []LookupRequestItem
-}
+//type LookupRequest struct {
+//	Items []LookupRequestItem
+//}
 
 // LookupRequestItem 指定单个 schema 与字段的反查需求
-type LookupRequestItem struct {
-    Schema schema_store.SchemaKey
-    Field  string
+type LookupRequest struct {
+	Schema schema_store.SchemaKey
+	Params []BoundParam
 }
 
 // LookupResult 承载反查模块返回的最大值、行数等信息
 type LookupResult struct {
-    Schema schema_store.SchemaKey
-    Field  string
-    Max    int64
-    Rows   int64
-    Extras map[string]any
+	Bounds []Bound
+}
+
+type BoundParam struct {
+	Column string
+	Type   string
+}
+
+type Bound struct {
+	BoundParam
+	MinValue any
+	MaxValue any
+	Count    int
 }
 
 type Lookup interface {
-    // Configure 根据配置初始化反查插件
-    Configure(pipeline string, cfg map[string]any) error
-    // Lookup 执行反查并返回结果
-    Lookup(ctx context.Context, req LookupRequest) ([]LookupResult, error)
-    // Close 释放资源
-    Close() error
+	// Configure 根据配置初始化反查插件
+	Configure(pipeline string, cfg map[string]any) error
+	// Lookup 执行反查并返回结果
+	Lookup(ctx context.Context, req LookupRequest) (LookupResult, error)
+	// Close 释放资源
+	Close() error
 }
 
 type (

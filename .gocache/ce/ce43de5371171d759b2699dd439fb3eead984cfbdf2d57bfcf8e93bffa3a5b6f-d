@@ -1,0 +1,6 @@
+./config.go
+./global.go
+./log.go
+./zap_test_logger.go
+./zap_text_core.go
+./zap_text_encoder.go

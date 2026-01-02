@@ -8,7 +8,6 @@ import (
 	"github.com/xuenqlve/common/schema_store"
 	"github.com/xuenqlve/kyogre/internal/message"
 	"github.com/xuenqlve/kyogre/internal/plugin/iquery"
-	"github.com/xuenqlve/kyogre/internal/plugin/metadata"
 )
 
 type DependencyConfig interface {
@@ -51,9 +50,6 @@ type TemplateConfig struct {
 // Generator 生成器接口（两阶段设计）
 type Generator interface {
 	Configure(pipeline string, data map[string]any) error
-	//Metadata() string
-	RegisterMetadata(metadata metadata.Metadata)
-
 	// 第一阶段：收集依赖条件
 	// 根据配置和生成策略，确定需要哪些信息
 	CollectDependencies(req *DependencyRequest) (GenerationDependency, error)

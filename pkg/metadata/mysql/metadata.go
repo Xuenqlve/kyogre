@@ -10,6 +10,7 @@ import (
 	"github.com/xuenqlve/common/log"
 	mysql_schema "github.com/xuenqlve/common/relational_database/mysql"
 	"github.com/xuenqlve/common/schema_store"
+	"github.com/xuenqlve/kyogre/internal/models"
 	"github.com/xuenqlve/kyogre/internal/plugin/metadata"
 	"github.com/xuenqlve/kyogre/pkg/data_source/mysql"
 )
@@ -25,6 +26,8 @@ type Config struct {
 	DataSource string   `mapstructure:"data-source" json:"data-source"`
 	Template   string   `mapstructure:"template" json:"template"`
 	Databases  Database `mapstructure:"databases" json:"databases"`
+	// IQueryEnabled 控制该 metadata 是否参与 iquery（默认 true）。
+	IQueryEnabled bool `mapstructure:"iquery-enabled" json:"iquery-enabled"`
 }
 
 func (c *Config) Validate() error {
@@ -72,7 +75,8 @@ type Metadata struct {
 
 func (m *Metadata) Configure(pipeline string, data map[string]any) (err error) {
 	m.pipeline = pipeline
-	if err = mapstructure.Decode(data, &m.cfg); err != nil {
+	m.cfg = &Config{IQueryEnabled: true}
+	if err = mapstructure.Decode(data, m.cfg); err != nil {
 		return errors.Trace(err)
 	}
 	if err = m.cfg.Validate(); err != nil {
@@ -120,6 +124,45 @@ func (m *Metadata) initializeByDb(ctx context.Context) error {
 
 func (m *Metadata) SchemaKeys() []schema_store.SchemaKey {
 	return m.keys
+}
+
+func (m *Metadata) SchemaPrimaryField(key schema_store.SchemaKey) ([]models.FieldParam, error) {
+	if m.schema == nil {
+		return nil, errors.New("schema store not initialized")
+	}
+	schema, err := m.schema.GetSchema(key)
+	if err != nil {
+		return []models.FieldParam{}, errors.Trace(err)
+	}
+	tableDef, ok := schema.(*mysql_schema.Table)
+	if !ok {
+		return []models.FieldParam{}, errors.New(fmt.Sprintf("invalid schema:%v", schema))
+	}
+	// 优先主键；若无主键则退化为任意可扫描索引。
+	fields := make([]models.FieldParam, 0)
+	if len(tableDef.PrimaryIndex) > 0 {
+		for _, column := range tableDef.PrimaryIndex {
+			columnDef := tableDef.ColumnMap[column]
+			fields = append(fields, models.FieldParam{Column: column, Type: columnDef.DataType})
+		}
+		return fields, nil
+	}
+	keys, err := tableDef.ScanIndexes()
+	if err != nil {
+		return []models.FieldParam{}, errors.Trace(err)
+	}
+	for column := range keys {
+		columnDef := tableDef.ColumnMap[column]
+		fields = append(fields, models.FieldParam{Column: column, Type: columnDef.DataType})
+	}
+	return fields, nil
+}
+
+func (m *Metadata) IQueryEnabled() bool {
+	if m.cfg == nil {
+		return true
+	}
+	return m.cfg.IQueryEnabled
 }
 
 func (m *Metadata) SchemaStore() schema_store.SchemaStore {

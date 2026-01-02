@@ -1,31 +1,33 @@
 name: mock-pipeline
 log-level: debug
-log-file: /Users/xuenqlve/log/kyogre
+log-file: /Users/admin/log/kyogre
 data-source: {}
-metadata: {}
-iquery: {}
+metadata:
+  mock-meta:
+    type: mock
+    config:
+      name: mock-meta
+generator:
+  mock-generator:
+    type: mock
+    metadata: mock-meta
+    config:
+      prefix: demo
+scenario:
+  mock-scenario:
+    type: mock
+    generators:
+      - mock-generator
+    config:
+      message-count: 100
+      interval-ms: 50
+pressure:
+  mock-pressure:
+    type: mock
+    config:
+      name: mock-pressure
 pipelines:
   - name: mock-demo
-    metadata:
-      mock-meta:
-        type: mock
-        config:
-          name: mock-meta
-    generators:
-      - name: mock-generator
-        type: mock
-        metadata-ref: mock-meta
-        config:
-          prefix: demo
-    scenario:
-      type: mock
-      metadata-ref: mock-meta
-      generators:
-        - mock-generator
-      config:
-        message-count: 1000
-        interval-ms: 50
+    scenario: mock-scenario
     pressure:
-      type: mock
-      config:
-        name: mock-pressure
+      - mock-pressure

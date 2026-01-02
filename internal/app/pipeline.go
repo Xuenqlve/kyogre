@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/xuenqlve/common/log"
 	"github.com/xuenqlve/kyogre/internal/config"
 	"github.com/xuenqlve/kyogre/internal/message"
 	"github.com/xuenqlve/kyogre/internal/plugin/pressure"
@@ -131,6 +132,27 @@ func (e *PipelineEngine) getPipeline(name string) (*Pipeline, error) {
 	return p, nil
 }
 
+// WaitAllStopped blocks until all tracked pipelines report completion or ctx is canceled.
+func (e *PipelineEngine) WaitAllStopped(ctx context.Context) {
+	e.mu.RLock()
+	doneChans := make([]<-chan struct{}, 0, len(e.pipelines))
+	for _, p := range e.pipelines {
+		doneChans = append(doneChans, p.Done())
+	}
+	e.mu.RUnlock()
+
+	for _, ch := range doneChans {
+		if ch == nil {
+			continue
+		}
+		select {
+		case <-ctx.Done():
+			return
+		case <-ch:
+		}
+	}
+}
+
 // Pipeline 表示一条可启动/停止的链路
 type Pipeline struct {
 	name        string
@@ -174,6 +196,7 @@ func (p *Pipeline) Start(ctx context.Context) error {
 	p.done = make(chan struct{})
 	p.state = StateRunning
 	p.lastErr = nil
+	p.monitorScenarioCompletion(runCtx)
 	go p.runLoop(runCtx, ready)
 	p.mu.Unlock()
 	if err := <-ready; err != nil {
@@ -218,6 +241,13 @@ func (p *Pipeline) Status() PipelineStatus {
 		status.LastError = p.lastErr.Error()
 	}
 	return status
+}
+
+// Done exposes an observable channel that closes when the pipeline stops.
+func (p *Pipeline) Done() <-chan struct{} {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	return p.done
 }
 
 func (p *Pipeline) ensureModulesLocked() error {
@@ -320,4 +350,25 @@ func signalReady(ch *chan<- error, err error) {
 	(*ch) <- err
 	close(*ch)
 	*ch = nil
+}
+
+func (p *Pipeline) monitorScenarioCompletion(ctx context.Context) {
+	done := p.scenario.Done()
+	if done == nil {
+		return
+	}
+	go func() {
+		select {
+		case <-done:
+			if summary := p.scenario.Summary(); summary != nil {
+				log.Infof("[%s] scenario completed summary=%v", p.name, summary)
+			} else {
+				log.Infof("[%s] scenario completed", p.name)
+			}
+			if err := p.Stop(); err != nil {
+				log.Warnf("pipeline %s failed to stop on completion: %v", p.name, err)
+			}
+		case <-ctx.Done():
+		}
+	}()
 }

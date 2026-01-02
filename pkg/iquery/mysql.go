@@ -10,6 +10,7 @@ import (
 	"github.com/mitchellh/mapstructure"
 	mysql_schema "github.com/xuenqlve/common/relational_database/mysql"
 	"github.com/xuenqlve/common/schema_store"
+	"github.com/xuenqlve/kyogre/internal/models"
 	"github.com/xuenqlve/kyogre/internal/plugin/iquery"
 	ds "github.com/xuenqlve/kyogre/pkg/data_source/mysql"
 )
@@ -46,32 +47,37 @@ func (q *MySQLLookup) Configure(pipeline string, data map[string]any) (err error
 	return
 }
 
-func (q *MySQLLookup) Lookup(ctx context.Context, req iquery.LookupRequest) ([]iquery.LookupResult, error) {
-	results := make([]iquery.LookupResult, 0, len(req.Items))
-	for _, item := range req.Items {
-		if item.Schema == nil || item.Field == "" {
+func (q *MySQLLookup) Lookup(ctx context.Context, req iquery.LookupRequest) (iquery.LookupResult, error) {
+	results := iquery.LookupResult{}
+
+	tableDef, err := q.queryTableDef(req.Schema)
+	if err != nil {
+		return iquery.LookupResult{}, err
+	}
+	rowCount, err := q.queryRowCount(ctx, tableDef)
+	if err != nil {
+		return iquery.LookupResult{}, err
+	}
+	for _, f := range req.Params {
+		if f.Column == "" {
 			continue
 		}
-		tableDef, err := q.queryTableDef(item.Schema)
-		if err != nil {
-			return nil, err
-		}
-		maxValue, err := q.queryMax(ctx, tableDef, item.Field)
-		if err != nil {
-			return nil, err
-		}
-		rowCount, err := q.queryRowCount(ctx, tableDef)
+		maxValue, err := q.queryMax(ctx, tableDef, f.Column)
 		if err != nil {
 			return nil, err
 		}
 		results = append(results, iquery.LookupResult{
 			Schema: item.Schema,
-			Field:  item.Field,
-			Max:    maxValue,
-			Rows:   rowCount,
-			Extras: map[string]any{},
+			Fields: models.FieldValue{
+				Column:   f.Column,
+				Type:     f.Type,
+				MinValue: nil,
+				MaxValue: maxValue,
+			},
+			Extras: map[string]any{"rows": rowCount},
 		})
 	}
+
 	return results, nil
 }
 

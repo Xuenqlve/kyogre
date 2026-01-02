@@ -7,6 +7,7 @@ import (
 	"github.com/mitchellh/mapstructure"
 	"github.com/xuenqlve/common/errors"
 	"github.com/xuenqlve/common/schema_store"
+	"github.com/xuenqlve/kyogre/internal/models"
 	"github.com/xuenqlve/kyogre/internal/plugin/metadata"
 )
 
@@ -14,6 +15,8 @@ const Mock metadata.MetadataType = "mock"
 
 type Config struct {
 	Name string `mapstructure:"name"`
+	// IQueryEnabled 控制该 metadata 是否参与 iquery（默认 true）。
+	IQueryEnabled bool `mapstructure:"iquery-enabled" json:"iquery-enabled"`
 }
 
 type Metadata struct {
@@ -29,6 +32,7 @@ func init() {
 
 func (m *Metadata) Configure(pipeline string, data map[string]any) error {
 	m.pipeline = pipeline
+	m.cfg = Config{IQueryEnabled: true}
 	if err := mapstructure.Decode(data, &m.cfg); err != nil {
 		return errors.Trace(err)
 	}
@@ -54,6 +58,15 @@ func (m *Metadata) Initialize(ctx context.Context) error {
 
 func (m *Metadata) SchemaKeys() []schema_store.SchemaKey {
 	return m.keys
+}
+
+func (m *Metadata) SchemaPrimaryField(key schema_store.SchemaKey) ([]models.FieldParam, error) {
+	// mock metadata 默认使用 id 作为主键字段
+	return []models.FieldParam{{Column: "id", Type: "int"}}, nil
+}
+
+func (m *Metadata) IQueryEnabled() bool {
+	return m.cfg.IQueryEnabled
 }
 
 func (m *Metadata) SchemaStore() schema_store.SchemaStore {

@@ -54,6 +54,10 @@ func init() {
 	pressure.RegisterPressure(MySQLDDL, &Pressure{}, true)
 }
 
+func (p *Pressure) MessageType() string {
+	return message.MySQLDDL
+}
+
 // Configure 初始化压力测试配置
 func (p *Pressure) Configure(pipeline string, data map[string]any) (err error) {
 	p.pipeline = pipeline

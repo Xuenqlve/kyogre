@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/mitchellh/mapstructure"
@@ -11,7 +12,6 @@ import (
 	"github.com/xuenqlve/common/log"
 	"github.com/xuenqlve/kyogre/internal/message"
 	"github.com/xuenqlve/kyogre/internal/plugin/generator"
-	"github.com/xuenqlve/kyogre/internal/plugin/iquery"
 	"github.com/xuenqlve/kyogre/internal/plugin/scenario"
 )
 
@@ -30,13 +30,15 @@ type IQueryConfig struct {
 }
 
 type Scenario struct {
-	pipeline string
-	cfg      Config
+	*scenario.BaseScenario
+	cfg Config
 
-	ctx        context.Context
-	generators []generator.Generator
-	lookup     iquery.Lookup
-	workers    sync.WaitGroup
+	ctx context.Context
+	wg  sync.WaitGroup
+
+	startAt      time.Time
+	sentCount    atomic.Int64
+	completeOnce sync.Once
 }
 
 func init() {
@@ -44,7 +46,11 @@ func init() {
 }
 
 func (s *Scenario) Configure(pipeline string, data map[string]any) error {
-	s.pipeline = pipeline
+	s.BaseScenario = scenario.NewBaseScenario(pipeline)
+	s.EnableFinite()
+	s.sentCount.Store(0)
+	s.completeOnce = sync.Once{}
+
 	if err := mapstructure.Decode(data, &s.cfg); err != nil {
 		return errors.Trace(err)
 	}
@@ -60,50 +66,33 @@ func (s *Scenario) Configure(pipeline string, data map[string]any) error {
 	return nil
 }
 
-func (s *Scenario) RegisterGenerator(gen generator.Generator) {
-	if gen != nil {
-		s.generators = append(s.generators, gen)
-	}
-}
-
-func (s *Scenario) RegisterIQueryLookup(lookup iquery.Lookup) {
-	s.lookup = lookup
-}
-
 func (s *Scenario) Preparation(ctx context.Context) error {
 	s.ctx = ctx
-	if len(s.generators) == 0 {
-		return fmt.Errorf("no generators registered")
-	}
-	if s.cfg.WorkerCount > len(s.generators) {
-		s.cfg.WorkerCount = len(s.generators)
-	}
-	if s.cfg.IQuery.Enabled && s.lookup == nil {
-		return fmt.Errorf("scenario %s requires iquery '%s' but lookup is nil", s.pipeline, s.cfg.IQuery.Key)
-	}
 	return nil
 }
 
 func (s *Scenario) Start(msgChan message.InPoint) error {
 	if s.ctx == nil {
-		return fmt.Errorf("scenario %s not prepared", s.pipeline)
+		return fmt.Errorf("scenario %s not prepared", s.Pipeline())
 	}
+	s.startAt = time.Now()
 	interval := time.Duration(s.cfg.IntervalMS) * time.Millisecond
 	for workerID := 0; workerID < s.cfg.WorkerCount; workerID++ {
-		gen := s.generators[workerID]
-		s.workers.Add(1)
+		gen := s.Generators()[workerID]
+		s.wg.Add(1)
 		go s.runWorker(workerID, gen, msgChan, interval)
 	}
+	go s.waitAndNotify()
 	return nil
 }
 
 func (s *Scenario) Close() error {
-	s.workers.Wait()
+	s.wg.Wait()
 	return nil
 }
 
 func (s *Scenario) runWorker(workerID int, gen generator.Generator, msgChan message.InPoint, interval time.Duration) {
-	defer s.workers.Done()
+	defer s.wg.Done()
 	for i := 0; i < s.cfg.MessageCount; i++ {
 		select {
 		case <-s.ctx.Done():
@@ -125,6 +114,7 @@ func (s *Scenario) runWorker(workerID int, gen generator.Generator, msgChan mess
 
 		select {
 		case msgChan <- msg:
+			s.sentCount.Add(1)
 		case <-s.ctx.Done():
 			return
 		}
@@ -135,4 +125,28 @@ func (s *Scenario) runWorker(workerID int, gen generator.Generator, msgChan mess
 		case <-time.After(interval):
 		}
 	}
+}
+
+func (s *Scenario) waitAndNotify() {
+	s.wg.Wait()
+	s.notifyComplete()
+}
+
+func (s *Scenario) notifyComplete() {
+	s.completeOnce.Do(func() {
+		total := s.sentCount.Load()
+		duration := time.Since(s.startAt)
+		summary := map[string]any{
+			"pipeline":     s.Pipeline(),
+			"workers":      s.cfg.WorkerCount,
+			"messages":     total,
+			"duration":     duration.String(),
+			"interval_ms":  s.cfg.IntervalMS,
+			"message_type": message.MockType,
+		}
+		log.Infof("[%s] mock scenario completed summary=%v", s.Pipeline(), summary)
+		if helper := s.EnableFinite(); helper != nil {
+			helper.NotifyDone(summary)
+		}
+	})
 }

@@ -1,0 +1,2 @@
+./mysql_test.go
+./scenario_test.go

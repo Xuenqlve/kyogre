@@ -13,10 +13,13 @@ import (
 
 type Scenario interface {
 	Configure(pipeline string, data map[string]any) (err error)
-	RegisterIQueryLookup(lookup iquery.Lookup)
+	//RegisterIQueryLookup(lookup iquery.Lookup)
+	RegisterSequencer(seq *iquery.Sequencer, specs []iquery.SequenceSpec)
 	RegisterGenerator(gen generator.Generator)
 	Preparation(ctx context.Context) error
 	Start(msgChan message.InPoint) error
+	Summary() map[string]any
+	Done() <-chan struct{}
 	Close() error
 }
 

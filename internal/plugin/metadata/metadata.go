@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"github.com/xuenqlve/common/schema_store"
+	"github.com/xuenqlve/kyogre/internal/models"
 )
 
 // Metadata 元数据接口
@@ -19,6 +20,11 @@ type Metadata interface {
 	Initialize(ctx context.Context) error
 
 	SchemaKeys() []schema_store.SchemaKey
+
+	SchemaPrimaryField(key schema_store.SchemaKey) ([]models.FieldParam, error)
+
+	// IQueryEnabled 表示该 metadata 是否启用 iquery（默认应为 true，可在 metadata config 中关闭）。
+	IQueryEnabled() bool
 
 	SchemaStore() schema_store.SchemaStore
 
