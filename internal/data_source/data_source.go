@@ -18,7 +18,7 @@ func (ds DataSourceType) String() string {
 }
 
 type DataSource interface {
-	Configure(pipelineName string, data map[string]any) error
+	Configure(pipeline string, data map[string]any) error
 	CreateDataSource(dataSourceName string) (any, error)
 	DataSourceConfig(dataSourceName string) (any, error)
 }

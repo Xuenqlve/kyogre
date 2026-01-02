@@ -28,7 +28,7 @@ func (s *BaseScenario) Pipeline() string {
 	return s.pipeline
 }
 
-//func (s *BaseScenario) RegisterIQueryLookup(lookup iquery.Lookup) {
+//func (s *BaseScenario) RegisterIQueryLookup(lookup lookup.Lookup) {
 //	s.mu.Lock()
 //	defer s.mu.Unlock()
 //	s.iQueryLookup = lookup
@@ -55,7 +55,7 @@ func (s *BaseScenario) Generators() (list []generator.Generator) {
 	return s.generators
 }
 
-//func (s *BaseScenario) IQueryLookup() iquery.Lookup {
+//func (s *BaseScenario) IQueryLookup() lookup.Lookup {
 //	s.mu.Lock()
 //	defer s.mu.Unlock()
 //	return s.iQueryLookup

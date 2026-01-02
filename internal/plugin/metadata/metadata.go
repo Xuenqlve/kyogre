@@ -23,7 +23,7 @@ type Metadata interface {
 
 	SchemaPrimaryField(key schema_store.SchemaKey) ([]models.FieldParam, error)
 
-	// IQueryEnabled 表示该 metadata 是否启用 iquery（默认应为 true，可在 metadata config 中关闭）。
+	// IQueryEnabled 表示该 metadata 是否启用 lookup（默认应为 true，可在 metadata config 中关闭）。
 	IQueryEnabled() bool
 
 	SchemaStore() schema_store.SchemaStore

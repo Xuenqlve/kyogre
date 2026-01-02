@@ -82,12 +82,12 @@ func (m *Manager) buildScenario(cfg config.ScenarioConfigureMold) (Scenario, err
 }
 
 //type sequencerRegistrar interface {
-//	RegisterSequencer(seq *iquery.Sequencer, specs []iquery.SequenceSpec)
+//	RegisterSequencer(seq *lookup.Sequencer, specs []lookup.SequenceSpec)
 //}
 
 func (m *Manager) wireSequencer(sc Scenario, cfg config.ScenarioConfigureMold) error {
 	if m.iquery == nil || m.metadata == nil || m.generators == nil {
-		return fmt.Errorf("sequencer wiring requires iquery/metadata/generator managers initialized")
+		return fmt.Errorf("sequencer wiring requires lookup/metadata/generator managers initialized")
 	}
 	lookup, err := m.iquery.GetIQueryLookup(cfg.IQuery)
 	if err != nil {

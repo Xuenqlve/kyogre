@@ -38,7 +38,7 @@ func TestConfigValidateDefaults(t *testing.T) {
 func TestConfigValidateIQuery(t *testing.T) {
 	cfg := Config{EnableIQuery: true}
 	if err := cfg.Validate(); err == nil {
-		t.Fatalf("Validate() expect error when iquery enabled without key/module")
+		t.Fatalf("Validate() expect error when lookup enabled without key/module")
 	}
 
 	cfg = Config{

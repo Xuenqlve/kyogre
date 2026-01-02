@@ -10,7 +10,7 @@ import (
 
 type Config struct {
 	WorkerCount        int                           `mapstructure:"worker-count" yaml:"worker-count"`
-	IQueryKey          string                        `mapstructure:"iquery-key" yaml:"iquery-key"`
+	IQueryKey          string                        `mapstructure:"lookup-key" yaml:"lookup-key"`
 	Metadata           string                        `mapstructure:"metadata" yaml:"metadata"`
 	GenerationStrategy *generator.GenerationStrategy `mapstructure:"generation-strategy" yaml:"generation-strategy"` // 生成策略
 	// 依赖配置：支持DML、Transaction、DDL三种模式
@@ -81,15 +81,15 @@ func (q *IQueryConfig) Validate() error {
 	}
 
 	if q.Key == "" && q.Module == nil {
-		return fmt.Errorf("enable-iquery 为 true 时需要配置 key 或 module")
+		return fmt.Errorf("enable-lookup 为 true 时需要配置 key 或 module")
 	}
 
 	if q.Key != "" && q.Module != nil {
-		return fmt.Errorf("iquery key 与 module 只能二选一")
+		return fmt.Errorf("lookup key 与 module 只能二选一")
 	}
 
 	if q.Module != nil && q.Module.Type == "" {
-		return fmt.Errorf("iquery module.type 不能为空")
+		return fmt.Errorf("lookup module.type 不能为空")
 	}
 
 	return nil

@@ -4,11 +4,11 @@ import (
 	"context"
 	"testing"
 
-	iquery2 "github.com/xuenqlve/kyogre/internal/plugin/iquery"
+	"github.com/xuenqlve/kyogre/internal/plugin/iquery"
 	"github.com/xuenqlve/kyogre/internal/plugin/metadata"
-	"github.com/xuenqlve/kyogre/pkg/iquery"
+	"github.com/xuenqlve/kyogre/pkg/lookup"
 	"github.com/xuenqlve/kyogre/pkg/metadata/mysql"
-	"github.com/xuenqlve/kyogre/pkg/metadata_template"
+	//"github.com/xuenqlve/kyogre/pkg/metadata_template"
 )
 
 func templateMySQLMetadata(template, datasource string) (md metadata.Metadata, err error) {
@@ -29,36 +29,20 @@ func templateMySQLMetadata(template, datasource string) (md metadata.Metadata, e
 }
 
 func TestMySQLIQuery(t *testing.T) {
-	module, err := iquery2.GetIQueryModule(iquery.MySQL)
+	lk, err := iquery.GetIQueryModule(lookup.MySQL)
 	if err != nil {
 		t.Error(err)
 		return
 	}
+	defer lk.Close()
 	ctx := context.Background()
-	md, err := templateMySQLMetadata(metadata_template.EcommerceTemplate, mysql.MockDataSource)
-	if err != nil {
-		t.Error(err)
-		return
-	}
-	keys := md.SchemaKeys()
-	t.Run("BatchQuery", func(t *testing.T) {
-		result, err := module.BatchQuery(ctx, keys)
-		if err != nil {
-			t.Error(err)
-			return
+	t.Run("Lookup", func(t *testing.T) {
+		req := iquery.LookupRequest{}
+		result := iquery.LookupResult{}
+		if result, err = lk.Lookup(ctx, req); err != nil {
+			t.Errorf("err:%v", err)
 		}
-		for _, info := range result {
-			t.Logf("%+v", info)
-		}
+		t.Logf("result:%+v", result)
 	})
 
-	t.Run("QueryMaxValue", func(t *testing.T) {
-		module.QueryMaxValue()
-	})
-	t.Run("QueryRowCount", func(t *testing.T) {
-		module.QueryRowCount()
-	})
-	t.Run("GetQueryResult", func(t *testing.T) {
-		module.GetQueryResult()
-	})
 }

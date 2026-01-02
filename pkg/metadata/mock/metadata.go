@@ -15,8 +15,8 @@ const Mock metadata.MetadataType = "mock"
 
 type Config struct {
 	Name string `mapstructure:"name"`
-	// IQueryEnabled 控制该 metadata 是否参与 iquery（默认 true）。
-	IQueryEnabled bool `mapstructure:"iquery-enabled" json:"iquery-enabled"`
+	// IQueryEnabled 控制该 metadata 是否参与 lookup（默认 true）。
+	IQueryEnabled bool `mapstructure:"lookup-enabled" json:"lookup-enabled"`
 }
 
 type Metadata struct {

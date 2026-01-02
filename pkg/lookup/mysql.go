@@ -1,4 +1,4 @@
-package iquery
+package lookup
 
 import (
 	"context"
@@ -10,7 +10,6 @@ import (
 	"github.com/mitchellh/mapstructure"
 	mysql_schema "github.com/xuenqlve/common/relational_database/mysql"
 	"github.com/xuenqlve/common/schema_store"
-	"github.com/xuenqlve/kyogre/internal/models"
 	"github.com/xuenqlve/kyogre/internal/plugin/iquery"
 	ds "github.com/xuenqlve/kyogre/pkg/data_source/mysql"
 )
@@ -48,7 +47,9 @@ func (q *MySQLLookup) Configure(pipeline string, data map[string]any) (err error
 }
 
 func (q *MySQLLookup) Lookup(ctx context.Context, req iquery.LookupRequest) (iquery.LookupResult, error) {
-	results := iquery.LookupResult{}
+	if req.Schema == nil {
+		return iquery.LookupResult{}, fmt.Errorf("lookup schema is nil")
+	}
 
 	tableDef, err := q.queryTableDef(req.Schema)
 	if err != nil {
@@ -58,27 +59,24 @@ func (q *MySQLLookup) Lookup(ctx context.Context, req iquery.LookupRequest) (iqu
 	if err != nil {
 		return iquery.LookupResult{}, err
 	}
+	bounds := make([]iquery.Bound, 0, len(req.Params))
 	for _, f := range req.Params {
 		if f.Column == "" {
 			continue
 		}
-		maxValue, err := q.queryMax(ctx, tableDef, f.Column)
+		minValue, maxValue, err := q.queryColumnBounds(ctx, tableDef, f.Column)
 		if err != nil {
-			return nil, err
+			return iquery.LookupResult{}, err
 		}
-		results = append(results, iquery.LookupResult{
-			Schema: item.Schema,
-			Fields: models.FieldValue{
-				Column:   f.Column,
-				Type:     f.Type,
-				MinValue: nil,
-				MaxValue: maxValue,
-			},
-			Extras: map[string]any{"rows": rowCount},
+		bounds = append(bounds, iquery.Bound{
+			BoundParam: iquery.BoundParam{Column: f.Column, Type: f.Type},
+			MinValue:   minValue,
+			MaxValue:   maxValue,
+			Count:      int(rowCount),
 		})
 	}
 
-	return results, nil
+	return iquery.LookupResult{Bounds: bounds}, nil
 }
 
 func (q *MySQLLookup) Close() error {
@@ -100,20 +98,26 @@ func (q *MySQLLookup) queryTableDef(key schema_store.SchemaKey) (*mysql_schema.T
 	return tableDef, nil
 }
 
-func (q *MySQLLookup) queryMax(ctx context.Context, table *mysql_schema.Table, field string) (int64, error) {
-	query := fmt.Sprintf("SELECT MAX(%s) FROM %s.%s",
+func (q *MySQLLookup) queryColumnBounds(ctx context.Context, table *mysql_schema.Table, field string) (any, any, error) {
+	query := fmt.Sprintf("SELECT MIN(%s), MAX(%s) FROM %s.%s",
+		quoteIdentifier(field),
 		quoteIdentifier(field),
 		quoteIdentifier(table.Database),
 		quoteIdentifier(table.Table),
 	)
-	var maxValue sql.NullInt64
-	if err := q.db.QueryRowContext(ctx, query).Scan(&maxValue); err != nil {
-		return 0, err
+	var minValue, maxValue sql.NullInt64
+	if err := q.db.QueryRowContext(ctx, query).Scan(&minValue, &maxValue); err != nil {
+		return nil, nil, err
 	}
-	if !maxValue.Valid {
-		return 0, nil
+	var min any
+	if minValue.Valid {
+		min = minValue.Int64
 	}
-	return maxValue.Int64, nil
+	var max any
+	if maxValue.Valid {
+		max = maxValue.Int64
+	}
+	return min, max, nil
 }
 
 func (q *MySQLLookup) queryRowCount(ctx context.Context, table *mysql_schema.Table) (int64, error) {

@@ -26,8 +26,8 @@ type Config struct {
 	DataSource string   `mapstructure:"data-source" json:"data-source"`
 	Template   string   `mapstructure:"template" json:"template"`
 	Databases  Database `mapstructure:"databases" json:"databases"`
-	// IQueryEnabled 控制该 metadata 是否参与 iquery（默认 true）。
-	IQueryEnabled bool `mapstructure:"iquery-enabled" json:"iquery-enabled"`
+	// IQueryEnabled 控制该 metadata 是否参与 lookup（默认 true）。
+	IQueryEnabled bool `mapstructure:"lookup-enabled" json:"lookup-enabled"`
 }
 
 func (c *Config) Validate() error {

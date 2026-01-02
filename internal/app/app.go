@@ -15,7 +15,7 @@ import (
 	"github.com/xuenqlve/kyogre/internal/plugin/pressure"
 	"github.com/xuenqlve/kyogre/internal/plugin/scenario"
 	_ "github.com/xuenqlve/kyogre/pkg/generator"
-	_ "github.com/xuenqlve/kyogre/pkg/iquery"
+	_ "github.com/xuenqlve/kyogre/pkg/lookup"
 	_ "github.com/xuenqlve/kyogre/pkg/metadata"
 	_ "github.com/xuenqlve/kyogre/pkg/pressure"
 	_ "github.com/xuenqlve/kyogre/pkg/scenario"
@@ -70,7 +70,7 @@ func (s *Server) Configure() (err error) {
 	if err = s.metadata.Configure(s.pipeline, s.cfg.Metadata); err != nil {
 		return errors.Trace(err)
 	}
-	// metadata 需要在 scenario/iquery 编排前初始化，确保 SchemaStore 可用。
+	// metadata 需要在 scenario/lookup 编排前初始化，确保 SchemaStore 可用。
 	for key := range s.cfg.Metadata {
 		md, mdErr := s.metadata.GetMetadata(key)
 		if mdErr != nil {

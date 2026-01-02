@@ -32,7 +32,7 @@ func mysqlDataSourcePrepare() error {
 	if err != nil {
 		return err
 	}
-	if err = dataSource.Configure(pipelineName, mysqlDataSourceTestConfig()); err != nil {
+	if err = dataSource.Configure(pipeline, mysqlDataSourceTestConfig()); err != nil {
 		return err
 	}
 	return nil

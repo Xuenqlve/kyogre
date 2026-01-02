@@ -38,7 +38,7 @@ func (e *Manager) GetIQueryLookup(key string) (Lookup, error) {
 	defer e.mux.RUnlock()
 	m, exist := e.storage[key]
 	if !exist {
-		return nil, fmt.Errorf("iquery not found by key: %s", key)
+		return nil, fmt.Errorf("lookup not found by key: %s", key)
 	}
 	return m, nil
 }

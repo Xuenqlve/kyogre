@@ -19,7 +19,7 @@ type Config struct {
 	Prefix string `mapstructure:"prefix"`
 }
 
-// MockDependencyConfig 允许外部（如 Scenario）直接指定一次性值，用于对接 iquery 生成有序数据
+// MockDependencyConfig 允许外部（如 Scenario）直接指定一次性值，用于对接 lookup 生成有序数据
 type MockDependencyConfig struct {
 	ForceValue string `mapstructure:"force-value" json:"force-value"`
 }

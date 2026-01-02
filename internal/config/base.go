@@ -12,7 +12,7 @@ type Config struct {
 	LogFile    string                           `mapstructure:"log-file" json:"log-file" yaml:"log-file" toml:"log-file"`
 	ApiConfig  map[string]any                   `mapstructure:"api-config" json:"api-config" yaml:"api-config" toml:"api-config"`
 	DataSource map[string]map[string]any        `mapstructure:"data-source" json:"data-source" yaml:"data-source" toml:"data-source"`
-	IQuery     map[string]ConfigureMold         `mapstructure:"iquery" json:"iquery" yaml:"iquery" toml:"iquery"`
+	IQuery     map[string]ConfigureMold         `mapstructure:"lookup" json:"lookup" yaml:"lookup" toml:"lookup"`
 	Metadata   map[string]ConfigureMold         `mapstructure:"metadata" json:"metadata" yaml:"metadata" toml:"metadata"`
 	Generator  map[string]ConfigureMold         `mapstructure:"generator" json:"generator" yaml:"generator" toml:"generator"`
 	Scenario   map[string]ScenarioConfigureMold `mapstructure:"scenario" json:"scenario" yaml:"scenario" toml:"scenario"`
@@ -38,7 +38,7 @@ type GeneratorConfigureMold struct {
 
 type ScenarioConfigureMold struct {
 	Type       string         `mapstructure:"type" json:"type,omitempty" yaml:"type,omitempty" toml:"type,omitempty"`
-	IQuery     string         `mapstructure:"iquery,omitempty" json:"iquery,omitempty" yaml:"iquery,omitempty" toml:"iquery,omitempty"`
+	IQuery     string         `mapstructure:"lookup,omitempty" json:"lookup,omitempty" yaml:"lookup,omitempty" toml:"lookup,omitempty"`
 	Metadata   []string       `mapstructure:"metadata" json:"metadata,omitempty" yaml:"metadata,omitempty" toml:"metadata,omitempty"`
 	Generators []string       `mapstructure:"generators,omitempty" json:"generators,omitempty" yaml:"generators,omitempty" toml:"generators,omitempty"`
 	Config     map[string]any `mapstructure:"config" json:"config,omitempty" yaml:"config,omitempty" toml:"config,omitempty"`

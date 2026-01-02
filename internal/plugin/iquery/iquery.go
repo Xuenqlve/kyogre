@@ -17,12 +17,13 @@ import (
 // LookupRequestItem 指定单个 schema 与字段的反查需求
 type LookupRequest struct {
 	Schema schema_store.SchemaKey
-	Params []BoundParam
+	Params []Bound
 }
 
 // LookupResult 承载反查模块返回的最大值、行数等信息
 type LookupResult struct {
-	Bounds []Bound
+	Bounds   []Bound
+	TopLimit bool
 }
 
 type BoundParam struct {

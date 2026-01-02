@@ -21,7 +21,7 @@ type Config struct {
 	MessageCount int          `mapstructure:"message-count"`
 	IntervalMS   int          `mapstructure:"interval-ms"`
 	WorkerCount  int          `mapstructure:"worker-count"`
-	IQuery       IQueryConfig `mapstructure:"iquery"`
+	IQuery       IQueryConfig `mapstructure:"lookup"`
 }
 
 type IQueryConfig struct {
