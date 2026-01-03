@@ -1,0 +1,2 @@
+{"level":"info","time":"2026-01-03T22:11:50+08:00","message":"mysql pressure configured successfully for pipeline: test_pressure"}
+{"level":"error","time":"2026-01-03T22:11:50+08:00","message":"sql row processing failed: Error 1146 (42S02): Table 'test.test' doesn't exist"}

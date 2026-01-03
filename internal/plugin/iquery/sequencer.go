@@ -8,6 +8,7 @@ import (
 	"sync"
 
 	"github.com/xuenqlve/common/schema_store"
+	"github.com/xuenqlve/kyogre/pkg/tool/range_pool"
 )
 
 // SequenceSpec defines a unique constraint dimension to manage.
@@ -55,7 +56,7 @@ type sequenceState struct {
 	spec SequenceSpec
 
 	mu   sync.Mutex
-	pool *rangePool
+	pool *range_pool.RangePool
 
 	wrapAt int64
 	alive  *aliveSet
@@ -165,9 +166,13 @@ func (s *Sequencer) initState(ctx context.Context, spec SequenceSpec) (*sequence
 	if err != nil {
 		return nil, err
 	}
+	pool, err := range_pool.NewRangePool(minV, maxV, maxV)
+	if err != nil {
+		return nil, err
+	}
 	st := &sequenceState{
 		spec:    spec,
-		pool:    newRangePool(minV, maxV, maxV),
+		pool:    pool,
 		nextNew: maxV + 1,
 		newEnd:  maxV,
 	}
@@ -204,7 +209,7 @@ func (s *Sequencer) ReserveInsert(ctx context.Context, spec SequenceSpec, need i
 	}
 
 	// 1) reuse deleted ids (safe).
-	if r, ok := st.pool.reserveFromFreeForInsert(size); ok {
+	if r, ok := st.pool.ReserveFromFreeForInsert(size); ok {
 		return &SequenceConfig{
 			Key:          key,
 			Field:        st.specField(),
@@ -254,8 +259,10 @@ func (s *Sequencer) ReserveInsert(ctx context.Context, spec SequenceSpec, need i
 		return nil, fmt.Errorf("insert range exhausted for %s: next=%d wrapAt=%d", key, st.nextNew, st.wrapAt)
 	}
 	st.nextNew = end + 1
-	r := IntRange{Start: start, End: end}
-	st.pool.markPendingInsert(r)
+	r := range_pool.IntRange{Start: start, End: end}
+	if err := st.pool.AddLiveRange(r); err != nil {
+		return nil, err
+	}
 
 	return &SequenceConfig{
 		Key:          key,
@@ -292,7 +299,7 @@ func (s *Sequencer) ReserveInsertProvider(ctx context.Context, spec SequenceSpec
 			return nil, nil, err
 		}
 
-		if r, ok := st.pool.reserveFromFreeForInsert(size); ok {
+		if r, ok := st.pool.ReserveFromFreeForInsert(size); ok {
 			cfg := &SequenceConfig{
 				Key:          key,
 				Field:        st.specField(),
@@ -340,8 +347,10 @@ func (s *Sequencer) ReserveInsertProvider(ctx context.Context, spec SequenceSpec
 			return nil, nil, fmt.Errorf("insert range exhausted for %s: next=%d wrapAt=%d", key, st.nextNew, st.wrapAt)
 		}
 		st.nextNew = end + 1
-		r := IntRange{Start: start, End: end}
-		st.pool.markPendingInsert(r)
+		r := range_pool.IntRange{Start: start, End: end}
+		if err := st.pool.AddLiveRange(r); err != nil {
+			return nil, nil, err
+		}
 
 		cfg := &SequenceConfig{
 			Key:          key,
@@ -397,18 +406,9 @@ func (s *Sequencer) ReserveUpdate(ctx context.Context, spec SequenceSpec, need i
 	if err != nil {
 		return nil, err
 	}
-	r, ok := st.pool.takeFromLive(size)
+	r, ok := st.pool.TakeFromLive(size)
 	if !ok {
-		// best-effort: fall back to exist range based on bounds.
-		if st.pool.existMax >= st.pool.existMin && st.pool.existMax > 0 {
-			start := st.pool.existMin
-			end := start + size - 1
-			if end > st.pool.existMax {
-				end = st.pool.existMax
-			}
-			r = IntRange{Start: start, End: end}
-			ok = r.Valid()
-		}
+		r, ok = st.pool.ExistingRange(size)
 	}
 	if !ok {
 		return nil, fmt.Errorf("no live range available for update: %s", key)
@@ -446,17 +446,9 @@ func (s *Sequencer) ReserveUpdateProvider(ctx context.Context, spec SequenceSpec
 		if err != nil {
 			return nil, nil, err
 		}
-		r, ok := st.pool.takeFromLive(size)
+		r, ok := st.pool.TakeFromLive(size)
 		if !ok {
-			if st.pool.existMax >= st.pool.existMin && st.pool.existMax > 0 {
-				start := st.pool.existMin
-				end := start + size - 1
-				if end > st.pool.existMax {
-					end = st.pool.existMax
-				}
-				r = IntRange{Start: start, End: end}
-				ok = r.Valid()
-			}
+			r, ok = st.pool.ExistingRange(size)
 		}
 		if !ok {
 			return nil, nil, fmt.Errorf("no live range available for update: %s", key)
@@ -489,8 +481,7 @@ func (s *Sequencer) ReserveUpdateProvider(ctx context.Context, spec SequenceSpec
 	return tp, nil, nil
 }
 
-// ReserveDelete reserves an existing live range for DELETE and moves it to free pool on success.
-// Since we don't have a success callback here, we optimistically move it to free pool.
+// ReserveDelete reserves an existing live range for DELETE and immediately moves it to free pool.
 func (s *Sequencer) ReserveDelete(ctx context.Context, spec SequenceSpec, need int64) (*SequenceConfig, error) {
 	key := spec.Key()
 	if key == "" {
@@ -515,23 +506,16 @@ func (s *Sequencer) ReserveDelete(ctx context.Context, spec SequenceSpec, need i
 	if err != nil {
 		return nil, err
 	}
-	r, ok := st.pool.takeFromLive(size)
+	r, ok := st.pool.TakeFromLive(size)
 	if !ok {
-		if st.pool.existMax >= st.pool.existMin && st.pool.existMax > 0 {
-			start := st.pool.existMin
-			end := start + size - 1
-			if end > st.pool.existMax {
-				end = st.pool.existMax
-			}
-			r = IntRange{Start: start, End: end}
-			ok = r.Valid()
-		}
+		r, ok = st.pool.ExistingRange(size)
 	}
 	if !ok {
 		return nil, fmt.Errorf("no live range available for delete: %s", key)
 	}
-	// Reserve the delete range, waiting for commit/rollback.
-	_ = st.pool.reserveDelete(r)
+	if err := st.pool.ReserveDelete(r); err != nil {
+		return nil, err
+	}
 
 	return &SequenceConfig{
 		Key:          key,
@@ -566,22 +550,16 @@ func (s *Sequencer) ReserveDeleteProvider(ctx context.Context, spec SequenceSpec
 		if err != nil {
 			return nil, nil, err
 		}
-		r, ok := st.pool.takeFromLive(size)
+		r, ok := st.pool.TakeFromLive(size)
 		if !ok {
-			if st.pool.existMax >= st.pool.existMin && st.pool.existMax > 0 {
-				start := st.pool.existMin
-				end := start + size - 1
-				if end > st.pool.existMax {
-					end = st.pool.existMax
-				}
-				r = IntRange{Start: start, End: end}
-				ok = r.Valid()
-			}
+			r, ok = st.pool.ExistingRange(size)
 		}
 		if !ok {
 			return nil, nil, fmt.Errorf("no live range available for delete: %s", key)
 		}
-		_ = st.pool.reserveDelete(r)
+		if err := st.pool.ReserveDelete(r); err != nil {
+			return nil, nil, err
+		}
 		cfg := &SequenceConfig{
 			Key:          key,
 			Field:        st.specField(),
@@ -675,75 +653,6 @@ func minInt64(a, b int64) int64 {
 		return a
 	}
 	return b
-}
-
-// CommitInsert marks a previously reserved insert range as "exists".
-func (s *Sequencer) CommitInsert(ctx context.Context, spec SequenceSpec, cfg *SequenceConfig) error {
-	if cfg == nil {
-		return nil
-	}
-	key := spec.Key()
-	mu := s.keyLock(key)
-	mu.Lock()
-	defer mu.Unlock()
-	st, err := s.initState(ctx, spec)
-	if err != nil {
-		return err
-	}
-	st.mu.Lock()
-	defer st.mu.Unlock()
-	return st.pool.commitInsert(IntRange{Start: cfg.StartValue, End: cfg.EndValue})
-}
-
-func (s *Sequencer) RollbackInsert(ctx context.Context, spec SequenceSpec, cfg *SequenceConfig) error {
-	if cfg == nil {
-		return nil
-	}
-	key := spec.Key()
-	mu := s.keyLock(key)
-	mu.Lock()
-	defer mu.Unlock()
-	st, err := s.initState(ctx, spec)
-	if err != nil {
-		return err
-	}
-	st.mu.Lock()
-	defer st.mu.Unlock()
-	return st.pool.rollbackInsert(IntRange{Start: cfg.StartValue, End: cfg.EndValue})
-}
-
-func (s *Sequencer) CommitDelete(ctx context.Context, spec SequenceSpec, cfg *SequenceConfig) error {
-	if cfg == nil {
-		return nil
-	}
-	key := spec.Key()
-	mu := s.keyLock(key)
-	mu.Lock()
-	defer mu.Unlock()
-	st, err := s.initState(ctx, spec)
-	if err != nil {
-		return err
-	}
-	st.mu.Lock()
-	defer st.mu.Unlock()
-	return st.pool.commitDelete(IntRange{Start: cfg.StartValue, End: cfg.EndValue})
-}
-
-func (s *Sequencer) RollbackDelete(ctx context.Context, spec SequenceSpec, cfg *SequenceConfig) error {
-	if cfg == nil {
-		return nil
-	}
-	key := spec.Key()
-	mu := s.keyLock(key)
-	mu.Lock()
-	defer mu.Unlock()
-	st, err := s.initState(ctx, spec)
-	if err != nil {
-		return err
-	}
-	st.mu.Lock()
-	defer st.mu.Unlock()
-	return st.pool.rollbackDelete(IntRange{Start: cfg.StartValue, End: cfg.EndValue})
 }
 
 func (s *Sequencer) Close() error {
