@@ -449,3 +449,223 @@
 {"level":"info","time":"2025-11-20T11:10:46+08:00","message":"column:{Name:doctor_notes Type:7 RawType:text DefaultVal:{ValueString: IsNull:false} IsNullable:true IsUnsigned:false IsPrimaryKey:false IsGenerated:false DataType:text ColumnKey: OrdinalPosition:9}"}
 {"level":"info","time":"2025-11-20T11:10:46+08:00","message":"column:{Name:created_at Type:8 RawType:datetime not null default '2000-01-01 00:00:00' DefaultVal:{ValueString:2000-01-01 00:00:00 IsNull:false} IsNullable:true IsUnsigned:false IsPrimaryKey:false IsGenerated:false DataType:datetime ColumnKey: OrdinalPosition:10}"}
 {"level":"info","time":"2026-01-03T22:11:49+08:00","message":"Initialize SQL: CREATE DATABASE IF NOT EXISTS kyogre"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"[RangePool] existMin: 0, existMax: 1000 insertHi: 1000"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"[RangePool] live tiers ..."}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"size:1 threshold:4 maxCount:8"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 0 1000~1000"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"size:5 threshold:2 maxCount:4"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"size:10 threshold:1 maxCount:2"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 0 0~9"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 1 10~19"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 2 20~29"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 3 30~39"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 4 40~49"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 5 50~59"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 6 60~69"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 7 70~79"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 8 80~89"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 9 90~99"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 10 100~109"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 11 110~119"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 12 120~129"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 13 130~139"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 14 140~149"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 15 150~159"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 16 160~169"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 17 170~179"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 18 180~189"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 19 190~199"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 20 200~209"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 21 210~219"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 22 220~229"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 23 230~239"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 24 240~249"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 25 250~259"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 26 260~269"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 27 270~279"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 28 280~289"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 29 290~299"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 30 300~309"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 31 310~319"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 32 320~329"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 33 330~339"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 34 340~349"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 35 350~359"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 36 360~369"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 37 370~379"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 38 380~389"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 39 390~399"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 40 400~409"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 41 410~419"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 42 420~429"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 43 430~439"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 44 440~449"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 45 450~459"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 46 460~469"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 47 470~479"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 48 480~489"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 49 490~499"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 50 500~509"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 51 510~519"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 52 520~529"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 53 530~539"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 54 540~549"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 55 550~559"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 56 560~569"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 57 570~579"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 58 580~589"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 59 590~599"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 60 600~609"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 61 610~619"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 62 620~629"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 63 630~639"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 64 640~649"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 65 650~659"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 66 660~669"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 67 670~679"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 68 680~689"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 69 690~699"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 70 700~709"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 71 710~719"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 72 720~729"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 73 730~739"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 74 740~749"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 75 750~759"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 76 760~769"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 77 770~779"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 78 780~789"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 79 790~799"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 80 800~809"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 81 810~819"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 82 820~829"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 83 830~839"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 84 840~849"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 85 850~859"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 86 860~869"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 87 870~879"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 88 880~889"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 89 890~899"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 90 900~909"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 91 910~919"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 92 920~929"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 93 930~939"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 94 940~949"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 95 950~959"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 96 960~969"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 97 970~979"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 98 980~989"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"index: 99 990~999"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"[RangePool] free tiers ..."}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"size:2 threshold:4 maxCount:8"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"size:8 threshold:2 maxCount:4"}
+{"level":"info","time":"2026-01-05T10:56:52+08:00","message":"size:16 threshold:1 maxCount:2"}
+{"level":"info","time":"2026-01-07T14:16:52+08:00","message":"min:0 max:100 live_start:0 live_cursor:20 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:17:28+08:00","message":"min:0 max:100 live_start:0 live_cursor:20 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:17:28+08:00","message":"min:0 max:100 live_start:0 live_cursor:40 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:17:28+08:00","message":"min:0 max:100 live_start:0 live_cursor:60 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:17:28+08:00","message":"min:0 max:100 live_start:0 live_cursor:80 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:17:28+08:00","message":"min:0 max:100 live_start:0 live_cursor:100 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:17:28+08:00","message":"min:0 max:100 live_start:0 live_cursor:0 LiveEnableLoop:true free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:17:28+08:00","message":"min:0 max:100 live_start:0 live_cursor:20 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:17:28+08:00","message":"min:0 max:100 live_start:0 live_cursor:40 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:17:28+08:00","message":"min:0 max:100 live_start:0 live_cursor:60 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:17:28+08:00","message":"min:0 max:100 live_start:0 live_cursor:80 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:17:59+08:00","message":"min:0 max:100 live_start:0 live_cursor:20 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:17:59+08:00","message":"min:0 max:100 live_start:0 live_cursor:40 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:17:59+08:00","message":"min:0 max:100 live_start:0 live_cursor:60 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:17:59+08:00","message":"min:0 max:100 live_start:0 live_cursor:80 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:17:59+08:00","message":"min:0 max:100 live_start:0 live_cursor:100 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:17:59+08:00","message":"min:0 max:100 live_start:0 live_cursor:0 LiveEnableLoop:true free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:17:59+08:00","message":"min:0 max:100 live_start:0 live_cursor:20 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:17:59+08:00","message":"min:0 max:100 live_start:0 live_cursor:40 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:17:59+08:00","message":"min:0 max:100 live_start:0 live_cursor:60 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:17:59+08:00","message":"min:0 max:100 live_start:0 live_cursor:80 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:20:22+08:00","message":"min:0 max:100 live_start:0 live_cursor:20 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:20:22+08:00","message":"min:0 max:100 live_start:0 live_cursor:40 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:20:22+08:00","message":"min:0 max:100 live_start:0 live_cursor:60 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:20:22+08:00","message":"min:0 max:100 live_start:0 live_cursor:80 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:20:22+08:00","message":"min:0 max:100 live_start:0 live_cursor:0 LiveEnableLoop:true free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:20:22+08:00","message":"min:0 max:100 live_start:0 live_cursor:20 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:20:22+08:00","message":"min:0 max:100 live_start:0 live_cursor:40 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:20:22+08:00","message":"min:0 max:100 live_start:0 live_cursor:60 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:20:22+08:00","message":"min:0 max:100 live_start:0 live_cursor:80 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:20:22+08:00","message":"min:0 max:100 live_start:0 live_cursor:0 LiveEnableLoop:true free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:20:42+08:00","message":"min:0 max:100 live_start:0 live_cursor:21 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:20:42+08:00","message":"min:0 max:100 live_start:0 live_cursor:42 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:20:42+08:00","message":"min:0 max:100 live_start:0 live_cursor:63 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:20:42+08:00","message":"min:0 max:100 live_start:0 live_cursor:84 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:20:42+08:00","message":"min:0 max:100 live_start:0 live_cursor:0 LiveEnableLoop:true free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:20:42+08:00","message":"min:0 max:100 live_start:0 live_cursor:21 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:20:42+08:00","message":"min:0 max:100 live_start:0 live_cursor:42 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:20:42+08:00","message":"min:0 max:100 live_start:0 live_cursor:63 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:20:42+08:00","message":"min:0 max:100 live_start:0 live_cursor:84 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:20:42+08:00","message":"min:0 max:100 live_start:0 live_cursor:0 LiveEnableLoop:true free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:21:10+08:00","message":"min:0 max:100 live_start:0 live_cursor:0 LiveEnableLoop:false free_start:50 free_cursor:70 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:21:10+08:00","message":"min:0 max:100 live_start:0 live_cursor:0 LiveEnableLoop:false free_start:50 free_cursor:90 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:21:10+08:00","message":"min:0 max:100 live_start:0 live_cursor:0 LiveEnableLoop:false free_start:50 free_cursor:100 FreeEnableLoop:true"}
+{"level":"info","time":"2026-01-07T14:21:10+08:00","message":"min:0 max:100 live_start:0 live_cursor:0 LiveEnableLoop:false free_start:50 free_cursor:100 FreeEnableLoop:true"}
+{"level":"info","time":"2026-01-07T14:21:10+08:00","message":"min:0 max:100 live_start:0 live_cursor:0 LiveEnableLoop:false free_start:50 free_cursor:100 FreeEnableLoop:true"}
+{"level":"info","time":"2026-01-07T14:21:10+08:00","message":"min:0 max:100 live_start:0 live_cursor:0 LiveEnableLoop:false free_start:50 free_cursor:100 FreeEnableLoop:true"}
+{"level":"info","time":"2026-01-07T14:21:10+08:00","message":"min:0 max:100 live_start:0 live_cursor:0 LiveEnableLoop:false free_start:50 free_cursor:100 FreeEnableLoop:true"}
+{"level":"info","time":"2026-01-07T14:21:10+08:00","message":"min:0 max:100 live_start:0 live_cursor:0 LiveEnableLoop:false free_start:50 free_cursor:100 FreeEnableLoop:true"}
+{"level":"info","time":"2026-01-07T14:21:10+08:00","message":"min:0 max:100 live_start:0 live_cursor:0 LiveEnableLoop:false free_start:50 free_cursor:100 FreeEnableLoop:true"}
+{"level":"info","time":"2026-01-07T14:21:10+08:00","message":"min:0 max:100 live_start:0 live_cursor:0 LiveEnableLoop:false free_start:50 free_cursor:100 FreeEnableLoop:true"}
+{"level":"info","time":"2026-01-07T14:22:35+08:00","message":"min:0 max:100 live_start:0 live_cursor:20 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:22:42+08:00","message":"min:0 max:100 live_start:0 live_cursor:21 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:22:42+08:00","message":"min:0 max:100 live_start:0 live_cursor:42 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:22:42+08:00","message":"min:0 max:100 live_start:0 live_cursor:63 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:22:42+08:00","message":"min:0 max:100 live_start:0 live_cursor:84 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:22:42+08:00","message":"min:0 max:100 live_start:0 live_cursor:0 LiveEnableLoop:true free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:22:42+08:00","message":"min:0 max:100 live_start:0 live_cursor:21 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:22:42+08:00","message":"min:0 max:100 live_start:0 live_cursor:42 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:22:42+08:00","message":"min:0 max:100 live_start:0 live_cursor:63 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:22:42+08:00","message":"min:0 max:100 live_start:0 live_cursor:84 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:22:42+08:00","message":"min:0 max:100 live_start:0 live_cursor:0 LiveEnableLoop:true free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:22:52+08:00","message":"min:0 max:100 live_start:0 live_cursor:0 LiveEnableLoop:false free_start:50 free_cursor:70 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:22:52+08:00","message":"min:0 max:100 live_start:0 live_cursor:0 LiveEnableLoop:false free_start:50 free_cursor:90 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:22:52+08:00","message":"min:0 max:100 live_start:0 live_cursor:0 LiveEnableLoop:false free_start:0 free_cursor:0 FreeEnableLoop:true"}
+{"level":"info","time":"2026-01-07T14:22:52+08:00","message":"min:0 max:100 live_start:0 live_cursor:0 LiveEnableLoop:false free_start:0 free_cursor:20 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:22:52+08:00","message":"min:0 max:100 live_start:0 live_cursor:0 LiveEnableLoop:false free_start:0 free_cursor:40 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:22:52+08:00","message":"min:0 max:100 live_start:0 live_cursor:0 LiveEnableLoop:false free_start:0 free_cursor:60 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:22:52+08:00","message":"min:0 max:100 live_start:0 live_cursor:0 LiveEnableLoop:false free_start:0 free_cursor:80 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:22:52+08:00","message":"min:0 max:100 live_start:0 live_cursor:0 LiveEnableLoop:false free_start:0 free_cursor:0 FreeEnableLoop:true"}
+{"level":"info","time":"2026-01-07T14:22:52+08:00","message":"min:0 max:100 live_start:0 live_cursor:0 LiveEnableLoop:false free_start:0 free_cursor:20 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:22:52+08:00","message":"min:0 max:100 live_start:0 live_cursor:0 LiveEnableLoop:false free_start:0 free_cursor:40 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:24:16+08:00","message":"min:0 max:100 live_start:0 live_cursor:21 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:24:16+08:00","message":"min:0 max:100 live_start:0 live_cursor:42 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:24:16+08:00","message":"min:0 max:100 live_start:0 live_cursor:63 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:24:16+08:00","message":"min:0 max:100 live_start:0 live_cursor:84 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:24:16+08:00","message":"min:0 max:100 live_start:0 live_cursor:0 LiveEnableLoop:true free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:24:16+08:00","message":"min:0 max:100 live_start:0 live_cursor:21 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:24:16+08:00","message":"min:0 max:100 live_start:0 live_cursor:42 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:24:16+08:00","message":"min:0 max:100 live_start:0 live_cursor:63 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:24:16+08:00","message":"min:0 max:100 live_start:0 live_cursor:84 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:24:16+08:00","message":"min:0 max:100 live_start:0 live_cursor:0 LiveEnableLoop:true free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:24:29+08:00","message":"min:0 max:100 live_start:0 live_cursor:0 LiveEnableLoop:false free_start:50 free_cursor:70 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:24:29+08:00","message":"min:0 max:100 live_start:0 live_cursor:0 LiveEnableLoop:false free_start:50 free_cursor:90 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:24:29+08:00","message":"min:0 max:100 live_start:0 live_cursor:0 LiveEnableLoop:false free_start:0 free_cursor:0 FreeEnableLoop:true"}
+{"level":"info","time":"2026-01-07T14:24:29+08:00","message":"min:0 max:100 live_start:0 live_cursor:0 LiveEnableLoop:false free_start:0 free_cursor:20 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:24:29+08:00","message":"min:0 max:100 live_start:0 live_cursor:0 LiveEnableLoop:false free_start:0 free_cursor:40 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:24:29+08:00","message":"min:0 max:100 live_start:0 live_cursor:0 LiveEnableLoop:false free_start:0 free_cursor:60 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:24:29+08:00","message":"min:0 max:100 live_start:0 live_cursor:0 LiveEnableLoop:false free_start:0 free_cursor:80 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:24:29+08:00","message":"min:0 max:100 live_start:0 live_cursor:0 LiveEnableLoop:false free_start:0 free_cursor:0 FreeEnableLoop:true"}
+{"level":"info","time":"2026-01-07T14:24:29+08:00","message":"min:0 max:100 live_start:0 live_cursor:0 LiveEnableLoop:false free_start:0 free_cursor:20 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:24:29+08:00","message":"min:0 max:100 live_start:0 live_cursor:0 LiveEnableLoop:false free_start:0 free_cursor:40 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:24:41+08:00","message":"min:0 max:100 live_start:0 live_cursor:0 LiveEnableLoop:false free_start:50 free_cursor:71 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:24:41+08:00","message":"min:0 max:100 live_start:0 live_cursor:0 LiveEnableLoop:false free_start:50 free_cursor:92 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:24:41+08:00","message":"min:0 max:100 live_start:0 live_cursor:0 LiveEnableLoop:false free_start:0 free_cursor:0 FreeEnableLoop:true"}
+{"level":"info","time":"2026-01-07T14:24:41+08:00","message":"min:0 max:100 live_start:0 live_cursor:0 LiveEnableLoop:false free_start:0 free_cursor:21 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:24:41+08:00","message":"min:0 max:100 live_start:0 live_cursor:0 LiveEnableLoop:false free_start:0 free_cursor:42 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:24:41+08:00","message":"min:0 max:100 live_start:0 live_cursor:0 LiveEnableLoop:false free_start:0 free_cursor:63 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:24:41+08:00","message":"min:0 max:100 live_start:0 live_cursor:0 LiveEnableLoop:false free_start:0 free_cursor:84 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:24:41+08:00","message":"min:0 max:100 live_start:0 live_cursor:0 LiveEnableLoop:false free_start:0 free_cursor:0 FreeEnableLoop:true"}
+{"level":"info","time":"2026-01-07T14:24:41+08:00","message":"min:0 max:100 live_start:0 live_cursor:0 LiveEnableLoop:false free_start:0 free_cursor:21 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:24:41+08:00","message":"min:0 max:100 live_start:0 live_cursor:0 LiveEnableLoop:false free_start:0 free_cursor:42 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:27:47+08:00","message":"min:0 max:10000 live_start:0 live_cursor:2359 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:27:47+08:00","message":"min:0 max:10000 live_start:0 live_cursor:2359 LiveEnableLoop:false free_start:5000 free_cursor:7359 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:28:35+08:00","message":"min:0 max:10000 live_start:0 live_cursor:2359 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:28:36+08:00","message":"min:0 max:10000 live_start:0 live_cursor:2359 LiveEnableLoop:false free_start:5000 free_cursor:7359 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:28:50+08:00","message":"min:0 max:10000 live_start:0 live_cursor:2359 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:29:26+08:00","message":"min:0 max:10000 live_start:0 live_cursor:2359 LiveEnableLoop:false free_start:5000 free_cursor:7359 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:29:40+08:00","message":"min:0 max:10000 live_start:0 live_cursor:2359 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:30:13+08:00","message":"min:0 max:10000 live_start:0 live_cursor:2359 LiveEnableLoop:false free_start:5000 free_cursor:7359 FreeEnableLoop:false"}

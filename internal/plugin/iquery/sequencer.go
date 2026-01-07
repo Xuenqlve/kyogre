@@ -166,7 +166,7 @@ func (s *Sequencer) initState(ctx context.Context, spec SequenceSpec) (*sequence
 	if err != nil {
 		return nil, err
 	}
-	pool, err := range_pool.NewRangePool(minV, maxV, maxV)
+	pool, err := range_pool.NewRangePool(minV, maxV)
 	if err != nil {
 		return nil, err
 	}
@@ -210,6 +210,10 @@ func (s *Sequencer) ReserveInsert(ctx context.Context, spec SequenceSpec, need i
 
 	// 1) reuse deleted ids (safe).
 	if r, ok := st.pool.ReserveFromFreeForInsert(size); ok {
+		if err := st.pool.AddLiveRange(r); err != nil {
+			_ = st.pool.AddFreeRange(r)
+			return nil, err
+		}
 		return &SequenceConfig{
 			Key:          key,
 			Field:        st.specField(),
@@ -260,7 +264,7 @@ func (s *Sequencer) ReserveInsert(ctx context.Context, spec SequenceSpec, need i
 	}
 	st.nextNew = end + 1
 	r := range_pool.IntRange{Start: start, End: end}
-	if err := st.pool.AddLiveRange(r); err != nil {
+	if err = st.pool.AddLiveRange(r); err != nil {
 		return nil, err
 	}
 
@@ -300,6 +304,10 @@ func (s *Sequencer) ReserveInsertProvider(ctx context.Context, spec SequenceSpec
 		}
 
 		if r, ok := st.pool.ReserveFromFreeForInsert(size); ok {
+			if err := st.pool.AddLiveRange(r); err != nil {
+				_ = st.pool.AddFreeRange(r)
+				return nil, nil, err
+			}
 			cfg := &SequenceConfig{
 				Key:          key,
 				Field:        st.specField(),
@@ -516,6 +524,10 @@ func (s *Sequencer) ReserveDelete(ctx context.Context, spec SequenceSpec, need i
 	if err := st.pool.ReserveDelete(r); err != nil {
 		return nil, err
 	}
+	if err := st.pool.AddFreeRange(r); err != nil {
+		_ = st.pool.AddLiveRange(r)
+		return nil, err
+	}
 
 	return &SequenceConfig{
 		Key:          key,
@@ -558,6 +570,10 @@ func (s *Sequencer) ReserveDeleteProvider(ctx context.Context, spec SequenceSpec
 			return nil, nil, fmt.Errorf("no live range available for delete: %s", key)
 		}
 		if err := st.pool.ReserveDelete(r); err != nil {
+			return nil, nil, err
+		}
+		if err := st.pool.AddFreeRange(r); err != nil {
+			_ = st.pool.AddLiveRange(r)
 			return nil, nil, err
 		}
 		cfg := &SequenceConfig{
