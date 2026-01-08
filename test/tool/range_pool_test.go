@@ -125,6 +125,16 @@ func TestRangePool(t *testing.T) {
 		t.Fatal(err)
 		return
 	}
-	pool.DebugLog()
-
+	pool.DebugLog(range_pool.RangePoolFreeName)
+	r, b := pool.ReserveInsert(5)
+	t.Logf("1 r:%v b:%v", r, b)
+	r, b = pool.ReserveInsert(5)
+	t.Logf("2 r:%v b:%v", r, b)
+	r, b = pool.ReserveInsert(5)
+	t.Logf("3 r:%v b:%v", r, b)
+	r, b = pool.ReserveInsert(5)
+	t.Logf("4 r:%v b:%v", r, b)
+	r, b = pool.ReserveInsert(5)
+	t.Logf("5 r:%v b:%v", r, b)
+	pool.DebugLog(range_pool.RangePoolFreeName)
 }

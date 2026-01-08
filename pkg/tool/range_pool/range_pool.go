@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/rand"
 	"sort"
+	"sync"
 	"time"
 
 	"github.com/xuenqlve/common/log"
@@ -130,39 +131,78 @@ func NewRangePool(opts ...RangePoolOption) (*RangePool, error) {
 		live: live,
 		free: free,
 	}
-	if err = pool.live.bootstrap(IntRange{}); err != nil {
+	if err = pool.live.bootstrap(); err != nil {
 		return nil, err
 	}
-	if err = pool.free.bootstrap(IntRange{}); err != nil {
+	if err = pool.free.bootstrap(); err != nil {
 		return nil, err
 	}
 	return pool, nil
 }
 
-func (p *RangePool) DebugLog() {
+func (p *RangePool) DebugLog(t string) {
 	ls, lc, le, ll := p.live.windowState()
 	fs, fc, fe, fl := p.free.windowState()
-	log.Infof("[RangePool] live window start=%d cursor=%d end=%d loop=%v", ls, lc, le, ll)
-	log.Infof("[RangePool] free window start=%d cursor=%d end=%d loop=%v", fs, fc, fe, fl)
-	log.Infof("[RangePool] live tiers ...")
-	for _, v := range p.live.tiers {
-		log.Infof("size:%v threshold:%d maxCount:%d", v.cfg.Size, v.cfg.Threshold, v.cfg.MaxCount)
-		for index, tmp := range v.segments {
-			log.Infof("index: %d %d~%d", index, tmp.Start, tmp.End)
+	switch t {
+	case RangePoolFreeName:
+		log.Infof("[RangePool] free window start=%d cursor=%d end=%d loop=%v", fs, fc, fe, fl)
+		p.free.mu.RLock()
+		for _, v := range p.free.tiers {
+			if len(v.segments) == 0 {
+				log.Infof("size:%v range <empty> len:%d", v.cfg.Size, 0)
+				continue
+			}
+			log.Infof("size:%v range %d~%d len:%d", v.cfg.Size, v.segments[0].Start, v.segments[len(v.segments)-1].End, len(v.segments))
 		}
-	}
-	log.Infof("[RangePool] free tiers ...")
-	for _, v := range p.free.tiers {
-		log.Infof("size:%v threshold:%d maxCount:%d", v.cfg.Size, v.cfg.Threshold, v.cfg.MaxCount)
-		for index, tmp := range v.segments {
-			log.Infof("index: %d %d~%d", index, tmp.Start, tmp.End)
+		p.free.mu.RUnlock()
+	case RangePoolLiveName:
+		log.Infof("[RangePool] live window start=%d cursor=%d end=%d loop=%v", ls, lc, le, ll)
+		p.live.mu.RLock()
+		for _, v := range p.live.tiers {
+			if len(v.segments) == 0 {
+				log.Infof("size:%v range <empty> len:%d", v.cfg.Size, 0)
+				continue
+			}
+			log.Infof("size:%v range %d~%d len:%d", v.cfg.Size, v.segments[0].Start, v.segments[len(v.segments)-1].End, len(v.segments))
 		}
+		p.live.mu.RUnlock()
+	default:
+		log.Infof("[RangePool] live window start=%d cursor=%d end=%d loop=%v", ls, lc, le, ll)
+		log.Infof("[RangePool] free window start=%d cursor=%d end=%d loop=%v", fs, fc, fe, fl)
+		log.Infof("[RangePool] live tiers ...")
+		p.live.mu.RLock()
+		for _, v := range p.live.tiers {
+			if len(v.segments) == 0 {
+				log.Infof("size:%v range <empty> len:%d", v.cfg.Size, 0)
+				continue
+			}
+			log.Infof("size:%v range %d~%d len:%d", v.cfg.Size, v.segments[0].Start, v.segments[len(v.segments)-1].End, len(v.segments))
+		}
+		p.live.mu.RUnlock()
+		log.Infof("[RangePool] free tiers ...")
+		p.free.mu.RLock()
+		for _, v := range p.free.tiers {
+			if len(v.segments) == 0 {
+				log.Infof("size:%v range <empty> len:%d", v.cfg.Size, 0)
+				continue
+			}
+			log.Infof("size:%v range %d~%d len:%d", v.cfg.Size, v.segments[0].Start, v.segments[len(v.segments)-1].End, len(v.segments))
+		}
+		p.free.mu.RUnlock()
 	}
+
 }
 
-// ReserveFromFreeForInsert pulls a segment from the free tiers and immediately
-// returns it for INSERT usage.
-func (p *RangePool) ReserveFromFreeForInsert(size int64) (IntRange, bool) {
+// ReserveInsert reserves a continuous range for INSERT operations from the free partition.
+//
+// It consumes the chosen segment from the free tiers. This is typically used to reuse
+// previously-deleted id ranges. It does not allocate "new ids" beyond the current pool;
+// callers may implement a separate high-water allocator if needed.
+func (p *RangePool) ReserveInsert(need int64) (IntRange, bool) {
+	size, ok := p.free.pickTierSize(need)
+	if !ok {
+		return IntRange{}, false
+	}
 	r, err := p.free.consume(size)
 	if err != nil {
 		return IntRange{}, false
@@ -170,88 +210,43 @@ func (p *RangePool) ReserveFromFreeForInsert(size int64) (IntRange, bool) {
 	return r, true
 }
 
-// AddLiveRange injects a range into the live partition.
-func (p *RangePool) AddLiveRange(r IntRange) error {
-	if !r.Valid() {
-		return nil
-	}
-	if err := p.live.addRange(r); err != nil {
-		return err
-	}
-	return nil
-}
-
-// AddFreeRange injects a range into the free partition.
-func (p *RangePool) AddFreeRange(r IntRange) error {
-	if !r.Valid() {
-		return nil
-	}
-	return p.free.addRange(r)
-}
-
-// TakeFromLive returns a segment from the live tiers without consuming it.
-func (p *RangePool) TakeFromLive(size int64) (IntRange, bool) {
-	r, err := p.live.peek(size)
-	if err != nil {
-		return IntRange{}, false
-	}
-	return r, true
-}
-
-// ReserveDelete removes r from live tiers and recycles it into free tiers.
-func (p *RangePool) ReserveDelete(r IntRange) error {
-	if !r.Valid() {
-		return nil
-	}
-	if !p.live.removeExact(r) {
-		return fmt.Errorf("delete range not found in live pool: [%d,%d]", r.Start, r.End)
-	}
-	return nil
-}
-
-// ExistingRange provides a best-effort range using live partition state.
+// ReserveUpdate returns a continuous range for UPDATE operations from the live partition.
 //
-// It prefers the current minimum remaining live segment start, falling back to the live allocation window.
-func (p *RangePool) ExistingRange(n int64) (IntRange, bool) {
-	if n <= 0 {
-		n = 1
-	}
-	minv, maxv, ok := p.live.remainingBounds()
+// It does not consume the chosen segment from the live tiers; repeated calls may return
+// the same segment. When the live tiers are exhausted, it falls back to best-effort
+// sampling within the current live allocation window.
+func (p *RangePool) ReserveUpdate(need int64) (IntRange, bool) {
+	size, ok := p.live.pickTierSize(need)
 	if !ok {
-		ws, _, we, _ := p.live.windowState()
-		window := IntRange{Start: ws, End: we}
-		if !window.Valid() {
-			return IntRange{}, false
-		}
-		minv, maxv = window.Start, window.End
-	}
-	end := minv + n - 1
-	if end > maxv {
-		end = maxv
-	}
-	r := IntRange{Start: minv, End: end}
-	if !r.Valid() {
 		return IntRange{}, false
 	}
-	return r, true
+	r, err := p.live.peek(size)
+	if err == nil && r.Valid() {
+		return r, true
+	}
+	if r, ok := p.live.randomFromWindow(size); ok {
+		return r, true
+	}
+	return IntRange{}, false
 }
 
-// LiveMin returns the smallest remaining value in the live tiers.
-func (p *RangePool) LiveMin() int64 {
-	start, _, ok := p.live.remainingBounds()
+// ReserveDelete reserves a continuous range for DELETE operations from the live partition.
+//
+// It consumes the chosen segment from the live tiers. When the live tiers are exhausted,
+// it falls back to best-effort sampling within the current live allocation window.
+func (p *RangePool) ReserveDelete(need int64) (IntRange, bool) {
+	size, ok := p.live.pickTierSize(need)
 	if !ok {
-		return 0
+		return IntRange{}, false
 	}
-	return start
-}
-
-// FreeMin returns the smallest remaining value in the free tiers.
-func (p *RangePool) FreeMin() int64 {
-	start, _, ok := p.free.remainingBounds()
-	if !ok {
-		return 0
+	r, err := p.live.consume(size)
+	if err == nil && r.Valid() {
+		return r, true
 	}
-	return start
+	if r, ok = p.live.randomFromWindow(size); ok {
+		return r, true
+	}
+	return IntRange{}, false
 }
 
 // LiveWindow returns (start, cursor, end, enableLoop) for the live allocation window.
@@ -268,6 +263,10 @@ type tierPartition struct {
 	rand   *rand.Rand
 	refill RangePoolRefillFunc
 
+	mu       sync.RWMutex
+	refillMu sync.Mutex
+
+	windowInit  bool
 	windowStart int64
 	windowEnd   int64
 	cursor      int64
@@ -302,47 +301,62 @@ func newTierPartition(name string, tiers []TierConfig, refill RangePoolRefillFun
 }
 
 func (p *tierPartition) windowState() (start, cursor, end int64, enableLoop bool) {
+	p.mu.RLock()
+	defer p.mu.RUnlock()
 	return p.windowStart, p.cursor, p.windowEnd, p.enableLoop
 }
 
-func (p *tierPartition) remainingBounds() (minv, maxv int64, ok bool) {
+func (p *tierPartition) pickTierSize(need int64) (int64, bool) {
+	if need <= 0 {
+		need = 1
+	}
 	for _, tier := range p.tiers {
-		for _, seg := range tier.segments {
-			if !seg.Valid() {
-				continue
-			}
-			if minv == 0 || seg.Start < minv {
-				minv = seg.Start
-			}
-			if seg.End > maxv {
-				maxv = seg.End
-			}
+		if tier.cfg.Size >= need {
+			return tier.cfg.Size, true
 		}
 	}
-	if maxv < minv || maxv == 0 {
-		return 0, 0, false
-	}
-	return minv, maxv, true
+	return 0, false
 }
 
-func (p *tierPartition) bootstrap(seed IntRange) error {
-	needInit := p.initNeedCapacity()
-	if p.refill == nil && !seed.Valid() {
-		return nil
+func (p *tierPartition) randomFromWindow(size int64) (IntRange, bool) {
+	if size <= 0 {
+		return IntRange{}, false
 	}
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	if !p.windowInit {
+		return IntRange{}, false
+	}
+	window := IntRange{Start: p.windowStart, End: p.windowEnd}
+	if !window.Valid() {
+		return IntRange{}, false
+	}
+	if size > window.Len() {
+		return IntRange{}, false
+	}
+	maxOffset := window.Len() - size
+	offset := int64(0)
+	if maxOffset > 0 {
+		offset = p.rand.Int63n(maxOffset + 1)
+	}
+	start := window.Start + offset
+	end := start + size - 1
+	r := IntRange{Start: start, End: end}
+	return r, r.Valid()
+}
 
-	if seed.Valid() {
-		p.windowStart = seed.Start
-		p.windowEnd = seed.End
-		p.cursor = seed.Start
+func (p *tierPartition) bootstrap() error {
+	needInit := p.initNeedCapacity()
+	initNeed := needInit * 2
+	if initNeed <= 0 {
+		initNeed = 1
+	}
+	if err := p.ensureWindowCapacity(initNeed, true); err != nil {
+		return err
 	}
 
 	if needInit <= 0 {
 		return nil
-	}
-
-	if err := p.ensureWindowCapacity(needInit, true); err != nil {
-		return err
 	}
 
 	for _, tier := range p.tiers {
@@ -372,8 +386,11 @@ func (p *tierPartition) initNeedCapacity() int64 {
 func (p *tierPartition) ensureWindowCapacity(need int64, bootstrap bool) error {
 	if p.refill == nil {
 		// Window must already be initialized by seed.
+		p.mu.RLock()
+		inited := p.windowInit
 		window := IntRange{Start: p.windowStart, End: p.windowEnd}
-		if !window.Valid() {
+		p.mu.RUnlock()
+		if !inited || !window.Valid() {
 			return fmt.Errorf("%s partition requires either a valid seed window or a refill callback", p.name)
 		}
 		if window.Len() < need {
@@ -385,46 +402,72 @@ func (p *tierPartition) ensureWindowCapacity(need int64, bootstrap bool) error {
 		return nil
 	}
 
-	// Initialize window if needed.
-	window := IntRange{Start: p.windowStart, End: p.windowEnd}
-	if !window.Valid() {
-		enableLoop, win, err := p.refill(p.name, need)
-		if err != nil {
-			return err
-		}
-		if !win.Valid() {
-			return fmt.Errorf("%s refill returned invalid window", p.name)
-		}
-		p.enableLoop = p.enableLoop || enableLoop
-		p.windowStart = win.Start
-		p.windowEnd = win.End
-		if p.cursor == 0 {
-			p.cursor = win.Start
-		}
-		return nil
-	}
+	for {
+		p.mu.RLock()
+		inited := p.windowInit
+		window := IntRange{Start: p.windowStart, End: p.windowEnd}
+		p.mu.RUnlock()
 
-	for (IntRange{Start: p.windowStart, End: p.windowEnd}).Len() < need {
-		missing := need - (IntRange{Start: p.windowStart, End: p.windowEnd}).Len()
-		enableLoop, win, err := p.refill(p.name, missing)
+		if !inited {
+			// Two-phase: do IO refill out of lock, then apply under lock.
+			enableLoop, win, err := p.refillWindow(need)
+			if err != nil {
+				return err
+			}
+			if !win.Valid() {
+				return fmt.Errorf("%s refill returned invalid window", p.name)
+			}
+			p.mu.Lock()
+			// Another goroutine may have initialized the window while we were refilling.
+			if !p.windowInit {
+				p.windowInit = true
+				p.windowStart = win.Start
+				p.windowEnd = win.End
+				p.cursor = win.Start
+				p.enableLoop = p.enableLoop || enableLoop
+				p.mu.Unlock()
+				continue
+			}
+			// Window already initialized: enforce stable start.
+			if win.Start != p.windowStart {
+				p.mu.Unlock()
+				return fmt.Errorf("%s refill window start changed: %d -> %d", p.name, p.windowStart, win.Start)
+			}
+			p.enableLoop = p.enableLoop || enableLoop
+			if win.End > p.windowEnd {
+				p.windowEnd = win.End
+			}
+			p.mu.Unlock()
+			continue
+		}
+
+		if window.Len() >= need {
+			return nil
+		}
+
+		missing := need - window.Len()
+		prevEnd := window.End
+		enableLoop, win, err := p.refillWindow(missing)
 		if err != nil {
 			return err
 		}
 		if !win.Valid() {
 			return fmt.Errorf("%s refill returned invalid window", p.name)
 		}
+		p.mu.Lock()
 		if win.Start != p.windowStart {
+			p.mu.Unlock()
 			return fmt.Errorf("%s refill window start changed: %d -> %d", p.name, p.windowStart, win.Start)
 		}
 		p.enableLoop = p.enableLoop || enableLoop
 		if win.End > p.windowEnd {
 			p.windowEnd = win.End
-		} else if bootstrap {
-			// In bootstrap, lack of growth means we cannot satisfy the requested capacity.
-			break
+		} else if bootstrap && win.End <= prevEnd {
+			p.mu.Unlock()
+			return fmt.Errorf("%s allocation window capacity insufficient after refill: need=%d have=%d", p.name, need, (IntRange{Start: p.windowStart, End: p.windowEnd}).Len())
 		}
+		p.mu.Unlock()
 	}
-	return nil
 }
 
 func (p *tierPartition) allocateSequential(size int64, count int, bootstrap bool) ([]IntRange, error) {
@@ -434,54 +477,95 @@ func (p *tierPartition) allocateSequential(size int64, count int, bootstrap bool
 	if size <= 0 {
 		return nil, fmt.Errorf("%s allocate invalid size %d", p.name, size)
 	}
-	if !(IntRange{Start: p.windowStart, End: p.windowEnd}).Valid() {
-		return nil, fmt.Errorf("%s allocation window not initialized", p.name)
-	}
-	if (IntRange{Start: p.windowStart, End: p.windowEnd}).Len() < size {
-		return nil, fmt.Errorf("%s allocation window too small for size=%d", p.name, size)
-	}
-
-	segs := make([]IntRange, 0, count)
-	for i := 0; i < count; i++ {
-		end := p.cursor + size - 1
-		if end > p.windowEnd {
-			needExtra := end - p.windowEnd
-			if p.refill != nil {
-				enableLoop, win, err := p.refill(p.name, needExtra)
-				if err != nil {
-					return nil, err
-				}
-				if !win.Valid() {
-					return nil, fmt.Errorf("%s refill returned invalid window", p.name)
-				}
-				if win.Start != p.windowStart {
-					return nil, fmt.Errorf("%s refill window start changed: %d -> %d", p.name, p.windowStart, win.Start)
-				}
-				p.enableLoop = p.enableLoop || enableLoop
-				if win.End > p.windowEnd {
-					p.windowEnd = win.End
-				}
-			}
+	for {
+		p.mu.Lock()
+		if !p.windowInit {
+			p.mu.Unlock()
+			return nil, fmt.Errorf("%s allocation window not initialized", p.name)
 		}
-		end = p.cursor + size - 1
-		if end > p.windowEnd {
+		window := IntRange{Start: p.windowStart, End: p.windowEnd}
+		if !window.Valid() {
+			p.mu.Unlock()
+			return nil, fmt.Errorf("%s allocation window not initialized", p.name)
+		}
+		if window.Len() < size {
+			p.mu.Unlock()
+			return nil, fmt.Errorf("%s allocation window too small for size=%d", p.name, size)
+		}
+
+		// If looping is enabled and we are at the tail, wrap before computing need.
+		if p.enableLoop && p.cursor+size-1 > p.windowEnd {
+			p.cursor = p.windowStart
+		}
+
+		startCursor := p.cursor
+		desiredEnd := startCursor + size*int64(count) - 1
+		prevEnd := p.windowEnd
+
+		if desiredEnd <= p.windowEnd {
+			segs := make([]IntRange, 0, count)
+			cursor := p.cursor
+			for i := 0; i < count; i++ {
+				end := cursor + size - 1
+				segs = append(segs, IntRange{Start: cursor, End: end})
+				cursor = end + 1
+			}
+			p.cursor = cursor
+			p.mu.Unlock()
+			return segs, nil
+		}
+		p.mu.Unlock()
+
+		needExtra := desiredEnd - prevEnd
+		if p.refill != nil {
+			enableLoop, win, err := p.refillWindow(needExtra)
+			if err != nil {
+				return nil, err
+			}
+			if !win.Valid() {
+				return nil, fmt.Errorf("%s refill returned invalid window", p.name)
+			}
+			p.mu.Lock()
+			if win.Start != p.windowStart {
+				p.mu.Unlock()
+				return nil, fmt.Errorf("%s refill window start changed: %d -> %d", p.name, p.windowStart, win.Start)
+			}
+			p.enableLoop = p.enableLoop || enableLoop
+			if win.End > p.windowEnd {
+				p.windowEnd = win.End
+				p.mu.Unlock()
+				continue
+			}
+			// No growth: if loop is enabled, we may wrap on next iteration; otherwise fail.
 			if bootstrap {
-				return nil, fmt.Errorf("%s allocation window exhausted during bootstrap: cursor=%d size=%d end=%d windowEnd=%d", p.name, p.cursor, size, end, p.windowEnd)
+				p.mu.Unlock()
+				return nil, fmt.Errorf("%s allocation window exhausted during bootstrap: cursor=%d size=%d desiredEnd=%d windowEnd=%d", p.name, p.cursor, size, desiredEnd, p.windowEnd)
 			}
 			if !p.enableLoop {
+				p.mu.Unlock()
 				return nil, &partitionError{name: p.name, size: size}
 			}
-			p.cursor = p.windowStart
-			end = p.cursor + size - 1
-			if end > p.windowEnd {
-				return nil, fmt.Errorf("%s loop enabled but window too small: size=%d windowLen=%d", p.name, size, (IntRange{Start: p.windowStart, End: p.windowEnd}).Len())
-			}
+			p.mu.Unlock()
+			continue
 		}
-		seg := IntRange{Start: p.cursor, End: end}
-		segs = append(segs, seg)
-		p.cursor = end + 1
+
+		// No refill: only possible via loop.
+		p.mu.RLock()
+		loop := p.enableLoop
+		winStart := p.windowStart
+		winEnd := p.windowEnd
+		p.mu.RUnlock()
+		if bootstrap {
+			return nil, fmt.Errorf("%s allocation window exhausted during bootstrap: cursor=%d size=%d desiredEnd=%d windowEnd=%d", p.name, startCursor, size, desiredEnd, winEnd)
+		}
+		if !loop {
+			return nil, &partitionError{name: p.name, size: size}
+		}
+		// Wrap and retry.
+		p.mu.Lock()
+		p.cursor = winStart
+		p.mu.Unlock()
 	}
-	return segs, nil
 }
 
 // peek returns a random segment from the requested tier, refilling/splitting if needed.
@@ -490,9 +574,8 @@ func (p *tierPartition) peek(size int64) (IntRange, error) {
 	if !ok {
 		return IntRange{}, fmt.Errorf("%s tier %d not configured", p.name, size)
 	}
-	if err := p.ensure(idx); err != nil {
-		return IntRange{}, err
-	}
+	p.mu.Lock()
+	defer p.mu.Unlock()
 	tier := p.tiers[idx]
 	if len(tier.segments) == 0 {
 		return IntRange{}, fmt.Errorf("%s tier %d exhausted", p.name, size)
@@ -510,6 +593,8 @@ func (p *tierPartition) consume(size int64) (IntRange, error) {
 	if err := p.ensure(idx); err != nil {
 		return IntRange{}, err
 	}
+	p.mu.Lock()
+	defer p.mu.Unlock()
 	tier := p.tiers[idx]
 	if len(tier.segments) == 0 {
 		return IntRange{}, fmt.Errorf("%s tier %d exhausted", p.name, size)
@@ -521,40 +606,30 @@ func (p *tierPartition) consume(size int64) (IntRange, error) {
 	return r, nil
 }
 
-// removeExact removes the exact matching segment from the tier that corresponds to r.Len().
-func (p *tierPartition) removeExact(r IntRange) bool {
-	idx, ok := p.idx[r.Len()]
-	if !ok {
-		return false
-	}
-	tier := p.tiers[idx]
-	for i := range tier.segments {
-		if tier.segments[i].Start == r.Start && tier.segments[i].End == r.End {
-			tier.segments[i] = tier.segments[len(tier.segments)-1]
-			tier.segments = tier.segments[:len(tier.segments)-1]
-			return true
-		}
-	}
-	return false
-}
-
-// ensure makes sure tier idx has at least one segment available for use.
-// It tries (1) splitting from upper tiers (bigger segments) and then (2) calling refill.
 func (p *tierPartition) ensure(idx int) error {
+	p.mu.RLock()
 	tier := p.tiers[idx]
 	if len(tier.segments) > tier.cfg.Threshold {
+		p.mu.RUnlock()
 		return nil
 	}
+	p.mu.RUnlock()
 	if idx == len(p.tiers)-1 {
 		// Only the top tier can grow from the allocation window; if the window is not
 		// configured, this partition only relies on injected segments.
+		p.mu.RLock()
 		window := IntRange{Start: p.windowStart, End: p.windowEnd}
+		maxCount := tier.cfg.MaxCount
+		threshold := tier.cfg.Threshold
+		curLen := len(tier.segments)
+		p.mu.RUnlock()
+
 		if window.Valid() || p.refill != nil {
-			target := tier.cfg.MaxCount
+			target := maxCount
 			if target <= 0 {
-				target = tier.cfg.Threshold + 1
+				target = threshold + 1
 			}
-			needCount := target - len(tier.segments)
+			needCount := target - curLen
 			if needCount <= 0 {
 				needCount = 1
 			}
@@ -562,7 +637,9 @@ func (p *tierPartition) ensure(idx int) error {
 			if err != nil {
 				return err
 			}
-			tier.segments = append(tier.segments, segs...)
+			p.mu.Lock()
+			p.tiers[idx].segments = append(p.tiers[idx].segments, segs...)
+			p.mu.Unlock()
 		}
 		return nil
 	}
@@ -574,14 +651,18 @@ func (p *tierPartition) ensure(idx int) error {
 			if p.splitFromUpper(idx) {
 				return nil
 			}
-		} else if err != nil {
+		} else {
 			if _, upperErr := err.(*partitionError); !upperErr {
 				return err
 			}
 		}
 	}
-	if len(tier.segments) == 0 {
-		return &partitionError{name: p.name, size: tier.cfg.Size}
+	p.mu.RLock()
+	empty := len(p.tiers[idx].segments) == 0
+	size := p.tiers[idx].cfg.Size
+	p.mu.RUnlock()
+	if empty {
+		return &partitionError{name: p.name, size: size}
 	}
 	return nil
 }
@@ -599,6 +680,8 @@ func (e *partitionError) Error() string {
 
 // splitFromUpper takes one segment from tier idx+1 and splits it into multiple lower segments.
 func (p *tierPartition) splitFromUpper(idx int) bool {
+	p.mu.Lock()
+	defer p.mu.Unlock()
 	upperIdx := idx + 1
 	if upperIdx >= len(p.tiers) {
 		return false
@@ -629,38 +712,50 @@ func (p *tierPartition) splitFromUpper(idx int) bool {
 	return true
 }
 
-// addRange splits the input range into tier-sized segments (greedy from largest to smallest)
-// and stores those segments in their corresponding tiers.
-func (p *tierPartition) addRange(r IntRange) error {
-	if !r.Valid() {
-		return nil
+func (p *tierPartition) refillWindow(need int64) (enableLoop bool, refillWindow IntRange, err error) {
+	if p.refill == nil {
+		return false, IntRange{}, fmt.Errorf("%s partition missing refill callback", p.name)
 	}
-	remain := r.Len()
-	cursor := r.Start
-	for i := len(p.tiers) - 1; i >= 0; i-- {
-		size := p.tiers[i].cfg.Size
-		for remain >= size {
-			seg := IntRange{Start: cursor, End: cursor + size - 1}
-			p.tiers[i].segments = append(p.tiers[i].segments, seg)
-			cursor += size
-			remain -= size
-		}
+	if need <= 0 {
+		need = 1
 	}
-	if remain != 0 {
-		return fmt.Errorf("range length %d not aligned with tier sizes", r.Len())
-	}
-	return nil
+	p.refillMu.Lock()
+	defer p.refillMu.Unlock()
+	return p.refill(p.name, need)
 }
 
+// addRange splits the input range into tier-sized segments (greedy from largest to smallest)
+// and stores those segments in their corresponding tiers.
+//func (p *tierPartition) addRange(r IntRange) error {
+//	if !r.Valid() {
+//		return nil
+//	}
+//	remain := r.Len()
+//	cursor := r.Start
+//	for i := len(p.tiers) - 1; i >= 0; i-- {
+//		size := p.tiers[i].cfg.Size
+//		for remain >= size {
+//			seg := IntRange{Start: cursor, End: cursor + size - 1}
+//			p.tiers[i].segments = append(p.tiers[i].segments, seg)
+//			cursor += size
+//			remain -= size
+//		}
+//	}
+//	if remain != 0 {
+//		return fmt.Errorf("range length %d not aligned with tier sizes", r.Len())
+//	}
+//	return nil
+//}
+
 // addExactRange appends r as-is to the tier that matches r.Len().
-func (p *tierPartition) addExactRange(r IntRange) error {
-	idx, ok := p.idx[r.Len()]
-	if !ok {
-		return fmt.Errorf("%s tier %d not configured", p.name, r.Len())
-	}
-	p.tiers[idx].segments = append(p.tiers[idx].segments, r)
-	return nil
-}
+//func (p *tierPartition) addExactRange(r IntRange) error {
+//	idx, ok := p.idx[r.Len()]
+//	if !ok {
+//		return fmt.Errorf("%s tier %d not configured", p.name, r.Len())
+//	}
+//	p.tiers[idx].segments = append(p.tiers[idx].segments, r)
+//	return nil
+//}
 
 // defaultRangePoolConfig returns the default tier ladder used for both partitions.
 func defaultRangePoolConfig() RangePoolConfig {

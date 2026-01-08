@@ -157,24 +157,24 @@ func (s *Sequencer) initState(ctx context.Context, spec SequenceSpec) (*sequence
 	if len(res.Bounds) == 0 {
 		return nil, fmt.Errorf("lookup returned empty bounds for %s", key)
 	}
-	b := res.Bounds[0]
-	maxV, err := toInt64(b.MaxValue)
-	if err != nil {
-		return nil, err
-	}
-	minV, err := toInt64(b.MinValue)
-	if err != nil {
-		return nil, err
-	}
-	pool, err := range_pool.NewRangePool(minV, maxV)
+	//b := res.Bounds[0]
+	//maxV, err := toInt64(b.MaxValue)
+	//if err != nil {
+	//	return nil, err
+	//}
+	//minV, err := toInt64(b.MinValue)
+	//if err != nil {
+	//	return nil, err
+	//}
+	pool, err := range_pool.NewRangePool()
 	if err != nil {
 		return nil, err
 	}
 	st := &sequenceState{
-		spec:    spec,
-		pool:    pool,
-		nextNew: maxV + 1,
-		newEnd:  maxV,
+		spec: spec,
+		pool: pool,
+		//nextNew: maxV + 1,
+		//newEnd:  maxV,
 	}
 	st.wrapAt = minInt64(s.cfg.WrapAt, hardMaxInt64(params[0].Type))
 	s.setState(key, st)
@@ -209,11 +209,11 @@ func (s *Sequencer) ReserveInsert(ctx context.Context, spec SequenceSpec, need i
 	}
 
 	// 1) reuse deleted ids (safe).
-	if r, ok := st.pool.ReserveFromFreeForInsert(size); ok {
-		if err := st.pool.AddLiveRange(r); err != nil {
-			_ = st.pool.AddFreeRange(r)
-			return nil, err
-		}
+	if r, ok := st.pool.ReserveInsert(size); ok {
+		//if err := st.pool.AddLiveRange(r); err != nil {
+		//	_ = st.pool.AddFreeRange(r)
+		//	return nil, err
+		//}
 		return &SequenceConfig{
 			Key:          key,
 			Field:        st.specField(),
@@ -264,9 +264,9 @@ func (s *Sequencer) ReserveInsert(ctx context.Context, spec SequenceSpec, need i
 	}
 	st.nextNew = end + 1
 	r := range_pool.IntRange{Start: start, End: end}
-	if err = st.pool.AddLiveRange(r); err != nil {
-		return nil, err
-	}
+	//if err = st.pool.AddLiveRange(r); err != nil {
+	//	return nil, err
+	//}
 
 	return &SequenceConfig{
 		Key:          key,
@@ -303,11 +303,11 @@ func (s *Sequencer) ReserveInsertProvider(ctx context.Context, spec SequenceSpec
 			return nil, nil, err
 		}
 
-		if r, ok := st.pool.ReserveFromFreeForInsert(size); ok {
-			if err := st.pool.AddLiveRange(r); err != nil {
-				_ = st.pool.AddFreeRange(r)
-				return nil, nil, err
-			}
+		if r, ok := st.pool.ReserveInsert(size); ok {
+			//if err := st.pool.AddLiveRange(r); err != nil {
+			//	_ = st.pool.AddFreeRange(r)
+			//	return nil, nil, err
+			//}
 			cfg := &SequenceConfig{
 				Key:          key,
 				Field:        st.specField(),
@@ -356,9 +356,9 @@ func (s *Sequencer) ReserveInsertProvider(ctx context.Context, spec SequenceSpec
 		}
 		st.nextNew = end + 1
 		r := range_pool.IntRange{Start: start, End: end}
-		if err := st.pool.AddLiveRange(r); err != nil {
-			return nil, nil, err
-		}
+		//if err := st.pool.AddLiveRange(r); err != nil {
+		//	return nil, nil, err
+		//}
 
 		cfg := &SequenceConfig{
 			Key:          key,
@@ -414,10 +414,7 @@ func (s *Sequencer) ReserveUpdate(ctx context.Context, spec SequenceSpec, need i
 	if err != nil {
 		return nil, err
 	}
-	r, ok := st.pool.TakeFromLive(size)
-	if !ok {
-		r, ok = st.pool.ExistingRange(size)
-	}
+	r, ok := st.pool.ReserveUpdate(size)
 	if !ok {
 		return nil, fmt.Errorf("no live range available for update: %s", key)
 	}
@@ -454,10 +451,7 @@ func (s *Sequencer) ReserveUpdateProvider(ctx context.Context, spec SequenceSpec
 		if err != nil {
 			return nil, nil, err
 		}
-		r, ok := st.pool.TakeFromLive(size)
-		if !ok {
-			r, ok = st.pool.ExistingRange(size)
-		}
+		r, ok := st.pool.ReserveUpdate(size)
 		if !ok {
 			return nil, nil, fmt.Errorf("no live range available for update: %s", key)
 		}
@@ -514,20 +508,14 @@ func (s *Sequencer) ReserveDelete(ctx context.Context, spec SequenceSpec, need i
 	if err != nil {
 		return nil, err
 	}
-	r, ok := st.pool.TakeFromLive(size)
-	if !ok {
-		r, ok = st.pool.ExistingRange(size)
-	}
+	r, ok := st.pool.ReserveDelete(size)
 	if !ok {
 		return nil, fmt.Errorf("no live range available for delete: %s", key)
 	}
-	if err := st.pool.ReserveDelete(r); err != nil {
-		return nil, err
-	}
-	if err := st.pool.AddFreeRange(r); err != nil {
-		_ = st.pool.AddLiveRange(r)
-		return nil, err
-	}
+	//if err = st.pool.AddFreeRange(r); err != nil {
+	//_ = st.pool.AddLiveRange(r)
+	//return nil, err
+	//}
 
 	return &SequenceConfig{
 		Key:          key,
@@ -562,20 +550,14 @@ func (s *Sequencer) ReserveDeleteProvider(ctx context.Context, spec SequenceSpec
 		if err != nil {
 			return nil, nil, err
 		}
-		r, ok := st.pool.TakeFromLive(size)
-		if !ok {
-			r, ok = st.pool.ExistingRange(size)
-		}
+		r, ok := st.pool.ReserveDelete(size)
 		if !ok {
 			return nil, nil, fmt.Errorf("no live range available for delete: %s", key)
 		}
-		if err := st.pool.ReserveDelete(r); err != nil {
-			return nil, nil, err
-		}
-		if err := st.pool.AddFreeRange(r); err != nil {
-			_ = st.pool.AddLiveRange(r)
-			return nil, nil, err
-		}
+		//if err = st.pool.AddFreeRange(r); err != nil {
+		//_ = st.pool.AddLiveRange(r)
+		//return nil, nil, err
+		//}
 		cfg := &SequenceConfig{
 			Key:          key,
 			Field:        st.specField(),

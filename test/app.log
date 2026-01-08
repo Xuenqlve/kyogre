@@ -669,3 +669,1162 @@
 {"level":"info","time":"2026-01-07T14:29:26+08:00","message":"min:0 max:10000 live_start:0 live_cursor:2359 LiveEnableLoop:false free_start:5000 free_cursor:7359 FreeEnableLoop:false"}
 {"level":"info","time":"2026-01-07T14:29:40+08:00","message":"min:0 max:10000 live_start:0 live_cursor:2359 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
 {"level":"info","time":"2026-01-07T14:30:13+08:00","message":"min:0 max:10000 live_start:0 live_cursor:2359 LiveEnableLoop:false free_start:5000 free_cursor:7359 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:51:23+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:51:23+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:9719 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:9719 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"[RangePool] live window start=0 cursor=2360 end=4719 loop=false"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"[RangePool] live tiers ..."}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"size:1 threshold:5 maxCount:10"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 0 0~0"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 1 1~1"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 2 2~2"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 3 3~3"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 4 4~4"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 5 5~5"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 6 6~6"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 7 7~7"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 8 8~8"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 9 9~9"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"size:5 threshold:6 maxCount:10"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 0 10~14"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 1 15~19"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 2 20~24"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 3 25~29"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 4 30~34"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 5 35~39"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 6 40~44"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 7 45~49"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 8 50~54"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 9 55~59"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"size:10 threshold:6 maxCount:10"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 0 60~69"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 1 70~79"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 2 80~89"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 3 90~99"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 4 100~109"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 5 110~119"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 6 120~129"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 7 130~139"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 8 140~149"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 9 150~159"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"size:20 threshold:5 maxCount:10"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 0 160~179"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 1 180~199"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 2 200~219"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 3 220~239"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 4 240~259"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 5 260~279"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 6 280~299"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 7 300~319"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 8 320~339"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 9 340~359"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"size:100 threshold:5 maxCount:10"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 0 360~459"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 1 460~559"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 2 560~659"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 3 660~759"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 4 760~859"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 5 860~959"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 6 960~1059"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 7 1060~1159"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 8 1160~1259"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 9 1260~1359"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"size:500 threshold:1 maxCount:2"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 0 1360~1859"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 1 1860~2359"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"[RangePool] free tiers ..."}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"size:1 threshold:5 maxCount:10"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 0 0~0"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 1 1~1"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 2 2~2"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 3 3~3"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 4 4~4"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 5 5~5"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 6 6~6"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 7 7~7"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 8 8~8"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 9 9~9"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"size:5 threshold:6 maxCount:10"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 0 10~14"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 1 15~19"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 2 20~24"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 3 25~29"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 4 30~34"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 5 35~39"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 6 40~44"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 7 45~49"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 8 50~54"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 9 55~59"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"size:10 threshold:6 maxCount:10"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 0 60~69"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 1 70~79"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 2 80~89"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 3 90~99"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 4 100~109"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 5 110~119"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 6 120~129"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 7 130~139"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 8 140~149"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 9 150~159"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"size:20 threshold:5 maxCount:10"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 0 160~179"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 1 180~199"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 2 200~219"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 3 220~239"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 4 240~259"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 5 260~279"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 6 280~299"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 7 300~319"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 8 320~339"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 9 340~359"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"size:100 threshold:5 maxCount:10"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 0 360~459"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 1 460~559"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 2 560~659"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 3 660~759"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 4 760~859"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 5 860~959"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 6 960~1059"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 7 1060~1159"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 8 1160~1259"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 9 1260~1359"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"size:500 threshold:1 maxCount:2"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 0 1360~1859"}
+{"level":"info","time":"2026-01-07T14:52:22+08:00","message":"index: 1 1860~2359"}
+{"level":"info","time":"2026-01-07T14:53:55+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:53:55+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:9719 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T14:53:55+08:00","message":"[RangePool] live window start=0 cursor=2360 end=4719 loop=false"}
+{"level":"info","time":"2026-01-07T14:53:55+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-07T14:53:55+08:00","message":"[RangePool] live tiers ..."}
+{"level":"info","time":"2026-01-07T14:53:55+08:00","message":"size:1 threshold:5 maxCount:10"}
+{"level":"info","time":"2026-01-07T14:53:55+08:00","message":"segments:[{Start:0 End:0} {Start:1 End:1} {Start:2 End:2} {Start:3 End:3} {Start:4 End:4} {Start:5 End:5} {Start:6 End:6} {Start:7 End:7} {Start:8 End:8} {Start:9 End:9}]"}
+{"level":"info","time":"2026-01-07T14:53:55+08:00","message":"size:5 threshold:6 maxCount:10"}
+{"level":"info","time":"2026-01-07T14:53:55+08:00","message":"segments:[{Start:10 End:14} {Start:15 End:19} {Start:20 End:24} {Start:25 End:29} {Start:30 End:34} {Start:35 End:39} {Start:40 End:44} {Start:45 End:49} {Start:50 End:54} {Start:55 End:59}]"}
+{"level":"info","time":"2026-01-07T14:53:55+08:00","message":"size:10 threshold:6 maxCount:10"}
+{"level":"info","time":"2026-01-07T14:53:55+08:00","message":"segments:[{Start:60 End:69} {Start:70 End:79} {Start:80 End:89} {Start:90 End:99} {Start:100 End:109} {Start:110 End:119} {Start:120 End:129} {Start:130 End:139} {Start:140 End:149} {Start:150 End:159}]"}
+{"level":"info","time":"2026-01-07T14:53:55+08:00","message":"size:20 threshold:5 maxCount:10"}
+{"level":"info","time":"2026-01-07T14:53:55+08:00","message":"segments:[{Start:160 End:179} {Start:180 End:199} {Start:200 End:219} {Start:220 End:239} {Start:240 End:259} {Start:260 End:279} {Start:280 End:299} {Start:300 End:319} {Start:320 End:339} {Start:340 End:359}]"}
+{"level":"info","time":"2026-01-07T14:53:55+08:00","message":"size:100 threshold:5 maxCount:10"}
+{"level":"info","time":"2026-01-07T14:53:55+08:00","message":"segments:[{Start:360 End:459} {Start:460 End:559} {Start:560 End:659} {Start:660 End:759} {Start:760 End:859} {Start:860 End:959} {Start:960 End:1059} {Start:1060 End:1159} {Start:1160 End:1259} {Start:1260 End:1359}]"}
+{"level":"info","time":"2026-01-07T14:53:55+08:00","message":"size:500 threshold:1 maxCount:2"}
+{"level":"info","time":"2026-01-07T14:53:55+08:00","message":"segments:[{Start:1360 End:1859} {Start:1860 End:2359}]"}
+{"level":"info","time":"2026-01-07T14:53:55+08:00","message":"[RangePool] free tiers ..."}
+{"level":"info","time":"2026-01-07T14:53:55+08:00","message":"size:1 threshold:5 maxCount:10"}
+{"level":"info","time":"2026-01-07T14:53:55+08:00","message":"segments: [{Start:0 End:0} {Start:1 End:1} {Start:2 End:2} {Start:3 End:3} {Start:4 End:4} {Start:5 End:5} {Start:6 End:6} {Start:7 End:7} {Start:8 End:8} {Start:9 End:9}]"}
+{"level":"info","time":"2026-01-07T14:53:55+08:00","message":"size:5 threshold:6 maxCount:10"}
+{"level":"info","time":"2026-01-07T14:53:55+08:00","message":"segments: [{Start:10 End:14} {Start:15 End:19} {Start:20 End:24} {Start:25 End:29} {Start:30 End:34} {Start:35 End:39} {Start:40 End:44} {Start:45 End:49} {Start:50 End:54} {Start:55 End:59}]"}
+{"level":"info","time":"2026-01-07T14:53:55+08:00","message":"size:10 threshold:6 maxCount:10"}
+{"level":"info","time":"2026-01-07T14:53:55+08:00","message":"segments: [{Start:60 End:69} {Start:70 End:79} {Start:80 End:89} {Start:90 End:99} {Start:100 End:109} {Start:110 End:119} {Start:120 End:129} {Start:130 End:139} {Start:140 End:149} {Start:150 End:159}]"}
+{"level":"info","time":"2026-01-07T14:53:55+08:00","message":"size:20 threshold:5 maxCount:10"}
+{"level":"info","time":"2026-01-07T14:53:55+08:00","message":"segments: [{Start:160 End:179} {Start:180 End:199} {Start:200 End:219} {Start:220 End:239} {Start:240 End:259} {Start:260 End:279} {Start:280 End:299} {Start:300 End:319} {Start:320 End:339} {Start:340 End:359}]"}
+{"level":"info","time":"2026-01-07T14:53:55+08:00","message":"size:100 threshold:5 maxCount:10"}
+{"level":"info","time":"2026-01-07T14:53:55+08:00","message":"segments: [{Start:360 End:459} {Start:460 End:559} {Start:560 End:659} {Start:660 End:759} {Start:760 End:859} {Start:860 End:959} {Start:960 End:1059} {Start:1060 End:1159} {Start:1160 End:1259} {Start:1260 End:1359}]"}
+{"level":"info","time":"2026-01-07T14:53:55+08:00","message":"size:500 threshold:1 maxCount:2"}
+{"level":"info","time":"2026-01-07T14:53:55+08:00","message":"segments: [{Start:1360 End:1859} {Start:1860 End:2359}]"}
+{"level":"info","time":"2026-01-07T15:11:44+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T15:11:44+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:9719 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T15:11:44+08:00","message":"[RangePool] live window start=0 cursor=2360 end=4719 loop=false"}
+{"level":"info","time":"2026-01-07T15:11:44+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-07T15:11:44+08:00","message":"[RangePool] live tiers ..."}
+{"level":"info","time":"2026-01-07T15:11:44+08:00","message":"size:1 threshold:5 maxCount:10"}
+{"level":"info","time":"2026-01-07T15:11:44+08:00","message":"range 0~9"}
+{"level":"info","time":"2026-01-07T15:11:44+08:00","message":"size:5 threshold:6 maxCount:10"}
+{"level":"info","time":"2026-01-07T15:11:44+08:00","message":"range 10~59"}
+{"level":"info","time":"2026-01-07T15:11:44+08:00","message":"size:10 threshold:6 maxCount:10"}
+{"level":"info","time":"2026-01-07T15:11:44+08:00","message":"range 60~159"}
+{"level":"info","time":"2026-01-07T15:11:44+08:00","message":"size:20 threshold:5 maxCount:10"}
+{"level":"info","time":"2026-01-07T15:11:44+08:00","message":"range 160~359"}
+{"level":"info","time":"2026-01-07T15:11:44+08:00","message":"size:100 threshold:5 maxCount:10"}
+{"level":"info","time":"2026-01-07T15:11:44+08:00","message":"range 360~1359"}
+{"level":"info","time":"2026-01-07T15:11:44+08:00","message":"size:500 threshold:1 maxCount:2"}
+{"level":"info","time":"2026-01-07T15:11:44+08:00","message":"range 1360~2359"}
+{"level":"info","time":"2026-01-07T15:11:44+08:00","message":"[RangePool] free tiers ..."}
+{"level":"info","time":"2026-01-07T15:11:44+08:00","message":"size:1 threshold:5 maxCount:10"}
+{"level":"info","time":"2026-01-07T15:11:44+08:00","message":"range 0~9"}
+{"level":"info","time":"2026-01-07T15:11:44+08:00","message":"size:5 threshold:6 maxCount:10"}
+{"level":"info","time":"2026-01-07T15:11:44+08:00","message":"range 10~59"}
+{"level":"info","time":"2026-01-07T15:11:44+08:00","message":"size:10 threshold:6 maxCount:10"}
+{"level":"info","time":"2026-01-07T15:11:44+08:00","message":"range 60~159"}
+{"level":"info","time":"2026-01-07T15:11:44+08:00","message":"size:20 threshold:5 maxCount:10"}
+{"level":"info","time":"2026-01-07T15:11:44+08:00","message":"range 160~359"}
+{"level":"info","time":"2026-01-07T15:11:44+08:00","message":"size:100 threshold:5 maxCount:10"}
+{"level":"info","time":"2026-01-07T15:11:44+08:00","message":"range 360~1359"}
+{"level":"info","time":"2026-01-07T15:11:44+08:00","message":"size:500 threshold:1 maxCount:2"}
+{"level":"info","time":"2026-01-07T15:11:44+08:00","message":"range 1360~2359"}
+{"level":"info","time":"2026-01-07T15:12:33+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T15:12:33+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:9719 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T15:12:33+08:00","message":"[RangePool] live window start=0 cursor=2360 end=4719 loop=false"}
+{"level":"info","time":"2026-01-07T15:12:33+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-07T15:12:33+08:00","message":"[RangePool] live tiers ..."}
+{"level":"info","time":"2026-01-07T15:12:33+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-07T15:12:33+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-07T15:12:33+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-07T15:12:33+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-07T15:12:33+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-07T15:12:33+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-07T15:12:33+08:00","message":"[RangePool] free tiers ..."}
+{"level":"info","time":"2026-01-07T15:12:33+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-07T15:12:33+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-07T15:12:33+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-07T15:12:33+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-07T15:12:33+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-07T15:12:33+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-07T16:19:13+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T16:19:13+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:9719 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T16:19:13+08:00","message":"[RangePool] live window start=0 cursor=2360 end=4719 loop=false"}
+{"level":"info","time":"2026-01-07T16:19:13+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-07T16:19:13+08:00","message":"[RangePool] live tiers ..."}
+{"level":"info","time":"2026-01-07T16:19:13+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-07T16:19:13+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-07T16:19:13+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-07T16:19:13+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-07T16:19:13+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-07T16:19:13+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-07T16:19:13+08:00","message":"[RangePool] free tiers ..."}
+{"level":"info","time":"2026-01-07T16:19:13+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-07T16:19:13+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-07T16:19:13+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-07T16:19:13+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-07T16:19:13+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-07T16:19:13+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-07T16:19:20+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T16:19:20+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:9719 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T16:19:20+08:00","message":"[RangePool] live window start=0 cursor=2360 end=4719 loop=false"}
+{"level":"info","time":"2026-01-07T16:19:20+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-07T16:19:20+08:00","message":"[RangePool] live tiers ..."}
+{"level":"info","time":"2026-01-07T16:19:20+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-07T16:19:20+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-07T16:19:20+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-07T16:19:20+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-07T16:19:20+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-07T16:19:20+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-07T16:19:20+08:00","message":"[RangePool] free tiers ..."}
+{"level":"info","time":"2026-01-07T16:19:20+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-07T16:19:20+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-07T16:19:20+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-07T16:19:20+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-07T16:19:20+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-07T16:19:20+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-07T16:19:23+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T16:19:23+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:9719 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T16:19:23+08:00","message":"[RangePool] live window start=0 cursor=2360 end=4719 loop=false"}
+{"level":"info","time":"2026-01-07T16:19:23+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-07T16:19:23+08:00","message":"[RangePool] live tiers ..."}
+{"level":"info","time":"2026-01-07T16:19:23+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-07T16:19:23+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-07T16:19:23+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-07T16:19:23+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-07T16:19:23+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-07T16:19:23+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-07T16:19:23+08:00","message":"[RangePool] free tiers ..."}
+{"level":"info","time":"2026-01-07T16:19:23+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-07T16:19:23+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-07T16:19:23+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-07T16:19:23+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-07T16:19:23+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-07T16:19:23+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-07T16:44:25+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T16:44:25+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:9719 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T16:44:25+08:00","message":"[RangePool] live window start=0 cursor=2360 end=4719 loop=false"}
+{"level":"info","time":"2026-01-07T16:44:25+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-07T16:44:25+08:00","message":"[RangePool] live tiers ..."}
+{"level":"info","time":"2026-01-07T16:44:25+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-07T16:44:25+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-07T16:44:25+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-07T16:44:25+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-07T16:44:25+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-07T16:44:25+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-07T16:44:25+08:00","message":"[RangePool] free tiers ..."}
+{"level":"info","time":"2026-01-07T16:44:25+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-07T16:44:25+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-07T16:44:25+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-07T16:44:25+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-07T16:44:25+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-07T16:44:25+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-07T16:44:25+08:00","message":"[RangePool] live window start=0 cursor=2360 end=4719 loop=false"}
+{"level":"info","time":"2026-01-07T16:44:25+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-07T16:44:25+08:00","message":"[RangePool] live tiers ..."}
+{"level":"info","time":"2026-01-07T16:44:25+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-07T16:44:25+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-07T16:44:25+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-07T16:44:25+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-07T16:44:25+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-07T16:44:25+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-07T16:44:25+08:00","message":"[RangePool] free tiers ..."}
+{"level":"info","time":"2026-01-07T16:44:25+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-07T16:44:25+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-07T16:44:25+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-07T16:44:25+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-07T16:44:25+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-07T16:44:25+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-07T16:44:42+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T16:44:42+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:9719 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T16:44:42+08:00","message":"[RangePool] live window start=0 cursor=2360 end=4719 loop=false"}
+{"level":"info","time":"2026-01-07T16:44:42+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-07T16:44:42+08:00","message":"[RangePool] live tiers ..."}
+{"level":"info","time":"2026-01-07T16:44:42+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-07T16:44:42+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-07T16:44:42+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-07T16:44:42+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-07T16:44:42+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-07T16:44:42+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-07T16:44:42+08:00","message":"[RangePool] free tiers ..."}
+{"level":"info","time":"2026-01-07T16:44:42+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-07T16:44:42+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-07T16:44:42+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-07T16:44:42+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-07T16:44:42+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-07T16:44:42+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-07T16:44:42+08:00","message":"[RangePool] live window start=0 cursor=2360 end=4719 loop=false"}
+{"level":"info","time":"2026-01-07T16:44:42+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-07T16:44:42+08:00","message":"[RangePool] live tiers ..."}
+{"level":"info","time":"2026-01-07T16:44:42+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-07T16:44:42+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-07T16:44:42+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-07T16:44:42+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-07T16:44:42+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-07T16:44:42+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-07T16:44:42+08:00","message":"[RangePool] free tiers ..."}
+{"level":"info","time":"2026-01-07T16:44:42+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-07T16:44:42+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-07T16:44:42+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-07T16:44:42+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-07T16:44:42+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-07T16:44:42+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-07T16:44:48+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T16:44:48+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:9719 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T16:44:48+08:00","message":"[RangePool] live window start=0 cursor=2360 end=4719 loop=false"}
+{"level":"info","time":"2026-01-07T16:44:48+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-07T16:44:48+08:00","message":"[RangePool] live tiers ..."}
+{"level":"info","time":"2026-01-07T16:44:48+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-07T16:44:48+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-07T16:44:48+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-07T16:44:48+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-07T16:44:48+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-07T16:44:48+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-07T16:44:48+08:00","message":"[RangePool] free tiers ..."}
+{"level":"info","time":"2026-01-07T16:44:48+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-07T16:44:48+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-07T16:44:48+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-07T16:44:48+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-07T16:44:48+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-07T16:44:48+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-07T16:44:48+08:00","message":"[RangePool] live window start=0 cursor=2360 end=4719 loop=false"}
+{"level":"info","time":"2026-01-07T16:44:48+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-07T16:44:48+08:00","message":"[RangePool] live tiers ..."}
+{"level":"info","time":"2026-01-07T16:44:48+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-07T16:44:48+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-07T16:44:48+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-07T16:44:48+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-07T16:44:48+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-07T16:44:48+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-07T16:44:48+08:00","message":"[RangePool] free tiers ..."}
+{"level":"info","time":"2026-01-07T16:44:48+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-07T16:44:48+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-07T16:44:48+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-07T16:44:48+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-07T16:44:48+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-07T16:44:48+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-07T16:44:56+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T16:44:56+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:9719 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T16:44:56+08:00","message":"[RangePool] live window start=0 cursor=2360 end=4719 loop=false"}
+{"level":"info","time":"2026-01-07T16:44:56+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-07T16:44:56+08:00","message":"[RangePool] live tiers ..."}
+{"level":"info","time":"2026-01-07T16:44:56+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-07T16:44:56+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-07T16:44:56+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-07T16:44:56+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-07T16:44:56+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-07T16:44:56+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-07T16:44:56+08:00","message":"[RangePool] free tiers ..."}
+{"level":"info","time":"2026-01-07T16:44:56+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-07T16:44:56+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-07T16:44:56+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-07T16:44:56+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-07T16:44:56+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-07T16:44:56+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-07T16:44:56+08:00","message":"[RangePool] live window start=0 cursor=2360 end=4719 loop=false"}
+{"level":"info","time":"2026-01-07T16:44:56+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-07T16:44:56+08:00","message":"[RangePool] live tiers ..."}
+{"level":"info","time":"2026-01-07T16:44:56+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-07T16:44:56+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-07T16:44:56+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-07T16:44:56+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-07T16:44:56+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-07T16:44:56+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-07T16:44:56+08:00","message":"[RangePool] free tiers ..."}
+{"level":"info","time":"2026-01-07T16:44:56+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-07T16:44:56+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-07T16:44:56+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-07T16:44:56+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-07T16:44:56+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-07T16:44:56+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-07T16:45:03+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T16:45:03+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:9719 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T16:45:03+08:00","message":"[RangePool] live window start=0 cursor=2360 end=4719 loop=false"}
+{"level":"info","time":"2026-01-07T16:45:03+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-07T16:45:03+08:00","message":"[RangePool] live tiers ..."}
+{"level":"info","time":"2026-01-07T16:45:03+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-07T16:45:03+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-07T16:45:03+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-07T16:45:03+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-07T16:45:03+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-07T16:45:03+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-07T16:45:03+08:00","message":"[RangePool] free tiers ..."}
+{"level":"info","time":"2026-01-07T16:45:03+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-07T16:45:03+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-07T16:45:03+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-07T16:45:03+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-07T16:45:03+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-07T16:45:03+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-07T16:45:03+08:00","message":"[RangePool] live window start=0 cursor=2360 end=4719 loop=false"}
+{"level":"info","time":"2026-01-07T16:45:03+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-07T16:45:03+08:00","message":"[RangePool] live tiers ..."}
+{"level":"info","time":"2026-01-07T16:45:03+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-07T16:45:03+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-07T16:45:03+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-07T16:45:03+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-07T16:45:03+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-07T16:45:03+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-07T16:45:03+08:00","message":"[RangePool] free tiers ..."}
+{"level":"info","time":"2026-01-07T16:45:03+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-07T16:45:03+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-07T16:45:03+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-07T16:45:03+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-07T16:45:03+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-07T16:45:03+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-07T16:45:07+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T16:45:07+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:9719 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T16:45:07+08:00","message":"[RangePool] live window start=0 cursor=2360 end=4719 loop=false"}
+{"level":"info","time":"2026-01-07T16:45:07+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-07T16:45:07+08:00","message":"[RangePool] live tiers ..."}
+{"level":"info","time":"2026-01-07T16:45:07+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-07T16:45:07+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-07T16:45:07+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-07T16:45:07+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-07T16:45:07+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-07T16:45:07+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-07T16:45:07+08:00","message":"[RangePool] free tiers ..."}
+{"level":"info","time":"2026-01-07T16:45:07+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-07T16:45:07+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-07T16:45:07+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-07T16:45:07+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-07T16:45:07+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-07T16:45:07+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-07T16:45:07+08:00","message":"[RangePool] live window start=0 cursor=2360 end=4719 loop=false"}
+{"level":"info","time":"2026-01-07T16:45:07+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-07T16:45:07+08:00","message":"[RangePool] live tiers ..."}
+{"level":"info","time":"2026-01-07T16:45:07+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-07T16:45:07+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-07T16:45:07+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-07T16:45:07+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-07T16:45:07+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-07T16:45:07+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-07T16:45:07+08:00","message":"[RangePool] free tiers ..."}
+{"level":"info","time":"2026-01-07T16:45:07+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-07T16:45:07+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-07T16:45:07+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-07T16:45:07+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-07T16:45:07+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-07T16:45:07+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-07T16:45:11+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T16:45:11+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:9719 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-07T16:45:11+08:00","message":"[RangePool] live window start=0 cursor=2360 end=4719 loop=false"}
+{"level":"info","time":"2026-01-07T16:45:11+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-07T16:45:11+08:00","message":"[RangePool] live tiers ..."}
+{"level":"info","time":"2026-01-07T16:45:11+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-07T16:45:11+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-07T16:45:11+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-07T16:45:11+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-07T16:45:11+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-07T16:45:11+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-07T16:45:11+08:00","message":"[RangePool] free tiers ..."}
+{"level":"info","time":"2026-01-07T16:45:11+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-07T16:45:11+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-07T16:45:11+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-07T16:45:11+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-07T16:45:11+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-07T16:45:11+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-07T16:45:11+08:00","message":"[RangePool] live window start=0 cursor=2360 end=4719 loop=false"}
+{"level":"info","time":"2026-01-07T16:45:11+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-07T16:45:11+08:00","message":"[RangePool] live tiers ..."}
+{"level":"info","time":"2026-01-07T16:45:11+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-07T16:45:11+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-07T16:45:11+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-07T16:45:11+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-07T16:45:11+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-07T16:45:11+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-07T16:45:11+08:00","message":"[RangePool] free tiers ..."}
+{"level":"info","time":"2026-01-07T16:45:11+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-07T16:45:11+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-07T16:45:11+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-07T16:45:11+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-07T16:45:11+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-07T16:45:11+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-08T10:20:20+08:00","message":"min:0 max:100 live_start:0 live_cursor:20 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:20:20+08:00","message":"min:0 max:100 live_start:0 live_cursor:41 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:20:20+08:00","message":"min:0 max:100 live_start:0 live_cursor:62 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:20:20+08:00","message":"min:0 max:100 live_start:0 live_cursor:83 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:20:20+08:00","message":"min:0 max:100 live_start:0 live_cursor:0 LiveEnableLoop:true free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:20:20+08:00","message":"min:0 max:100 live_start:0 live_cursor:21 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:20:20+08:00","message":"min:0 max:100 live_start:0 live_cursor:42 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:20:20+08:00","message":"min:0 max:100 live_start:0 live_cursor:63 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:20:20+08:00","message":"min:0 max:100 live_start:0 live_cursor:84 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:20:20+08:00","message":"min:0 max:100 live_start:0 live_cursor:0 LiveEnableLoop:true free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:20:20+08:00","message":"min:0 max:100 live_start:0 live_cursor:21 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:20:20+08:00","message":"min:0 max:100 live_start:0 live_cursor:21 LiveEnableLoop:false free_start:50 free_cursor:71 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:20:20+08:00","message":"min:0 max:100 live_start:0 live_cursor:21 LiveEnableLoop:false free_start:50 free_cursor:92 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:20:20+08:00","message":"min:0 max:100 live_start:0 live_cursor:21 LiveEnableLoop:false free_start:0 free_cursor:0 FreeEnableLoop:true"}
+{"level":"info","time":"2026-01-08T10:20:20+08:00","message":"min:0 max:100 live_start:0 live_cursor:21 LiveEnableLoop:false free_start:0 free_cursor:21 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:20:20+08:00","message":"min:0 max:100 live_start:0 live_cursor:21 LiveEnableLoop:false free_start:0 free_cursor:42 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:20:20+08:00","message":"min:0 max:100 live_start:0 live_cursor:21 LiveEnableLoop:false free_start:0 free_cursor:63 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:20:20+08:00","message":"min:0 max:100 live_start:0 live_cursor:21 LiveEnableLoop:false free_start:0 free_cursor:84 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:20:20+08:00","message":"min:0 max:100 live_start:0 live_cursor:21 LiveEnableLoop:false free_start:0 free_cursor:0 FreeEnableLoop:true"}
+{"level":"info","time":"2026-01-08T10:20:20+08:00","message":"min:0 max:100 live_start:0 live_cursor:21 LiveEnableLoop:false free_start:0 free_cursor:21 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:20:20+08:00","message":"min:0 max:100 live_start:0 live_cursor:21 LiveEnableLoop:false free_start:0 free_cursor:42 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:20:20+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:20:20+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:9719 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:20:20+08:00","message":"[RangePool] live window start=0 cursor=2360 end=4719 loop=false"}
+{"level":"info","time":"2026-01-08T10:20:20+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-08T10:20:20+08:00","message":"[RangePool] live tiers ..."}
+{"level":"info","time":"2026-01-08T10:20:20+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-08T10:20:20+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-08T10:20:20+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-08T10:20:20+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-08T10:20:20+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-08T10:20:20+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-08T10:20:20+08:00","message":"[RangePool] free tiers ..."}
+{"level":"info","time":"2026-01-08T10:20:20+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-08T10:20:20+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-08T10:20:20+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-08T10:20:20+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-08T10:20:20+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-08T10:20:20+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-08T10:20:20+08:00","message":"[RangePool] live window start=0 cursor=2360 end=4719 loop=false"}
+{"level":"info","time":"2026-01-08T10:20:20+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-08T10:20:20+08:00","message":"[RangePool] live tiers ..."}
+{"level":"info","time":"2026-01-08T10:20:20+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-08T10:20:20+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-08T10:20:20+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-08T10:20:20+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-08T10:20:20+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-08T10:20:20+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-08T10:20:20+08:00","message":"[RangePool] free tiers ..."}
+{"level":"info","time":"2026-01-08T10:20:20+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-08T10:20:20+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-08T10:20:20+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-08T10:20:20+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-08T10:20:20+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-08T10:20:20+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-08T10:23:00+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:23:00+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:9719 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:23:00+08:00","message":"[RangePool] live window start=0 cursor=2360 end=4719 loop=false"}
+{"level":"info","time":"2026-01-08T10:23:00+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-08T10:23:00+08:00","message":"[RangePool] live tiers ..."}
+{"level":"info","time":"2026-01-08T10:23:00+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-08T10:23:00+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-08T10:23:00+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-08T10:23:00+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-08T10:23:00+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-08T10:23:00+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-08T10:23:00+08:00","message":"[RangePool] free tiers ..."}
+{"level":"info","time":"2026-01-08T10:23:00+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-08T10:23:00+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-08T10:23:00+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-08T10:23:00+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-08T10:23:00+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-08T10:23:00+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-08T10:23:00+08:00","message":"[RangePool] live window start=0 cursor=2360 end=4719 loop=false"}
+{"level":"info","time":"2026-01-08T10:23:00+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-08T10:23:00+08:00","message":"[RangePool] live tiers ..."}
+{"level":"info","time":"2026-01-08T10:23:00+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-08T10:23:00+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-08T10:23:00+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-08T10:23:00+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-08T10:23:00+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-08T10:23:00+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-08T10:23:00+08:00","message":"[RangePool] free tiers ..."}
+{"level":"info","time":"2026-01-08T10:23:00+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-08T10:23:00+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-08T10:23:00+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-08T10:23:00+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-08T10:23:00+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-08T10:23:00+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-08T10:23:08+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:23:08+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:9719 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:23:08+08:00","message":"[RangePool] live window start=0 cursor=2360 end=4719 loop=false"}
+{"level":"info","time":"2026-01-08T10:23:08+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-08T10:23:08+08:00","message":"[RangePool] live tiers ..."}
+{"level":"info","time":"2026-01-08T10:23:08+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-08T10:23:08+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-08T10:23:08+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-08T10:23:08+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-08T10:23:08+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-08T10:23:08+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-08T10:23:08+08:00","message":"[RangePool] free tiers ..."}
+{"level":"info","time":"2026-01-08T10:23:08+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-08T10:23:08+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-08T10:23:08+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-08T10:23:08+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-08T10:23:08+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-08T10:23:08+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-08T10:23:08+08:00","message":"[RangePool] live window start=0 cursor=2360 end=4719 loop=false"}
+{"level":"info","time":"2026-01-08T10:23:08+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-08T10:23:08+08:00","message":"[RangePool] live tiers ..."}
+{"level":"info","time":"2026-01-08T10:23:08+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-08T10:23:08+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-08T10:23:08+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-08T10:23:08+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-08T10:23:08+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-08T10:23:08+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-08T10:23:08+08:00","message":"[RangePool] free tiers ..."}
+{"level":"info","time":"2026-01-08T10:23:08+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-08T10:23:08+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-08T10:23:08+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-08T10:23:08+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-08T10:23:08+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-08T10:23:08+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-08T10:23:11+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:23:11+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:9719 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:23:11+08:00","message":"[RangePool] live window start=0 cursor=2360 end=4719 loop=false"}
+{"level":"info","time":"2026-01-08T10:23:11+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-08T10:23:11+08:00","message":"[RangePool] live tiers ..."}
+{"level":"info","time":"2026-01-08T10:23:11+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-08T10:23:11+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-08T10:23:11+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-08T10:23:11+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-08T10:23:11+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-08T10:23:11+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-08T10:23:11+08:00","message":"[RangePool] free tiers ..."}
+{"level":"info","time":"2026-01-08T10:23:11+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-08T10:23:11+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-08T10:23:11+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-08T10:23:11+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-08T10:23:11+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-08T10:23:11+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-08T10:23:11+08:00","message":"[RangePool] live window start=0 cursor=2360 end=4719 loop=false"}
+{"level":"info","time":"2026-01-08T10:23:11+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-08T10:23:11+08:00","message":"[RangePool] live tiers ..."}
+{"level":"info","time":"2026-01-08T10:23:11+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-08T10:23:11+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-08T10:23:11+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-08T10:23:11+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-08T10:23:11+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-08T10:23:11+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-08T10:23:11+08:00","message":"[RangePool] free tiers ..."}
+{"level":"info","time":"2026-01-08T10:23:11+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-08T10:23:11+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-08T10:23:11+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-08T10:23:11+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-08T10:23:11+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-08T10:23:11+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-08T10:23:45+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:23:45+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:9719 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:23:45+08:00","message":"[RangePool] live window start=0 cursor=2360 end=4719 loop=false"}
+{"level":"info","time":"2026-01-08T10:23:45+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-08T10:23:45+08:00","message":"[RangePool] live tiers ..."}
+{"level":"info","time":"2026-01-08T10:23:45+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-08T10:23:45+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-08T10:23:45+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-08T10:23:45+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-08T10:23:45+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-08T10:23:45+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-08T10:23:45+08:00","message":"[RangePool] free tiers ..."}
+{"level":"info","time":"2026-01-08T10:23:45+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-08T10:23:45+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-08T10:23:45+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-08T10:23:45+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-08T10:23:45+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-08T10:23:45+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-08T10:23:45+08:00","message":"[RangePool] live window start=0 cursor=2360 end=4719 loop=false"}
+{"level":"info","time":"2026-01-08T10:23:45+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-08T10:23:45+08:00","message":"[RangePool] live tiers ..."}
+{"level":"info","time":"2026-01-08T10:23:45+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-08T10:23:45+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-08T10:23:45+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-08T10:23:45+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-08T10:23:45+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-08T10:23:45+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-08T10:23:45+08:00","message":"[RangePool] free tiers ..."}
+{"level":"info","time":"2026-01-08T10:23:45+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-08T10:23:45+08:00","message":"size:5 range 10~54"}
+{"level":"info","time":"2026-01-08T10:23:45+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-08T10:23:45+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-08T10:23:45+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-08T10:23:45+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-08T10:24:01+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:24:01+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:9719 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:24:01+08:00","message":"[RangePool] live window start=0 cursor=2360 end=4719 loop=false"}
+{"level":"info","time":"2026-01-08T10:24:01+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-08T10:24:01+08:00","message":"[RangePool] live tiers ..."}
+{"level":"info","time":"2026-01-08T10:24:01+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-08T10:24:01+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-08T10:24:01+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-08T10:24:01+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-08T10:24:01+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-08T10:24:01+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-08T10:24:01+08:00","message":"[RangePool] free tiers ..."}
+{"level":"info","time":"2026-01-08T10:24:01+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-08T10:24:01+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-08T10:24:01+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-08T10:24:01+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-08T10:24:01+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-08T10:24:01+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-08T10:24:01+08:00","message":"[RangePool] live window start=0 cursor=2360 end=4719 loop=false"}
+{"level":"info","time":"2026-01-08T10:24:01+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-08T10:24:01+08:00","message":"[RangePool] live tiers ..."}
+{"level":"info","time":"2026-01-08T10:24:01+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-08T10:24:01+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-08T10:24:01+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-08T10:24:01+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-08T10:24:01+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-08T10:24:01+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-08T10:24:01+08:00","message":"[RangePool] free tiers ..."}
+{"level":"info","time":"2026-01-08T10:24:01+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-08T10:24:01+08:00","message":"size:5 range 10~54"}
+{"level":"info","time":"2026-01-08T10:24:01+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-08T10:24:01+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-08T10:24:01+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-08T10:24:01+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-08T10:24:04+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:24:04+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:9719 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:24:04+08:00","message":"[RangePool] live window start=0 cursor=2360 end=4719 loop=false"}
+{"level":"info","time":"2026-01-08T10:24:04+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-08T10:24:04+08:00","message":"[RangePool] live tiers ..."}
+{"level":"info","time":"2026-01-08T10:24:04+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-08T10:24:04+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-08T10:24:04+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-08T10:24:04+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-08T10:24:04+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-08T10:24:04+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-08T10:24:04+08:00","message":"[RangePool] free tiers ..."}
+{"level":"info","time":"2026-01-08T10:24:04+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-08T10:24:04+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-08T10:24:04+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-08T10:24:04+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-08T10:24:04+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-08T10:24:04+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-08T10:24:04+08:00","message":"[RangePool] live window start=0 cursor=2360 end=4719 loop=false"}
+{"level":"info","time":"2026-01-08T10:24:04+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-08T10:24:04+08:00","message":"[RangePool] live tiers ..."}
+{"level":"info","time":"2026-01-08T10:24:04+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-08T10:24:04+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-08T10:24:04+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-08T10:24:04+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-08T10:24:04+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-08T10:24:04+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-08T10:24:04+08:00","message":"[RangePool] free tiers ..."}
+{"level":"info","time":"2026-01-08T10:24:04+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-08T10:24:04+08:00","message":"size:5 range 10~54"}
+{"level":"info","time":"2026-01-08T10:24:04+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-08T10:24:04+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-08T10:24:04+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-08T10:24:04+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-08T10:24:31+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:24:31+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:9719 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:24:31+08:00","message":"[RangePool] live window start=0 cursor=2360 end=4719 loop=false"}
+{"level":"info","time":"2026-01-08T10:24:31+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-08T10:24:31+08:00","message":"[RangePool] live tiers ..."}
+{"level":"info","time":"2026-01-08T10:24:31+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-08T10:24:31+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-08T10:24:31+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-08T10:24:31+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-08T10:24:31+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-08T10:24:31+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-08T10:24:31+08:00","message":"[RangePool] free tiers ..."}
+{"level":"info","time":"2026-01-08T10:24:31+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-08T10:24:31+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-08T10:24:31+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-08T10:24:31+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-08T10:24:31+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-08T10:24:31+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-08T10:24:31+08:00","message":"[RangePool] live window start=0 cursor=2360 end=4719 loop=false"}
+{"level":"info","time":"2026-01-08T10:24:31+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-08T10:24:31+08:00","message":"[RangePool] live tiers ..."}
+{"level":"info","time":"2026-01-08T10:24:31+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-08T10:24:31+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-08T10:24:31+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-08T10:24:31+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-08T10:24:31+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-08T10:24:31+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-08T10:24:31+08:00","message":"[RangePool] free tiers ..."}
+{"level":"info","time":"2026-01-08T10:24:31+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-08T10:24:31+08:00","message":"size:5 range 10~54"}
+{"level":"info","time":"2026-01-08T10:24:31+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-08T10:24:31+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-08T10:24:31+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-08T10:24:31+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-08T10:24:46+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:24:46+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:9719 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:24:46+08:00","message":"[RangePool] live window start=0 cursor=2360 end=4719 loop=false"}
+{"level":"info","time":"2026-01-08T10:24:46+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-08T10:24:46+08:00","message":"[RangePool] live tiers ..."}
+{"level":"info","time":"2026-01-08T10:24:46+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-08T10:24:46+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-08T10:24:46+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-08T10:24:46+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-08T10:24:46+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-08T10:24:46+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-08T10:24:46+08:00","message":"[RangePool] free tiers ..."}
+{"level":"info","time":"2026-01-08T10:24:46+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-08T10:24:46+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-08T10:24:46+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-08T10:24:46+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-08T10:24:46+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-08T10:24:46+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-08T10:24:46+08:00","message":"[RangePool] live window start=0 cursor=2360 end=4719 loop=false"}
+{"level":"info","time":"2026-01-08T10:24:46+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-08T10:24:46+08:00","message":"[RangePool] live tiers ..."}
+{"level":"info","time":"2026-01-08T10:24:46+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-08T10:24:46+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-08T10:24:46+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-08T10:24:46+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-08T10:24:46+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-08T10:24:46+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-08T10:24:46+08:00","message":"[RangePool] free tiers ..."}
+{"level":"info","time":"2026-01-08T10:24:46+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-08T10:24:46+08:00","message":"size:5 range 10~54"}
+{"level":"info","time":"2026-01-08T10:24:46+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-08T10:24:46+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-08T10:24:46+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-08T10:24:46+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-08T10:24:49+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:24:49+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:9719 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:24:49+08:00","message":"[RangePool] live window start=0 cursor=2360 end=4719 loop=false"}
+{"level":"info","time":"2026-01-08T10:24:49+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-08T10:24:49+08:00","message":"[RangePool] live tiers ..."}
+{"level":"info","time":"2026-01-08T10:24:49+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-08T10:24:49+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-08T10:24:49+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-08T10:24:49+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-08T10:24:49+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-08T10:24:49+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-08T10:24:49+08:00","message":"[RangePool] free tiers ..."}
+{"level":"info","time":"2026-01-08T10:24:49+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-08T10:24:49+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-08T10:24:49+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-08T10:24:49+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-08T10:24:49+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-08T10:24:49+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-08T10:24:49+08:00","message":"[RangePool] live window start=0 cursor=2360 end=4719 loop=false"}
+{"level":"info","time":"2026-01-08T10:24:49+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-08T10:24:49+08:00","message":"[RangePool] live tiers ..."}
+{"level":"info","time":"2026-01-08T10:24:49+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-08T10:24:49+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-08T10:24:49+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-08T10:24:49+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-08T10:24:49+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-08T10:24:49+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-08T10:24:49+08:00","message":"[RangePool] free tiers ..."}
+{"level":"info","time":"2026-01-08T10:24:49+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-08T10:24:49+08:00","message":"size:5 range 10~54"}
+{"level":"info","time":"2026-01-08T10:24:49+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-08T10:24:49+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-08T10:24:49+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-08T10:24:49+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-08T10:25:20+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:25:20+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:9719 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:25:20+08:00","message":"[RangePool] live window start=0 cursor=2360 end=4719 loop=false"}
+{"level":"info","time":"2026-01-08T10:25:20+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-08T10:25:20+08:00","message":"[RangePool] live tiers ..."}
+{"level":"info","time":"2026-01-08T10:25:20+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-08T10:25:20+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-08T10:25:20+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-08T10:25:20+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-08T10:25:20+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-08T10:25:20+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-08T10:25:20+08:00","message":"[RangePool] free tiers ..."}
+{"level":"info","time":"2026-01-08T10:25:20+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-08T10:25:20+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-08T10:25:20+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-08T10:25:20+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-08T10:25:20+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-08T10:25:20+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-08T10:25:20+08:00","message":"[RangePool] live window start=0 cursor=2360 end=4719 loop=false"}
+{"level":"info","time":"2026-01-08T10:25:20+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-08T10:25:20+08:00","message":"[RangePool] live tiers ..."}
+{"level":"info","time":"2026-01-08T10:25:20+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-08T10:25:20+08:00","message":"size:5 range 10~59"}
+{"level":"info","time":"2026-01-08T10:25:20+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-08T10:25:20+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-08T10:25:20+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-08T10:25:20+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-08T10:25:20+08:00","message":"[RangePool] free tiers ..."}
+{"level":"info","time":"2026-01-08T10:25:20+08:00","message":"size:1 range 0~9"}
+{"level":"info","time":"2026-01-08T10:25:20+08:00","message":"size:5 range 10~54"}
+{"level":"info","time":"2026-01-08T10:25:20+08:00","message":"size:10 range 60~159"}
+{"level":"info","time":"2026-01-08T10:25:20+08:00","message":"size:20 range 160~359"}
+{"level":"info","time":"2026-01-08T10:25:20+08:00","message":"size:100 range 360~1359"}
+{"level":"info","time":"2026-01-08T10:25:20+08:00","message":"size:500 range 1360~2359"}
+{"level":"info","time":"2026-01-08T10:26:31+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:26:31+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:9719 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:26:31+08:00","message":"[RangePool] live window start=0 cursor=2360 end=4719 loop=false"}
+{"level":"info","time":"2026-01-08T10:26:31+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-08T10:26:31+08:00","message":"[RangePool] live tiers ..."}
+{"level":"info","time":"2026-01-08T10:26:31+08:00","message":"size:1 range 0~9 len:10"}
+{"level":"info","time":"2026-01-08T10:26:31+08:00","message":"size:5 range 10~59 len:10"}
+{"level":"info","time":"2026-01-08T10:26:31+08:00","message":"size:10 range 60~159 len:10"}
+{"level":"info","time":"2026-01-08T10:26:31+08:00","message":"size:20 range 160~359 len:10"}
+{"level":"info","time":"2026-01-08T10:26:31+08:00","message":"size:100 range 360~1359 len:10"}
+{"level":"info","time":"2026-01-08T10:26:31+08:00","message":"size:500 range 1360~2359 len:2"}
+{"level":"info","time":"2026-01-08T10:26:31+08:00","message":"[RangePool] free tiers ..."}
+{"level":"info","time":"2026-01-08T10:26:31+08:00","message":"size:1 range 0~9 len:10"}
+{"level":"info","time":"2026-01-08T10:26:31+08:00","message":"size:5 range 10~59 len:10"}
+{"level":"info","time":"2026-01-08T10:26:31+08:00","message":"size:10 range 60~159 len:10"}
+{"level":"info","time":"2026-01-08T10:26:31+08:00","message":"size:20 range 160~359 len:10"}
+{"level":"info","time":"2026-01-08T10:26:31+08:00","message":"size:100 range 360~1359 len:10"}
+{"level":"info","time":"2026-01-08T10:26:31+08:00","message":"size:500 range 1360~2359 len:2"}
+{"level":"info","time":"2026-01-08T10:26:31+08:00","message":"[RangePool] live window start=0 cursor=2360 end=4719 loop=false"}
+{"level":"info","time":"2026-01-08T10:26:31+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-08T10:26:31+08:00","message":"[RangePool] live tiers ..."}
+{"level":"info","time":"2026-01-08T10:26:31+08:00","message":"size:1 range 0~9 len:10"}
+{"level":"info","time":"2026-01-08T10:26:31+08:00","message":"size:5 range 10~59 len:10"}
+{"level":"info","time":"2026-01-08T10:26:31+08:00","message":"size:10 range 60~159 len:10"}
+{"level":"info","time":"2026-01-08T10:26:31+08:00","message":"size:20 range 160~359 len:10"}
+{"level":"info","time":"2026-01-08T10:26:31+08:00","message":"size:100 range 360~1359 len:10"}
+{"level":"info","time":"2026-01-08T10:26:31+08:00","message":"size:500 range 1360~2359 len:2"}
+{"level":"info","time":"2026-01-08T10:26:31+08:00","message":"[RangePool] free tiers ..."}
+{"level":"info","time":"2026-01-08T10:26:31+08:00","message":"size:1 range 0~9 len:10"}
+{"level":"info","time":"2026-01-08T10:26:31+08:00","message":"size:5 range 10~54 len:7"}
+{"level":"info","time":"2026-01-08T10:26:31+08:00","message":"size:10 range 60~159 len:10"}
+{"level":"info","time":"2026-01-08T10:26:31+08:00","message":"size:20 range 160~359 len:10"}
+{"level":"info","time":"2026-01-08T10:26:31+08:00","message":"size:100 range 360~1359 len:10"}
+{"level":"info","time":"2026-01-08T10:26:31+08:00","message":"size:500 range 1360~2359 len:2"}
+{"level":"info","time":"2026-01-08T10:26:57+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:26:57+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:9719 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:26:57+08:00","message":"[RangePool] live window start=0 cursor=2360 end=4719 loop=false"}
+{"level":"info","time":"2026-01-08T10:26:57+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-08T10:26:57+08:00","message":"[RangePool] live tiers ..."}
+{"level":"info","time":"2026-01-08T10:26:57+08:00","message":"size:1 range 0~9 len:10"}
+{"level":"info","time":"2026-01-08T10:26:57+08:00","message":"size:5 range 10~59 len:10"}
+{"level":"info","time":"2026-01-08T10:26:57+08:00","message":"size:10 range 60~159 len:10"}
+{"level":"info","time":"2026-01-08T10:26:57+08:00","message":"size:20 range 160~359 len:10"}
+{"level":"info","time":"2026-01-08T10:26:57+08:00","message":"size:100 range 360~1359 len:10"}
+{"level":"info","time":"2026-01-08T10:26:57+08:00","message":"size:500 range 1360~2359 len:2"}
+{"level":"info","time":"2026-01-08T10:26:57+08:00","message":"[RangePool] free tiers ..."}
+{"level":"info","time":"2026-01-08T10:26:57+08:00","message":"size:1 range 0~9 len:10"}
+{"level":"info","time":"2026-01-08T10:26:57+08:00","message":"size:5 range 10~59 len:10"}
+{"level":"info","time":"2026-01-08T10:26:57+08:00","message":"size:10 range 60~159 len:10"}
+{"level":"info","time":"2026-01-08T10:26:57+08:00","message":"size:20 range 160~359 len:10"}
+{"level":"info","time":"2026-01-08T10:26:57+08:00","message":"size:100 range 360~1359 len:10"}
+{"level":"info","time":"2026-01-08T10:26:57+08:00","message":"size:500 range 1360~2359 len:2"}
+{"level":"info","time":"2026-01-08T10:26:57+08:00","message":"[RangePool] live window start=0 cursor=2360 end=4719 loop=false"}
+{"level":"info","time":"2026-01-08T10:26:57+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-08T10:26:57+08:00","message":"[RangePool] live tiers ..."}
+{"level":"info","time":"2026-01-08T10:26:57+08:00","message":"size:1 range 0~9 len:10"}
+{"level":"info","time":"2026-01-08T10:26:57+08:00","message":"size:5 range 10~54 len:7"}
+{"level":"info","time":"2026-01-08T10:26:57+08:00","message":"size:10 range 60~159 len:10"}
+{"level":"info","time":"2026-01-08T10:26:57+08:00","message":"size:20 range 160~359 len:10"}
+{"level":"info","time":"2026-01-08T10:26:57+08:00","message":"size:100 range 360~1359 len:10"}
+{"level":"info","time":"2026-01-08T10:26:57+08:00","message":"size:500 range 1360~2359 len:2"}
+{"level":"info","time":"2026-01-08T10:26:57+08:00","message":"[RangePool] free tiers ..."}
+{"level":"info","time":"2026-01-08T10:26:57+08:00","message":"size:1 range 0~9 len:10"}
+{"level":"info","time":"2026-01-08T10:26:57+08:00","message":"size:5 range 10~59 len:10"}
+{"level":"info","time":"2026-01-08T10:26:57+08:00","message":"size:10 range 60~159 len:10"}
+{"level":"info","time":"2026-01-08T10:26:57+08:00","message":"size:20 range 160~359 len:10"}
+{"level":"info","time":"2026-01-08T10:26:57+08:00","message":"size:100 range 360~1359 len:10"}
+{"level":"info","time":"2026-01-08T10:26:57+08:00","message":"size:500 range 1360~2359 len:2"}
+{"level":"info","time":"2026-01-08T10:27:28+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:27:28+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:9719 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:27:28+08:00","message":"[RangePool] live window start=0 cursor=2360 end=4719 loop=false"}
+{"level":"info","time":"2026-01-08T10:27:28+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-08T10:27:28+08:00","message":"[RangePool] live tiers ..."}
+{"level":"info","time":"2026-01-08T10:27:28+08:00","message":"size:1 range 0~9 len:10"}
+{"level":"info","time":"2026-01-08T10:27:28+08:00","message":"size:5 range 10~59 len:10"}
+{"level":"info","time":"2026-01-08T10:27:28+08:00","message":"size:10 range 60~159 len:10"}
+{"level":"info","time":"2026-01-08T10:27:28+08:00","message":"size:20 range 160~359 len:10"}
+{"level":"info","time":"2026-01-08T10:27:28+08:00","message":"size:100 range 360~1359 len:10"}
+{"level":"info","time":"2026-01-08T10:27:28+08:00","message":"size:500 range 1360~2359 len:2"}
+{"level":"info","time":"2026-01-08T10:27:28+08:00","message":"[RangePool] free tiers ..."}
+{"level":"info","time":"2026-01-08T10:27:28+08:00","message":"size:1 range 0~9 len:10"}
+{"level":"info","time":"2026-01-08T10:27:28+08:00","message":"size:5 range 10~59 len:10"}
+{"level":"info","time":"2026-01-08T10:27:28+08:00","message":"size:10 range 60~159 len:10"}
+{"level":"info","time":"2026-01-08T10:27:28+08:00","message":"size:20 range 160~359 len:10"}
+{"level":"info","time":"2026-01-08T10:27:28+08:00","message":"size:100 range 360~1359 len:10"}
+{"level":"info","time":"2026-01-08T10:27:28+08:00","message":"size:500 range 1360~2359 len:2"}
+{"level":"info","time":"2026-01-08T10:27:28+08:00","message":"[RangePool] live window start=0 cursor=2360 end=4719 loop=false"}
+{"level":"info","time":"2026-01-08T10:27:28+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-08T10:27:28+08:00","message":"[RangePool] live tiers ..."}
+{"level":"info","time":"2026-01-08T10:27:28+08:00","message":"size:1 range 0~9 len:10"}
+{"level":"info","time":"2026-01-08T10:27:28+08:00","message":"size:5 range 10~59 len:10"}
+{"level":"info","time":"2026-01-08T10:27:28+08:00","message":"size:10 range 60~159 len:10"}
+{"level":"info","time":"2026-01-08T10:27:28+08:00","message":"size:20 range 160~359 len:10"}
+{"level":"info","time":"2026-01-08T10:27:28+08:00","message":"size:100 range 360~1359 len:10"}
+{"level":"info","time":"2026-01-08T10:27:28+08:00","message":"size:500 range 1360~2359 len:2"}
+{"level":"info","time":"2026-01-08T10:27:28+08:00","message":"[RangePool] free tiers ..."}
+{"level":"info","time":"2026-01-08T10:27:28+08:00","message":"size:1 range 0~9 len:10"}
+{"level":"info","time":"2026-01-08T10:27:28+08:00","message":"size:5 range 10~54 len:7"}
+{"level":"info","time":"2026-01-08T10:27:28+08:00","message":"size:10 range 60~159 len:10"}
+{"level":"info","time":"2026-01-08T10:27:28+08:00","message":"size:20 range 160~359 len:10"}
+{"level":"info","time":"2026-01-08T10:27:28+08:00","message":"size:100 range 360~1359 len:10"}
+{"level":"info","time":"2026-01-08T10:27:28+08:00","message":"size:500 range 1360~2359 len:2"}
+{"level":"info","time":"2026-01-08T10:29:10+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:29:10+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:9719 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:29:10+08:00","message":"[RangePool] live window start=0 cursor=2360 end=4719 loop=false"}
+{"level":"info","time":"2026-01-08T10:29:10+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-08T10:29:10+08:00","message":"[RangePool] live tiers ..."}
+{"level":"info","time":"2026-01-08T10:29:10+08:00","message":"size:1 range 0~9 len:10"}
+{"level":"info","time":"2026-01-08T10:29:10+08:00","message":"size:5 range 10~59 len:10"}
+{"level":"info","time":"2026-01-08T10:29:10+08:00","message":"size:10 range 60~159 len:10"}
+{"level":"info","time":"2026-01-08T10:29:10+08:00","message":"size:20 range 160~359 len:10"}
+{"level":"info","time":"2026-01-08T10:29:10+08:00","message":"size:100 range 360~1359 len:10"}
+{"level":"info","time":"2026-01-08T10:29:10+08:00","message":"size:500 range 1360~2359 len:2"}
+{"level":"info","time":"2026-01-08T10:29:10+08:00","message":"[RangePool] free tiers ..."}
+{"level":"info","time":"2026-01-08T10:29:10+08:00","message":"size:1 range 0~9 len:10"}
+{"level":"info","time":"2026-01-08T10:29:10+08:00","message":"size:5 range 10~59 len:10"}
+{"level":"info","time":"2026-01-08T10:29:10+08:00","message":"size:10 range 60~159 len:10"}
+{"level":"info","time":"2026-01-08T10:29:10+08:00","message":"size:20 range 160~359 len:10"}
+{"level":"info","time":"2026-01-08T10:29:10+08:00","message":"size:100 range 360~1359 len:10"}
+{"level":"info","time":"2026-01-08T10:29:10+08:00","message":"size:500 range 1360~2359 len:2"}
+{"level":"info","time":"2026-01-08T10:29:10+08:00","message":"[RangePool] live window start=0 cursor=2360 end=4719 loop=false"}
+{"level":"info","time":"2026-01-08T10:29:10+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-08T10:29:10+08:00","message":"[RangePool] live tiers ..."}
+{"level":"info","time":"2026-01-08T10:29:10+08:00","message":"size:1 range 0~9 len:10"}
+{"level":"info","time":"2026-01-08T10:29:10+08:00","message":"size:5 range 10~59 len:10"}
+{"level":"info","time":"2026-01-08T10:29:10+08:00","message":"size:10 range 60~159 len:10"}
+{"level":"info","time":"2026-01-08T10:29:10+08:00","message":"size:20 range 160~359 len:10"}
+{"level":"info","time":"2026-01-08T10:29:10+08:00","message":"size:100 range 360~1359 len:10"}
+{"level":"info","time":"2026-01-08T10:29:10+08:00","message":"size:500 range 1360~2359 len:2"}
+{"level":"info","time":"2026-01-08T10:29:10+08:00","message":"[RangePool] free tiers ..."}
+{"level":"info","time":"2026-01-08T10:29:10+08:00","message":"size:1 range 0~9 len:10"}
+{"level":"info","time":"2026-01-08T10:29:10+08:00","message":"size:5 range 50~39 len:6"}
+{"level":"info","time":"2026-01-08T10:29:10+08:00","message":"size:10 range 60~159 len:10"}
+{"level":"info","time":"2026-01-08T10:29:10+08:00","message":"size:20 range 160~359 len:10"}
+{"level":"info","time":"2026-01-08T10:29:10+08:00","message":"size:100 range 360~1359 len:10"}
+{"level":"info","time":"2026-01-08T10:29:10+08:00","message":"size:500 range 1360~2359 len:2"}
+{"level":"info","time":"2026-01-08T10:29:43+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:29:43+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:9719 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:29:43+08:00","message":"[RangePool] live window start=0 cursor=2360 end=4719 loop=false"}
+{"level":"info","time":"2026-01-08T10:29:43+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-08T10:29:43+08:00","message":"[RangePool] live tiers ..."}
+{"level":"info","time":"2026-01-08T10:29:43+08:00","message":"size:1 range 0~9 len:10"}
+{"level":"info","time":"2026-01-08T10:29:43+08:00","message":"size:5 range 10~59 len:10"}
+{"level":"info","time":"2026-01-08T10:29:43+08:00","message":"size:10 range 60~159 len:10"}
+{"level":"info","time":"2026-01-08T10:29:43+08:00","message":"size:20 range 160~359 len:10"}
+{"level":"info","time":"2026-01-08T10:29:43+08:00","message":"size:100 range 360~1359 len:10"}
+{"level":"info","time":"2026-01-08T10:29:43+08:00","message":"size:500 range 1360~2359 len:2"}
+{"level":"info","time":"2026-01-08T10:29:43+08:00","message":"[RangePool] free tiers ..."}
+{"level":"info","time":"2026-01-08T10:29:43+08:00","message":"size:1 range 0~9 len:10"}
+{"level":"info","time":"2026-01-08T10:29:43+08:00","message":"size:5 range 10~59 len:10"}
+{"level":"info","time":"2026-01-08T10:29:43+08:00","message":"size:10 range 60~159 len:10"}
+{"level":"info","time":"2026-01-08T10:29:43+08:00","message":"size:20 range 160~359 len:10"}
+{"level":"info","time":"2026-01-08T10:29:43+08:00","message":"size:100 range 360~1359 len:10"}
+{"level":"info","time":"2026-01-08T10:29:43+08:00","message":"size:500 range 1360~2359 len:2"}
+{"level":"info","time":"2026-01-08T10:29:43+08:00","message":"[RangePool] live window start=0 cursor=2360 end=4719 loop=false"}
+{"level":"info","time":"2026-01-08T10:29:43+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-08T10:29:43+08:00","message":"[RangePool] live tiers ..."}
+{"level":"info","time":"2026-01-08T10:29:43+08:00","message":"size:1 range 0~9 len:10"}
+{"level":"info","time":"2026-01-08T10:29:43+08:00","message":"size:5 range 10~59 len:10"}
+{"level":"info","time":"2026-01-08T10:29:43+08:00","message":"size:10 range 60~159 len:10"}
+{"level":"info","time":"2026-01-08T10:29:43+08:00","message":"size:20 range 160~359 len:10"}
+{"level":"info","time":"2026-01-08T10:29:43+08:00","message":"size:100 range 360~1359 len:10"}
+{"level":"info","time":"2026-01-08T10:29:43+08:00","message":"size:500 range 1360~2359 len:2"}
+{"level":"info","time":"2026-01-08T10:29:43+08:00","message":"[RangePool] free tiers ..."}
+{"level":"info","time":"2026-01-08T10:29:43+08:00","message":"size:1 range 0~9 len:10"}
+{"level":"info","time":"2026-01-08T10:29:43+08:00","message":"size:5 range 10~54 len:7"}
+{"level":"info","time":"2026-01-08T10:29:43+08:00","message":"size:10 range 60~159 len:10"}
+{"level":"info","time":"2026-01-08T10:29:43+08:00","message":"size:20 range 160~359 len:10"}
+{"level":"info","time":"2026-01-08T10:29:43+08:00","message":"size:100 range 360~1359 len:10"}
+{"level":"info","time":"2026-01-08T10:29:43+08:00","message":"size:500 range 1360~2359 len:2"}
+{"level":"info","time":"2026-01-08T10:30:05+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:30:05+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:9719 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:30:05+08:00","message":"[RangePool] live window start=0 cursor=2360 end=4719 loop=false"}
+{"level":"info","time":"2026-01-08T10:30:05+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-08T10:30:05+08:00","message":"[RangePool] live tiers ..."}
+{"level":"info","time":"2026-01-08T10:30:05+08:00","message":"size:1 range 0~9 len:10"}
+{"level":"info","time":"2026-01-08T10:30:05+08:00","message":"size:5 range 10~59 len:10"}
+{"level":"info","time":"2026-01-08T10:30:05+08:00","message":"size:10 range 60~159 len:10"}
+{"level":"info","time":"2026-01-08T10:30:05+08:00","message":"size:20 range 160~359 len:10"}
+{"level":"info","time":"2026-01-08T10:30:05+08:00","message":"size:100 range 360~1359 len:10"}
+{"level":"info","time":"2026-01-08T10:30:05+08:00","message":"size:500 range 1360~2359 len:2"}
+{"level":"info","time":"2026-01-08T10:30:05+08:00","message":"[RangePool] free tiers ..."}
+{"level":"info","time":"2026-01-08T10:30:05+08:00","message":"size:1 range 0~9 len:10"}
+{"level":"info","time":"2026-01-08T10:30:05+08:00","message":"size:5 range 10~59 len:10"}
+{"level":"info","time":"2026-01-08T10:30:05+08:00","message":"size:10 range 60~159 len:10"}
+{"level":"info","time":"2026-01-08T10:30:05+08:00","message":"size:20 range 160~359 len:10"}
+{"level":"info","time":"2026-01-08T10:30:05+08:00","message":"size:100 range 360~1359 len:10"}
+{"level":"info","time":"2026-01-08T10:30:05+08:00","message":"size:500 range 1360~2359 len:2"}
+{"level":"info","time":"2026-01-08T10:30:05+08:00","message":"[RangePool] live window start=0 cursor=2360 end=4719 loop=false"}
+{"level":"info","time":"2026-01-08T10:30:05+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-08T10:30:05+08:00","message":"[RangePool] live tiers ..."}
+{"level":"info","time":"2026-01-08T10:30:05+08:00","message":"size:1 range 0~9 len:10"}
+{"level":"info","time":"2026-01-08T10:30:05+08:00","message":"size:5 range 10~59 len:10"}
+{"level":"info","time":"2026-01-08T10:30:05+08:00","message":"size:10 range 60~159 len:10"}
+{"level":"info","time":"2026-01-08T10:30:05+08:00","message":"size:20 range 160~359 len:10"}
+{"level":"info","time":"2026-01-08T10:30:05+08:00","message":"size:100 range 360~1359 len:10"}
+{"level":"info","time":"2026-01-08T10:30:05+08:00","message":"size:500 range 1360~2359 len:2"}
+{"level":"info","time":"2026-01-08T10:30:05+08:00","message":"[RangePool] free tiers ..."}
+{"level":"info","time":"2026-01-08T10:30:05+08:00","message":"size:1 range 0~9 len:10"}
+{"level":"info","time":"2026-01-08T10:30:05+08:00","message":"size:5 range 50~39 len:6"}
+{"level":"info","time":"2026-01-08T10:30:05+08:00","message":"size:10 range 60~159 len:10"}
+{"level":"info","time":"2026-01-08T10:30:05+08:00","message":"size:20 range 160~359 len:10"}
+{"level":"info","time":"2026-01-08T10:30:05+08:00","message":"size:100 range 360~1359 len:10"}
+{"level":"info","time":"2026-01-08T10:30:05+08:00","message":"size:500 range 1360~2359 len:2"}
+{"level":"info","time":"2026-01-08T10:43:04+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:43:04+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:9719 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:43:04+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-08T10:43:04+08:00","message":"size:1 range 0~9 len:10"}
+{"level":"info","time":"2026-01-08T10:43:04+08:00","message":"size:5 range 10~59 len:10"}
+{"level":"info","time":"2026-01-08T10:43:04+08:00","message":"size:10 range 60~159 len:10"}
+{"level":"info","time":"2026-01-08T10:43:04+08:00","message":"size:20 range 160~359 len:10"}
+{"level":"info","time":"2026-01-08T10:43:04+08:00","message":"size:100 range 360~1359 len:10"}
+{"level":"info","time":"2026-01-08T10:43:04+08:00","message":"size:500 range 1360~2359 len:2"}
+{"level":"info","time":"2026-01-08T10:43:04+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-08T10:43:04+08:00","message":"size:1 range 0~9 len:10"}
+{"level":"info","time":"2026-01-08T10:43:04+08:00","message":"size:5 range 50~39 len:6"}
+{"level":"info","time":"2026-01-08T10:43:04+08:00","message":"size:10 range 60~159 len:10"}
+{"level":"info","time":"2026-01-08T10:43:04+08:00","message":"size:20 range 160~359 len:10"}
+{"level":"info","time":"2026-01-08T10:43:04+08:00","message":"size:100 range 360~1359 len:10"}
+{"level":"info","time":"2026-01-08T10:43:04+08:00","message":"size:500 range 1360~2359 len:2"}
+{"level":"info","time":"2026-01-08T10:43:21+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:43:21+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:9719 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:43:21+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-08T10:43:21+08:00","message":"size:1 range 0~9 len:10"}
+{"level":"info","time":"2026-01-08T10:43:21+08:00","message":"size:5 range 10~59 len:10"}
+{"level":"info","time":"2026-01-08T10:43:21+08:00","message":"size:10 range 60~159 len:10"}
+{"level":"info","time":"2026-01-08T10:43:21+08:00","message":"size:20 range 160~359 len:10"}
+{"level":"info","time":"2026-01-08T10:43:21+08:00","message":"size:100 range 360~1359 len:10"}
+{"level":"info","time":"2026-01-08T10:43:21+08:00","message":"size:500 range 1360~2359 len:2"}
+{"level":"info","time":"2026-01-08T10:43:21+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-08T10:43:21+08:00","message":"size:1 range 0~9 len:10"}
+{"level":"info","time":"2026-01-08T10:43:21+08:00","message":"size:5 range 50~79 len:7"}
+{"level":"info","time":"2026-01-08T10:43:21+08:00","message":"size:10 range 60~149 len:9"}
+{"level":"info","time":"2026-01-08T10:43:21+08:00","message":"size:20 range 160~359 len:10"}
+{"level":"info","time":"2026-01-08T10:43:21+08:00","message":"size:100 range 360~1359 len:10"}
+{"level":"info","time":"2026-01-08T10:43:21+08:00","message":"size:500 range 1360~2359 len:2"}
+{"level":"info","time":"2026-01-08T10:43:59+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:44:02+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:9719 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T10:44:02+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-08T10:44:02+08:00","message":"size:1 range 0~9 len:10"}
+{"level":"info","time":"2026-01-08T10:44:02+08:00","message":"size:5 range 10~59 len:10"}
+{"level":"info","time":"2026-01-08T10:44:02+08:00","message":"size:10 range 60~159 len:10"}
+{"level":"info","time":"2026-01-08T10:44:02+08:00","message":"size:20 range 160~359 len:10"}
+{"level":"info","time":"2026-01-08T10:44:02+08:00","message":"size:100 range 360~1359 len:10"}
+{"level":"info","time":"2026-01-08T10:44:02+08:00","message":"size:500 range 1360~2359 len:2"}
+{"level":"info","time":"2026-01-08T10:51:57+08:00","message":"[RangePool] free window start=0 cursor=2360 end=9719 loop=false"}
+{"level":"info","time":"2026-01-08T10:51:57+08:00","message":"size:1 range 0~9 len:10"}
+{"level":"info","time":"2026-01-08T10:51:57+08:00","message":"size:5 range 50~79 len:7"}
+{"level":"info","time":"2026-01-08T10:51:57+08:00","message":"size:10 range 60~149 len:9"}
+{"level":"info","time":"2026-01-08T10:51:57+08:00","message":"size:20 range 160~359 len:10"}
+{"level":"info","time":"2026-01-08T10:51:57+08:00","message":"size:100 range 360~1359 len:10"}
+{"level":"info","time":"2026-01-08T10:51:57+08:00","message":"size:500 range 1360~2359 len:2"}
+{"level":"info","time":"2026-01-08T13:35:29+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T13:35:29+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4719 LiveEnableLoop:false free_start:5000 free_cursor:9719 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T13:38:39+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4720 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T13:38:39+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4720 LiveEnableLoop:false free_start:5000 free_cursor:9720 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-08T13:38:39+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-08T13:38:39+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-08T13:38:39+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-08T13:38:39+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-08T13:38:39+08:00","message":"size:20 range 5160~5359 len:10"}
+{"level":"info","time":"2026-01-08T13:38:39+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"info","time":"2026-01-08T13:38:39+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"info","time":"2026-01-08T13:38:39+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-08T13:38:39+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-08T13:38:39+08:00","message":"size:5 range 5050~5079 len:7"}
+{"level":"info","time":"2026-01-08T13:38:39+08:00","message":"size:10 range 5060~5149 len:9"}
+{"level":"info","time":"2026-01-08T13:38:39+08:00","message":"size:20 range 5160~5359 len:10"}
+{"level":"info","time":"2026-01-08T13:38:39+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"info","time":"2026-01-08T13:38:39+08:00","message":"size:500 range 6360~7359 len:2"}
