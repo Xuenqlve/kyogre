@@ -1,6 +1,7 @@
 package range_pool
 
 import (
+	"context"
 	"fmt"
 	"math/rand"
 	"sort"
@@ -137,6 +138,12 @@ func NewRangePool(opts ...RangePoolOption) (*RangePool, error) {
 	if err = pool.free.bootstrap(); err != nil {
 		return nil, err
 	}
+
+	// Start background refiller goroutines
+	ctx := context.Background()
+	pool.live.startRefiller(ctx)
+	pool.free.startRefiller(ctx)
+
 	return pool, nil
 }
 
@@ -255,6 +262,17 @@ func (p *RangePool) LiveWindow() (int64, int64, int64, bool) { return p.live.win
 // FreeWindow returns (start, cursor, end, enableLoop) for the free allocation window.
 func (p *RangePool) FreeWindow() (int64, int64, int64, bool) { return p.free.windowState() }
 
+// Close stops all background refiller goroutines and releases resources.
+func (p *RangePool) Close() error {
+	if err := p.live.Close(); err != nil {
+		return err
+	}
+	if err := p.free.Close(); err != nil {
+		return err
+	}
+	return nil
+}
+
 // tierPartition represents the tier hierarchy backing either the live or free pool.
 type tierPartition struct {
 	name   string
@@ -265,17 +283,26 @@ type tierPartition struct {
 
 	mu       sync.RWMutex
 	refillMu sync.Mutex
+	randMu   sync.Mutex     // Protects rand for thread-safe random number generation
 
 	windowInit  bool
 	windowStart int64
 	windowEnd   int64
 	cursor      int64
 	enableLoop  bool
+
+	// Background refiller fields
+	refillSignal chan int      // Buffered channel for refill signals (tier index)
+	stopChan     chan struct{} // Signal to stop the refiller goroutine
+	wg           sync.WaitGroup
+	ctx          context.Context
+	cancel       context.CancelFunc
 }
 
 type tierState struct {
-	cfg      TierConfig
-	segments []IntRange
+	cfg        TierConfig
+	segments   []IntRange
+	lastRefill time.Time // Last refill time (throttling)
 }
 
 // newTierPartition builds an ordered set of tiers and an O(1) lookup from size to tier index.
@@ -337,7 +364,9 @@ func (p *tierPartition) randomFromWindow(size int64) (IntRange, bool) {
 	maxOffset := window.Len() - size
 	offset := int64(0)
 	if maxOffset > 0 {
+		p.randMu.Lock()
 		offset = p.rand.Int63n(maxOffset + 1)
+		p.randMu.Unlock()
 	}
 	start := window.Start + offset
 	end := start + size - 1
@@ -568,106 +597,97 @@ func (p *tierPartition) allocateSequential(size int64, count int, bootstrap bool
 	}
 }
 
-// peek returns a random segment from the requested tier, refilling/splitting if needed.
+// peek returns a random segment from the requested tier without consuming it.
+// Uses read lock for concurrent access and sends async refill signal if needed.
 func (p *tierPartition) peek(size int64) (IntRange, error) {
 	idx, ok := p.idx[size]
 	if !ok {
 		return IntRange{}, fmt.Errorf("%s tier %d not configured", p.name, size)
 	}
-	p.mu.Lock()
-	defer p.mu.Unlock()
+
+	p.mu.RLock()
 	tier := p.tiers[idx]
 	if len(tier.segments) == 0 {
+		p.mu.RUnlock()
 		return IntRange{}, fmt.Errorf("%s tier %d exhausted", p.name, size)
 	}
+
+	// Use randMu to protect rand access
+	p.randMu.Lock()
 	sel := p.rand.Intn(len(tier.segments))
-	return tier.segments[sel], nil
+	p.randMu.Unlock()
+
+	r := tier.segments[sel]
+
+	// Check if refill is needed
+	needRefill := len(tier.segments) <= tier.cfg.Threshold
+	p.mu.RUnlock()
+
+	// Post-peek: send non-blocking refill signal
+	if needRefill && p.refillSignal != nil {
+		select {
+		case p.refillSignal <- idx:
+			// Signal sent successfully
+		default:
+			// Channel full, signal already queued
+		}
+	}
+
+	return r, nil
 }
 
-// consume removes and returns a random segment from the requested tier, refilling/splitting if needed.
+// consume removes and returns a random segment from the requested tier.
+// Uses post-consumption async refill signal instead of blocking ensure.
 func (p *tierPartition) consume(size int64) (IntRange, error) {
 	idx, ok := p.idx[size]
 	if !ok {
 		return IntRange{}, fmt.Errorf("%s tier %d not configured", p.name, size)
 	}
-	if err := p.ensure(idx); err != nil {
-		return IntRange{}, err
-	}
-	p.mu.Lock()
-	defer p.mu.Unlock()
+
+	// 1. Read lock: quick check if tier has segments
+	p.mu.RLock()
 	tier := p.tiers[idx]
 	if len(tier.segments) == 0 {
+		p.mu.RUnlock()
 		return IntRange{}, fmt.Errorf("%s tier %d exhausted", p.name, size)
 	}
+	p.mu.RUnlock()
+
+	// 2. Write lock: consume segment
+	p.mu.Lock()
+	// Double-check after acquiring write lock
+	if len(tier.segments) == 0 {
+		p.mu.Unlock()
+		return IntRange{}, fmt.Errorf("%s tier %d exhausted", p.name, size)
+	}
+
+	// Use randMu to protect rand access
+	p.randMu.Lock()
 	sel := p.rand.Intn(len(tier.segments))
+	p.randMu.Unlock()
+
 	r := tier.segments[sel]
 	tier.segments[sel] = tier.segments[len(tier.segments)-1]
 	tier.segments = tier.segments[:len(tier.segments)-1]
+
+	// Check if refill is needed
+	needRefill := len(tier.segments) <= tier.cfg.Threshold
+	p.mu.Unlock()
+
+	// 3. Post-consumption: send non-blocking refill signal
+	if needRefill && p.refillSignal != nil {
+		select {
+		case p.refillSignal <- idx:
+			// Signal sent successfully
+		default:
+			// Channel full, signal already queued
+		}
+	}
+
 	return r, nil
 }
 
-func (p *tierPartition) ensure(idx int) error {
-	p.mu.RLock()
-	tier := p.tiers[idx]
-	if len(tier.segments) > tier.cfg.Threshold {
-		p.mu.RUnlock()
-		return nil
-	}
-	p.mu.RUnlock()
-	if idx == len(p.tiers)-1 {
-		// Only the top tier can grow from the allocation window; if the window is not
-		// configured, this partition only relies on injected segments.
-		p.mu.RLock()
-		window := IntRange{Start: p.windowStart, End: p.windowEnd}
-		maxCount := tier.cfg.MaxCount
-		threshold := tier.cfg.Threshold
-		curLen := len(tier.segments)
-		p.mu.RUnlock()
-
-		if window.Valid() || p.refill != nil {
-			target := maxCount
-			if target <= 0 {
-				target = threshold + 1
-			}
-			needCount := target - curLen
-			if needCount <= 0 {
-				needCount = 1
-			}
-			segs, err := p.allocateSequential(tier.cfg.Size, needCount, false)
-			if err != nil {
-				return err
-			}
-			p.mu.Lock()
-			p.tiers[idx].segments = append(p.tiers[idx].segments, segs...)
-			p.mu.Unlock()
-		}
-		return nil
-	}
-	if p.splitFromUpper(idx) {
-		return nil
-	}
-	if idx+1 < len(p.tiers) {
-		if err := p.ensure(idx + 1); err == nil {
-			if p.splitFromUpper(idx) {
-				return nil
-			}
-		} else {
-			if _, upperErr := err.(*partitionError); !upperErr {
-				return err
-			}
-		}
-	}
-	p.mu.RLock()
-	empty := len(p.tiers[idx].segments) == 0
-	size := p.tiers[idx].cfg.Size
-	p.mu.RUnlock()
-	if empty {
-		return &partitionError{name: p.name, size: size}
-	}
-	return nil
-}
-
-// partitionError indicates a tier is unavailable after ensure() attempts (split/refill).
+// partitionError indicates a tier is unavailable (used by allocateSequential).
 type partitionError struct {
 	name string
 	size int64
@@ -698,7 +718,9 @@ func (p *tierPartition) splitFromUpper(idx int) bool {
 	if ratio <= 1 {
 		return false
 	}
+	p.randMu.Lock()
 	sel := p.rand.Intn(len(upper.segments))
+	p.randMu.Unlock()
 	parent := upper.segments[sel]
 	upper.segments[sel] = upper.segments[len(upper.segments)-1]
 	upper.segments = upper.segments[:len(upper.segments)-1]
@@ -847,5 +869,199 @@ func validateTierDivisible(name string, tiers []TierConfig) error {
 			return fmt.Errorf("%s tier size %d must be divisible by %d", name, hi, lo)
 		}
 	}
+	return nil
+}
+
+// ==================== Background Refiller Implementation ====================
+
+// startRefiller initializes and starts the background refiller goroutine.
+func (p *tierPartition) startRefiller(ctx context.Context) {
+	p.ctx, p.cancel = context.WithCancel(ctx)
+	p.refillSignal = make(chan int, len(p.tiers)) // Buffered channel
+	p.stopChan = make(chan struct{})
+
+	p.wg.Add(1)
+	go p.refillerLoop()
+}
+
+// refillerLoop is the main loop of the background refiller goroutine.
+// It listens for refill signals and performs periodic checks.
+func (p *tierPartition) refillerLoop() {
+	defer p.wg.Done()
+
+	ticker := time.NewTicker(100 * time.Millisecond) // Periodic check interval
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-p.ctx.Done():
+			return
+		case <-p.stopChan:
+			return
+
+		case <-ticker.C:
+			// Periodic check: refill all tiers if needed
+			p.checkAndRefillAll()
+
+		case idx := <-p.refillSignal:
+			// Triggered refill for specific tier
+			p.checkAndRefill(idx)
+		}
+	}
+}
+
+// checkAndRefillAll checks and refills all tiers that need refilling.
+func (p *tierPartition) checkAndRefillAll() {
+	for i := range p.tiers {
+		p.checkAndRefill(i)
+	}
+}
+
+// checkAndRefill checks if a specific tier needs refilling and performs the refill.
+func (p *tierPartition) checkAndRefill(idx int) {
+	if idx < 0 || idx >= len(p.tiers) {
+		return
+	}
+
+	tier := p.tiers[idx]
+
+	// 1. Read lock: quick check if refill is needed
+	p.mu.RLock()
+	needRefill := len(tier.segments) <= tier.cfg.Threshold
+	timeSinceLastRefill := time.Since(tier.lastRefill)
+	p.mu.RUnlock()
+
+	if !needRefill {
+		return
+	}
+
+	// 2. Throttling: avoid refilling too frequently
+	if timeSinceLastRefill < 50*time.Millisecond {
+		return
+	}
+
+	// 3. Perform refill (write lock)
+	p.mu.Lock()
+	// Double-check after acquiring write lock
+	if len(tier.segments) > tier.cfg.Threshold {
+		p.mu.Unlock()
+		return
+	}
+
+	target := tier.cfg.MaxCount
+	if target <= 0 {
+		target = tier.cfg.Threshold + 1
+	}
+
+	if idx == len(p.tiers)-1 {
+		// Top tier: refill from allocation window
+		p.refillTopTierUnsafe(idx, target)
+	} else {
+		// Middle tier: refill by splitting from upper tiers
+		p.refillMiddleTierUnsafe(idx, target)
+	}
+
+	tier.lastRefill = time.Now()
+	p.mu.Unlock()
+
+	log.Debugf("[RangePool] %s tier %d refilled to %d segments", p.name, tier.cfg.Size, len(tier.segments))
+}
+
+// refillTopTierUnsafe refills the top tier from the allocation window.
+// Caller must hold write lock (mu.Lock).
+func (p *tierPartition) refillTopTierUnsafe(idx int, target int) {
+	tier := p.tiers[idx]
+	needCount := target - len(tier.segments)
+	if needCount <= 0 {
+		return
+	}
+
+	// Release lock before IO operation
+	p.mu.Unlock()
+	segs, err := p.allocateSequential(tier.cfg.Size, needCount, false)
+	p.mu.Lock()
+
+	if err != nil {
+		log.Warnf("[RangePool] %s tier %d refill failed: %v", p.name, tier.cfg.Size, err)
+		return
+	}
+	p.tiers[idx].segments = append(p.tiers[idx].segments, segs...)
+}
+
+// refillMiddleTierUnsafe refills a middle tier by splitting from upper tiers.
+// Caller must hold write lock (mu.Lock).
+func (p *tierPartition) refillMiddleTierUnsafe(idx int, target int) {
+	tier := p.tiers[idx]
+	maxAttempts := target * 2 // Avoid infinite loop
+
+	for attempt := 0; attempt < maxAttempts && len(tier.segments) < target; attempt++ {
+		if !p.splitFromUpperUnsafe(idx) {
+			// Upper tier exhausted, try to refill upper tier
+			if idx+1 < len(p.tiers) {
+				upperTarget := p.tiers[idx+1].cfg.MaxCount
+				if upperTarget <= 0 {
+					upperTarget = p.tiers[idx+1].cfg.Threshold + 1
+				}
+				p.refillMiddleTierUnsafe(idx+1, upperTarget) // Recursive refill
+
+				// Retry splitting after upper refill
+				if !p.splitFromUpperUnsafe(idx) {
+					break
+				}
+			} else {
+				break
+			}
+		}
+	}
+}
+
+// splitFromUpperUnsafe splits one segment from upper tier without acquiring lock.
+// Caller must hold write lock (mu.Lock).
+func (p *tierPartition) splitFromUpperUnsafe(idx int) bool {
+	upperIdx := idx + 1
+	if upperIdx >= len(p.tiers) {
+		return false
+	}
+	upper := p.tiers[upperIdx]
+	if len(upper.segments) == 0 {
+		return false
+	}
+	lowerSize := p.tiers[idx].cfg.Size
+	if lowerSize == 0 || upper.cfg.Size%lowerSize != 0 {
+		return false
+	}
+	ratio := int(upper.cfg.Size / lowerSize)
+	if ratio <= 1 {
+		return false
+	}
+
+	// Use randMu to protect rand access
+	p.randMu.Lock()
+	sel := p.rand.Intn(len(upper.segments))
+	p.randMu.Unlock()
+
+	parent := upper.segments[sel]
+	upper.segments[sel] = upper.segments[len(upper.segments)-1]
+	upper.segments = upper.segments[:len(upper.segments)-1]
+
+	childSize := lowerSize
+	cursor := parent.Start
+	for i := 0; i < ratio; i++ {
+		child := IntRange{Start: cursor, End: cursor + childSize - 1}
+		p.tiers[idx].segments = append(p.tiers[idx].segments, child)
+		cursor += childSize
+	}
+	return true
+}
+
+// Close stops the background refiller goroutine and waits for it to finish.
+func (p *tierPartition) Close() error {
+	if p.cancel != nil {
+		p.cancel()
+	}
+	if p.stopChan != nil {
+		close(p.stopChan)
+	}
+	p.wg.Wait()
 	return nil
 }
