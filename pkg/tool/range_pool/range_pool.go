@@ -231,9 +231,6 @@ func (p *RangePool) ReserveUpdate(need int64) (IntRange, bool) {
 	if err == nil && r.Valid() {
 		return r, true
 	}
-	if r, ok := p.live.randomFromWindow(size); ok {
-		return r, true
-	}
 	return IntRange{}, false
 }
 
@@ -248,9 +245,6 @@ func (p *RangePool) ReserveDelete(need int64) (IntRange, bool) {
 	}
 	r, err := p.live.consume(size)
 	if err == nil && r.Valid() {
-		return r, true
-	}
-	if r, ok = p.live.randomFromWindow(size); ok {
 		return r, true
 	}
 	return IntRange{}, false
@@ -283,7 +277,7 @@ type tierPartition struct {
 
 	mu       sync.RWMutex
 	refillMu sync.Mutex
-	randMu   sync.Mutex     // Protects rand for thread-safe random number generation
+	randMu   sync.Mutex // Protects rand for thread-safe random number generation
 
 	windowInit  bool
 	windowStart int64
@@ -305,7 +299,7 @@ type tierState struct {
 	lastRefill time.Time // Last refill time (throttling)
 }
 
-// newTierPartition builds an ordered set of tiers and an O(1) lookup from size to tier index.
+// newTierPartition 构建一个分区(tierPartition)，并按 Size 升序组织 tiers，同时建立 size->tier 索引表用于快速定位。
 func newTierPartition(name string, tiers []TierConfig, refill RangePoolRefillFunc, rnd *rand.Rand) (*tierPartition, error) {
 	if len(tiers) == 0 {
 		return nil, fmt.Errorf("%s partition requires at least one tier", name)
@@ -327,12 +321,14 @@ func newTierPartition(name string, tiers []TierConfig, refill RangePoolRefillFun
 	return tp, nil
 }
 
+// windowState 返回当前滑动窗口(start/cursor/end)以及是否已进入回绕(enableLoop)。
 func (p *tierPartition) windowState() (start, cursor, end int64, enableLoop bool) {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
 	return p.windowStart, p.cursor, p.windowEnd, p.enableLoop
 }
 
+// pickTierSize 根据 need 选择一个可用的 tier size（选择满足 Size>=need 的最小 Size）。
 func (p *tierPartition) pickTierSize(need int64) (int64, bool) {
 	if need <= 0 {
 		need = 1
@@ -345,35 +341,8 @@ func (p *tierPartition) pickTierSize(need int64) (int64, bool) {
 	return 0, false
 }
 
-func (p *tierPartition) randomFromWindow(size int64) (IntRange, bool) {
-	if size <= 0 {
-		return IntRange{}, false
-	}
-	p.mu.Lock()
-	defer p.mu.Unlock()
-	if !p.windowInit {
-		return IntRange{}, false
-	}
-	window := IntRange{Start: p.windowStart, End: p.windowEnd}
-	if !window.Valid() {
-		return IntRange{}, false
-	}
-	if size > window.Len() {
-		return IntRange{}, false
-	}
-	maxOffset := window.Len() - size
-	offset := int64(0)
-	if maxOffset > 0 {
-		p.randMu.Lock()
-		offset = p.rand.Int63n(maxOffset + 1)
-		p.randMu.Unlock()
-	}
-	start := window.Start + offset
-	end := start + size - 1
-	r := IntRange{Start: start, End: end}
-	return r, r.Valid()
-}
-
+// bootstrap 在分区初始化阶段一次性填充各 tier 的初始库存（按 MaxCount）。
+// 初始化窗口容量会按“总需求 * 2”预取，减少启动阶段的 refill 次数。
 func (p *tierPartition) bootstrap() error {
 	needInit := p.initNeedCapacity()
 	initNeed := needInit * 2
@@ -401,6 +370,7 @@ func (p *tierPartition) bootstrap() error {
 	return nil
 }
 
+// initNeedCapacity 计算“初始化时填满所有 tier 到 MaxCount”所需的总容量（Σ size_i * maxCount_i）。
 func (p *tierPartition) initNeedCapacity() int64 {
 	var need int64
 	for _, tier := range p.tiers {
@@ -412,6 +382,8 @@ func (p *tierPartition) initNeedCapacity() int64 {
 	return need
 }
 
+// ensureWindowCapacity 确保当前分配窗口至少具备 need 的容量。
+// 该方法采用“两段式”策略：refill(IO) 在锁外执行，回写 window 状态时才加锁。
 func (p *tierPartition) ensureWindowCapacity(need int64, bootstrap bool) error {
 	if p.refill == nil {
 		// Window must already be initialized by seed.
@@ -499,6 +471,9 @@ func (p *tierPartition) ensureWindowCapacity(need int64, bootstrap bool) error {
 	}
 }
 
+// allocateSequential 从当前 cursor 开始顺序切分出 count 个 size 长度的连续区间，并推进 cursor。
+// 当 cursor 越界时会尝试通过 refill 扩展 windowEnd；若 enableLoop=true 则允许回绕到 windowStart。
+// 该方法同样遵循“两段式”策略：refill(IO) 在锁外执行。
 func (p *tierPartition) allocateSequential(size int64, count int, bootstrap bool) ([]IntRange, error) {
 	if count <= 0 {
 		return nil, nil
@@ -597,8 +572,8 @@ func (p *tierPartition) allocateSequential(size int64, count int, bootstrap bool
 	}
 }
 
-// peek returns a random segment from the requested tier without consuming it.
-// Uses read lock for concurrent access and sends async refill signal if needed.
+// peek 从指定 size 的 tier 中随机选择一个 segment 返回，但不消费库存（用于 UPDATE 场景）。
+// 注意：按约定 peek 不触发补货逻辑（补货由 consume 后置触发或后台定时器兜底）。
 func (p *tierPartition) peek(size int64) (IntRange, error) {
 	idx, ok := p.idx[size]
 	if !ok {
@@ -606,38 +581,28 @@ func (p *tierPartition) peek(size int64) (IntRange, error) {
 	}
 
 	p.mu.RLock()
+	defer p.mu.RUnlock()
+
 	tier := p.tiers[idx]
 	if len(tier.segments) == 0 {
-		p.mu.RUnlock()
 		return IntRange{}, fmt.Errorf("%s tier %d exhausted", p.name, size)
 	}
 
-	// Use randMu to protect rand access
-	p.randMu.Lock()
-	sel := p.rand.Intn(len(tier.segments))
-	p.randMu.Unlock()
+	sel := p.randInt(len(tier.segments))
 
 	r := tier.segments[sel]
-
-	// Check if refill is needed
-	needRefill := len(tier.segments) <= tier.cfg.Threshold
-	p.mu.RUnlock()
-
-	// Post-peek: send non-blocking refill signal
-	if needRefill && p.refillSignal != nil {
-		select {
-		case p.refillSignal <- idx:
-			// Signal sent successfully
-		default:
-			// Channel full, signal already queued
-		}
-	}
-
 	return r, nil
 }
 
-// consume removes and returns a random segment from the requested tier.
-// Uses post-consumption async refill signal instead of blocking ensure.
+// randInt 线程安全地生成 [0, num) 的随机数（保护 rand.Rand）。
+func (p *tierPartition) randInt(num int) int {
+	p.randMu.Lock()
+	defer p.randMu.Unlock()
+	return p.rand.Intn(num)
+}
+
+// consume 从指定 size 的 tier 中随机消费一个 segment 并返回（用于 INSERT/DELETE 场景）。
+// 消费后若库存触达阈值(<=Threshold)，会尝试发送异步补货信号，由后台 refiller 补到 MaxCount。
 func (p *tierPartition) consume(size int64) (IntRange, error) {
 	idx, ok := p.idx[size]
 	if !ok {
@@ -662,9 +627,7 @@ func (p *tierPartition) consume(size int64) (IntRange, error) {
 	}
 
 	// Use randMu to protect rand access
-	p.randMu.Lock()
-	sel := p.rand.Intn(len(tier.segments))
-	p.randMu.Unlock()
+	sel := p.randInt(len(tier.segments))
 
 	r := tier.segments[sel]
 	tier.segments[sel] = tier.segments[len(tier.segments)-1]
@@ -698,7 +661,8 @@ func (e *partitionError) Error() string {
 	return fmt.Sprintf("%s tier %d unavailable", e.name, e.size)
 }
 
-// splitFromUpper takes one segment from tier idx+1 and splits it into multiple lower segments.
+// splitFromUpper 从上一级 tier(idx+1) 取出一个 segment，并按下一级 size 拆分成多个子 segment 放入当前 tier。
+// 该方法会在内部自行加锁（对外暴露的安全版本）。
 func (p *tierPartition) splitFromUpper(idx int) bool {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -718,9 +682,9 @@ func (p *tierPartition) splitFromUpper(idx int) bool {
 	if ratio <= 1 {
 		return false
 	}
-	p.randMu.Lock()
-	sel := p.rand.Intn(len(upper.segments))
-	p.randMu.Unlock()
+
+	sel := p.randInt(len(upper.segments))
+
 	parent := upper.segments[sel]
 	upper.segments[sel] = upper.segments[len(upper.segments)-1]
 	upper.segments = upper.segments[:len(upper.segments)-1]
@@ -734,6 +698,7 @@ func (p *tierPartition) splitFromUpper(idx int) bool {
 	return true
 }
 
+// refillWindow 调用外部 refill 回调获取/扩展窗口（串行化回调，避免并发多次打 DB）。
 func (p *tierPartition) refillWindow(need int64) (enableLoop bool, refillWindow IntRange, err error) {
 	if p.refill == nil {
 		return false, IntRange{}, fmt.Errorf("%s partition missing refill callback", p.name)
@@ -745,39 +710,6 @@ func (p *tierPartition) refillWindow(need int64) (enableLoop bool, refillWindow 
 	defer p.refillMu.Unlock()
 	return p.refill(p.name, need)
 }
-
-// addRange splits the input range into tier-sized segments (greedy from largest to smallest)
-// and stores those segments in their corresponding tiers.
-//func (p *tierPartition) addRange(r IntRange) error {
-//	if !r.Valid() {
-//		return nil
-//	}
-//	remain := r.Len()
-//	cursor := r.Start
-//	for i := len(p.tiers) - 1; i >= 0; i-- {
-//		size := p.tiers[i].cfg.Size
-//		for remain >= size {
-//			seg := IntRange{Start: cursor, End: cursor + size - 1}
-//			p.tiers[i].segments = append(p.tiers[i].segments, seg)
-//			cursor += size
-//			remain -= size
-//		}
-//	}
-//	if remain != 0 {
-//		return fmt.Errorf("range length %d not aligned with tier sizes", r.Len())
-//	}
-//	return nil
-//}
-
-// addExactRange appends r as-is to the tier that matches r.Len().
-//func (p *tierPartition) addExactRange(r IntRange) error {
-//	idx, ok := p.idx[r.Len()]
-//	if !ok {
-//		return fmt.Errorf("%s tier %d not configured", p.name, r.Len())
-//	}
-//	p.tiers[idx].segments = append(p.tiers[idx].segments, r)
-//	return nil
-//}
 
 // defaultRangePoolConfig returns the default tier ladder used for both partitions.
 func defaultRangePoolConfig() RangePoolConfig {
@@ -874,7 +806,7 @@ func validateTierDivisible(name string, tiers []TierConfig) error {
 
 // ==================== Background Refiller Implementation ====================
 
-// startRefiller initializes and starts the background refiller goroutine.
+// startRefiller 启动后台补货协程：支持定时扫描补货，以及按信号触发补货。
 func (p *tierPartition) startRefiller(ctx context.Context) {
 	p.ctx, p.cancel = context.WithCancel(ctx)
 	p.refillSignal = make(chan int, len(p.tiers)) // Buffered channel
@@ -884,8 +816,7 @@ func (p *tierPartition) startRefiller(ctx context.Context) {
 	go p.refillerLoop()
 }
 
-// refillerLoop is the main loop of the background refiller goroutine.
-// It listens for refill signals and performs periodic checks.
+// refillerLoop 后台补货主循环：定时检查各 tier 库存是否低于阈值，或按信号补指定 tier。
 func (p *tierPartition) refillerLoop() {
 	defer p.wg.Done()
 
@@ -910,14 +841,15 @@ func (p *tierPartition) refillerLoop() {
 	}
 }
 
-// checkAndRefillAll checks and refills all tiers that need refilling.
+// checkAndRefillAll 遍历所有 tiers，逐个执行检查与补货。
 func (p *tierPartition) checkAndRefillAll() {
 	for i := range p.tiers {
 		p.checkAndRefill(i)
 	}
 }
 
-// checkAndRefill checks if a specific tier needs refilling and performs the refill.
+// checkAndRefill 检查指定 tier 是否需要补货（<=Threshold），若需要则补到 MaxCount。
+// 中间层通过拆分上层补货；顶层通过分配窗口(window)+refill 扩展补货。
 func (p *tierPartition) checkAndRefill(idx int) {
 	if idx < 0 || idx >= len(p.tiers) {
 		return
@@ -967,8 +899,8 @@ func (p *tierPartition) checkAndRefill(idx int) {
 	log.Debugf("[RangePool] %s tier %d refilled to %d segments", p.name, tier.cfg.Size, len(tier.segments))
 }
 
-// refillTopTierUnsafe refills the top tier from the allocation window.
-// Caller must hold write lock (mu.Lock).
+// refillTopTierUnsafe 补顶层 tier：从分配窗口顺序切分 segment，直到补到 target。
+// 调用方必须已持有写锁；该方法会主动释放写锁以执行可能的 IO(refill)，随后再重新加锁写回。
 func (p *tierPartition) refillTopTierUnsafe(idx int, target int) {
 	tier := p.tiers[idx]
 	needCount := target - len(tier.segments)
@@ -988,8 +920,8 @@ func (p *tierPartition) refillTopTierUnsafe(idx int, target int) {
 	p.tiers[idx].segments = append(p.tiers[idx].segments, segs...)
 }
 
-// refillMiddleTierUnsafe refills a middle tier by splitting from upper tiers.
-// Caller must hold write lock (mu.Lock).
+// refillMiddleTierUnsafe 补中间层/底层 tier：通过不断从上层拆分 segment 来补到 target。
+// 调用方必须已持有写锁；该方法不会做 IO。
 func (p *tierPartition) refillMiddleTierUnsafe(idx int, target int) {
 	tier := p.tiers[idx]
 	maxAttempts := target * 2 // Avoid infinite loop
@@ -1015,8 +947,7 @@ func (p *tierPartition) refillMiddleTierUnsafe(idx int, target int) {
 	}
 }
 
-// splitFromUpperUnsafe splits one segment from upper tier without acquiring lock.
-// Caller must hold write lock (mu.Lock).
+// splitFromUpperUnsafe 为 splitFromUpper 的无锁版本：调用方必须已持有写锁。
 func (p *tierPartition) splitFromUpperUnsafe(idx int) bool {
 	upperIdx := idx + 1
 	if upperIdx >= len(p.tiers) {
@@ -1054,7 +985,7 @@ func (p *tierPartition) splitFromUpperUnsafe(idx int) bool {
 	return true
 }
 
-// Close stops the background refiller goroutine and waits for it to finish.
+// Close 停止后台补货协程并等待退出（需由上层保证只调用一次，避免重复 close channel）。
 func (p *tierPartition) Close() error {
 	if p.cancel != nil {
 		p.cancel()
