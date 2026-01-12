@@ -1828,3 +1828,817 @@
 {"level":"info","time":"2026-01-08T13:38:39+08:00","message":"size:20 range 5160~5359 len:10"}
 {"level":"info","time":"2026-01-08T13:38:39+08:00","message":"size:100 range 5360~6359 len:10"}
 {"level":"info","time":"2026-01-08T13:38:39+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"info","time":"2026-01-12T09:55:55+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4720 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-12T09:55:55+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4720 LiveEnableLoop:false free_start:5000 free_cursor:9720 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-12T09:55:55+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T09:55:55+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T09:55:55+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-12T09:55:55+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-12T09:55:55+08:00","message":"size:20 range 5160~5359 len:10"}
+{"level":"info","time":"2026-01-12T09:55:55+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"info","time":"2026-01-12T09:55:55+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"info","time":"2026-01-12T09:55:55+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"debug","time":"2026-01-12T09:55:55+08:00","message":"[RangePool] free tier 5 refilled to 11 segments"}
+{"level":"info","time":"2026-01-12T09:55:55+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T09:55:55+08:00","message":"size:5 range 5050~5109 len:11"}
+{"level":"info","time":"2026-01-12T09:55:55+08:00","message":"size:10 range 5060~5129 len:7"}
+{"level":"info","time":"2026-01-12T09:55:55+08:00","message":"size:20 range 5160~5359 len:10"}
+{"level":"info","time":"2026-01-12T09:55:55+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"info","time":"2026-01-12T09:55:55+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"info","time":"2026-01-12T11:22:11+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4720 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-12T11:22:11+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4720 LiveEnableLoop:false free_start:5000 free_cursor:9720 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-12T11:22:11+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:22:11+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:22:11+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-12T11:22:11+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-12T11:22:11+08:00","message":"size:20 range 5160~5359 len:10"}
+{"level":"info","time":"2026-01-12T11:22:11+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"info","time":"2026-01-12T11:22:11+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"info","time":"2026-01-12T11:22:11+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:22:11+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:22:11+08:00","message":"size:5 range 5050~5034 len:5"}
+{"level":"info","time":"2026-01-12T11:22:11+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-12T11:22:11+08:00","message":"size:20 range 5160~5359 len:10"}
+{"level":"info","time":"2026-01-12T11:22:11+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"info","time":"2026-01-12T11:22:11+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"info","time":"2026-01-12T11:23:25+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4720 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-12T11:23:25+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4720 LiveEnableLoop:false free_start:5000 free_cursor:9720 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-12T11:23:25+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:23:25+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:23:25+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-12T11:23:25+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-12T11:23:25+08:00","message":"size:20 range 5160~5359 len:10"}
+{"level":"info","time":"2026-01-12T11:23:25+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"info","time":"2026-01-12T11:23:25+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"info","time":"2026-01-12T11:23:25+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:23:25+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"debug","time":"2026-01-12T11:23:25+08:00","message":"[RangePool] free tier 5 need refill len=5 threshold=6 max=10"}
+{"level":"info","time":"2026-01-12T11:23:25+08:00","message":"size:5 range 5050~5034 len:5"}
+{"level":"info","time":"2026-01-12T11:23:25+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-12T11:23:25+08:00","message":"size:20 range 5160~5359 len:10"}
+{"level":"info","time":"2026-01-12T11:23:25+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"info","time":"2026-01-12T11:23:25+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"debug","time":"2026-01-12T11:23:25+08:00","message":"[RangePool] free tier 5 refill start len=5 target=10 need=5"}
+{"level":"debug","time":"2026-01-12T11:23:25+08:00","message":"[RangePool] free tier 5 split from upper tier 10 parent=5140~5149 children=2"}
+{"level":"debug","time":"2026-01-12T11:23:25+08:00","message":"[RangePool] free tier 5 split from upper tier 10 parent=5130~5139 children=2"}
+{"level":"debug","time":"2026-01-12T11:23:25+08:00","message":"[RangePool] free tier 5 split from upper tier 10 parent=5100~5109 children=2"}
+{"level":"debug","time":"2026-01-12T11:23:25+08:00","message":"[RangePool] free tier 5 refill done added=6 final=11"}
+{"level":"warn","time":"2026-01-12T11:23:25+08:00","message":"[RangePool] free tier 5 exceeds max count final=11 max=10"}
+{"level":"info","time":"2026-01-12T11:23:26+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:23:26+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:23:26+08:00","message":"size:5 range 5050~5109 len:11"}
+{"level":"info","time":"2026-01-12T11:23:26+08:00","message":"size:10 range 5060~5129 len:7"}
+{"level":"info","time":"2026-01-12T11:23:26+08:00","message":"size:20 range 5160~5359 len:10"}
+{"level":"info","time":"2026-01-12T11:23:26+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"info","time":"2026-01-12T11:23:26+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"info","time":"2026-01-12T11:23:26+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:23:26+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:23:26+08:00","message":"size:5 range 5050~5109 len:11"}
+{"level":"info","time":"2026-01-12T11:23:26+08:00","message":"size:10 range 5060~5129 len:7"}
+{"level":"info","time":"2026-01-12T11:23:26+08:00","message":"size:20 range 5160~5359 len:10"}
+{"level":"info","time":"2026-01-12T11:23:26+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"info","time":"2026-01-12T11:23:26+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"debug","time":"2026-01-12T11:23:26+08:00","message":"[RangePool] free checkAndRefillAll start tiers=6"}
+{"level":"debug","time":"2026-01-12T11:23:26+08:00","message":"[RangePool] live checkAndRefillAll start tiers=6"}
+{"level":"info","time":"2026-01-12T11:23:27+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:23:27+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:23:27+08:00","message":"size:5 range 5050~5109 len:11"}
+{"level":"info","time":"2026-01-12T11:23:27+08:00","message":"size:10 range 5060~5129 len:7"}
+{"level":"info","time":"2026-01-12T11:23:27+08:00","message":"size:20 range 5160~5359 len:10"}
+{"level":"info","time":"2026-01-12T11:23:27+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"info","time":"2026-01-12T11:23:27+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"info","time":"2026-01-12T11:25:22+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4720 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-12T11:25:22+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4720 LiveEnableLoop:false free_start:5000 free_cursor:9720 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-12T11:25:22+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:25:22+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:25:22+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-12T11:25:22+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-12T11:25:22+08:00","message":"size:20 range 5160~5359 len:10"}
+{"level":"info","time":"2026-01-12T11:25:22+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"info","time":"2026-01-12T11:25:22+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"info","time":"2026-01-12T11:25:22+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:25:22+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:25:22+08:00","message":"size:5 range 5050~5034 len:5"}
+{"level":"debug","time":"2026-01-12T11:25:22+08:00","message":"[RangePool] free tier 5 need refill len=5 threshold=6 max=10"}
+{"level":"info","time":"2026-01-12T11:25:22+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-12T11:25:22+08:00","message":"size:20 range 5160~5359 len:10"}
+{"level":"info","time":"2026-01-12T11:25:22+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"info","time":"2026-01-12T11:25:22+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"debug","time":"2026-01-12T11:25:22+08:00","message":"[RangePool] free tier 5 refill start len=5 target=10 need=5"}
+{"level":"debug","time":"2026-01-12T11:25:22+08:00","message":"[RangePool] free tier 5 split from upper tier 10 parent=5140~5149 children=2"}
+{"level":"debug","time":"2026-01-12T11:25:22+08:00","message":"[RangePool] free tier 5 split from upper tier 10 parent=5130~5139 children=2"}
+{"level":"debug","time":"2026-01-12T11:25:22+08:00","message":"[RangePool] free tier 5 split from upper tier 10 parent=5100~5109 children=2"}
+{"level":"debug","time":"2026-01-12T11:25:22+08:00","message":"[RangePool] free tier 5 refill done added=6 final=11"}
+{"level":"warn","time":"2026-01-12T11:25:22+08:00","message":"[RangePool] free tier 5 exceeds max count final=11 max=10"}
+{"level":"info","time":"2026-01-12T11:25:22+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:25:22+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:25:22+08:00","message":"size:5 range 5050~5109 len:11"}
+{"level":"info","time":"2026-01-12T11:25:22+08:00","message":"size:10 range 5060~5129 len:7"}
+{"level":"info","time":"2026-01-12T11:25:22+08:00","message":"size:20 range 5160~5359 len:10"}
+{"level":"info","time":"2026-01-12T11:25:22+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"info","time":"2026-01-12T11:25:22+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"info","time":"2026-01-12T11:25:22+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:25:22+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:25:22+08:00","message":"size:5 range 5050~5109 len:11"}
+{"level":"info","time":"2026-01-12T11:25:22+08:00","message":"size:10 range 5060~5129 len:7"}
+{"level":"info","time":"2026-01-12T11:25:22+08:00","message":"size:20 range 5160~5359 len:10"}
+{"level":"info","time":"2026-01-12T11:25:22+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"info","time":"2026-01-12T11:25:22+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"debug","time":"2026-01-12T11:25:23+08:00","message":"[RangePool] free checkAndRefillAll start tiers=6"}
+{"level":"debug","time":"2026-01-12T11:25:23+08:00","message":"[RangePool] live checkAndRefillAll start tiers=6"}
+{"level":"info","time":"2026-01-12T11:25:23+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:25:23+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:25:23+08:00","message":"size:5 range 5050~5109 len:11"}
+{"level":"info","time":"2026-01-12T11:25:23+08:00","message":"size:10 range 5060~5129 len:7"}
+{"level":"info","time":"2026-01-12T11:25:23+08:00","message":"size:20 range 5160~5359 len:10"}
+{"level":"info","time":"2026-01-12T11:25:23+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"info","time":"2026-01-12T11:25:23+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"info","time":"2026-01-12T11:25:28+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4720 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-12T11:25:28+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4720 LiveEnableLoop:false free_start:5000 free_cursor:9720 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-12T11:25:28+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:25:28+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:25:28+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-12T11:25:28+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-12T11:25:28+08:00","message":"size:20 range 5160~5359 len:10"}
+{"level":"info","time":"2026-01-12T11:25:28+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"info","time":"2026-01-12T11:25:28+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"info","time":"2026-01-12T11:25:28+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:25:28+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:25:28+08:00","message":"size:5 range 5050~5034 len:5"}
+{"level":"info","time":"2026-01-12T11:25:28+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"debug","time":"2026-01-12T11:25:28+08:00","message":"[RangePool] free tier 5 need refill len=5 threshold=6 max=10"}
+{"level":"info","time":"2026-01-12T11:25:28+08:00","message":"size:20 range 5160~5359 len:10"}
+{"level":"info","time":"2026-01-12T11:25:28+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"info","time":"2026-01-12T11:25:28+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"debug","time":"2026-01-12T11:25:28+08:00","message":"[RangePool] free tier 5 refill start len=5 target=10 need=5"}
+{"level":"debug","time":"2026-01-12T11:25:28+08:00","message":"[RangePool] free tier 5 split from upper tier 10 parent=5140~5149 children=2"}
+{"level":"debug","time":"2026-01-12T11:25:28+08:00","message":"[RangePool] free tier 5 split from upper tier 10 parent=5130~5139 children=2"}
+{"level":"debug","time":"2026-01-12T11:25:28+08:00","message":"[RangePool] free tier 5 split from upper tier 10 parent=5100~5109 children=2"}
+{"level":"debug","time":"2026-01-12T11:25:28+08:00","message":"[RangePool] free tier 5 refill done added=6 final=11"}
+{"level":"warn","time":"2026-01-12T11:25:28+08:00","message":"[RangePool] free tier 5 exceeds max count final=11 max=10"}
+{"level":"info","time":"2026-01-12T11:25:28+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:25:28+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:25:28+08:00","message":"size:5 range 5050~5109 len:11"}
+{"level":"info","time":"2026-01-12T11:25:28+08:00","message":"size:10 range 5060~5129 len:7"}
+{"level":"info","time":"2026-01-12T11:25:28+08:00","message":"size:20 range 5160~5359 len:10"}
+{"level":"info","time":"2026-01-12T11:25:28+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"info","time":"2026-01-12T11:25:28+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"info","time":"2026-01-12T11:25:28+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:25:28+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:25:28+08:00","message":"size:5 range 5050~5109 len:11"}
+{"level":"info","time":"2026-01-12T11:25:28+08:00","message":"size:10 range 5060~5129 len:7"}
+{"level":"info","time":"2026-01-12T11:25:28+08:00","message":"size:20 range 5160~5359 len:10"}
+{"level":"info","time":"2026-01-12T11:25:28+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"info","time":"2026-01-12T11:25:28+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"debug","time":"2026-01-12T11:25:29+08:00","message":"[RangePool] free checkAndRefillAll start tiers=6"}
+{"level":"debug","time":"2026-01-12T11:25:29+08:00","message":"[RangePool] live checkAndRefillAll start tiers=6"}
+{"level":"info","time":"2026-01-12T11:25:29+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:25:29+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:25:29+08:00","message":"size:5 range 5050~5109 len:11"}
+{"level":"info","time":"2026-01-12T11:25:29+08:00","message":"size:10 range 5060~5129 len:7"}
+{"level":"info","time":"2026-01-12T11:25:29+08:00","message":"size:20 range 5160~5359 len:10"}
+{"level":"info","time":"2026-01-12T11:25:29+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"info","time":"2026-01-12T11:25:29+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"info","time":"2026-01-12T11:25:32+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4720 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-12T11:25:32+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4720 LiveEnableLoop:false free_start:5000 free_cursor:9720 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-12T11:25:32+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:25:32+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:25:32+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-12T11:25:32+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-12T11:25:32+08:00","message":"size:20 range 5160~5359 len:10"}
+{"level":"info","time":"2026-01-12T11:25:32+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"info","time":"2026-01-12T11:25:32+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"info","time":"2026-01-12T11:25:36+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:25:36+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"debug","time":"2026-01-12T11:25:36+08:00","message":"[RangePool] free tier 5 need refill len=5 threshold=6 max=10"}
+{"level":"info","time":"2026-01-12T11:25:36+08:00","message":"size:5 range 5050~5034 len:5"}
+{"level":"info","time":"2026-01-12T11:25:36+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"debug","time":"2026-01-12T11:25:36+08:00","message":"[RangePool] live checkAndRefillAll start tiers=6"}
+{"level":"info","time":"2026-01-12T11:25:36+08:00","message":"size:20 range 5160~5359 len:10"}
+{"level":"info","time":"2026-01-12T11:25:36+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"info","time":"2026-01-12T11:25:36+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"debug","time":"2026-01-12T11:25:36+08:00","message":"[RangePool] free tier 5 refill start len=5 target=10 need=5"}
+{"level":"debug","time":"2026-01-12T11:25:59+08:00","message":"[RangePool] live checkAndRefillAll start tiers=6"}
+{"level":"debug","time":"2026-01-12T11:27:02+08:00","message":"[RangePool] live checkAndRefillAll start tiers=6"}
+{"level":"debug","time":"2026-01-12T11:27:05+08:00","message":"[RangePool] live checkAndRefillAll start tiers=6"}
+{"level":"debug","time":"2026-01-12T11:27:05+08:00","message":"[RangePool] free tier 5 split from upper tier 10 parent=5140~5149 children=2"}
+{"level":"debug","time":"2026-01-12T11:27:16+08:00","message":"[RangePool] live checkAndRefillAll start tiers=6"}
+{"level":"debug","time":"2026-01-12T11:27:19+08:00","message":"[RangePool] live checkAndRefillAll start tiers=6"}
+{"level":"debug","time":"2026-01-12T11:27:20+08:00","message":"[RangePool] live checkAndRefillAll start tiers=6"}
+{"level":"debug","time":"2026-01-12T11:27:38+08:00","message":"[RangePool] live checkAndRefillAll start tiers=6"}
+{"level":"debug","time":"2026-01-12T11:27:42+08:00","message":"[RangePool] live checkAndRefillAll start tiers=6"}
+{"level":"debug","time":"2026-01-12T11:27:44+08:00","message":"[RangePool] live checkAndRefillAll start tiers=6"}
+{"level":"debug","time":"2026-01-12T11:27:45+08:00","message":"[RangePool] live checkAndRefillAll start tiers=6"}
+{"level":"debug","time":"2026-01-12T11:27:45+08:00","message":"[RangePool] free tier 5 split from upper tier 10 parent=5130~5139 children=2"}
+{"level":"debug","time":"2026-01-12T11:27:46+08:00","message":"[RangePool] live checkAndRefillAll start tiers=6"}
+{"level":"debug","time":"2026-01-12T11:27:48+08:00","message":"[RangePool] live checkAndRefillAll start tiers=6"}
+{"level":"debug","time":"2026-01-12T11:28:22+08:00","message":"[RangePool] live checkAndRefillAll start tiers=6"}
+{"level":"debug","time":"2026-01-12T11:28:32+08:00","message":"[RangePool] free tier 5 split from upper tier 10 parent=5100~5109 children=2"}
+{"level":"debug","time":"2026-01-12T11:28:32+08:00","message":"[RangePool] live checkAndRefillAll start tiers=6"}
+{"level":"debug","time":"2026-01-12T11:28:48+08:00","message":"[RangePool] live checkAndRefillAll start tiers=6"}
+{"level":"debug","time":"2026-01-12T11:29:00+08:00","message":"[RangePool] live checkAndRefillAll start tiers=6"}
+{"level":"info","time":"2026-01-12T11:29:00+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:29:00+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"debug","time":"2026-01-12T11:29:00+08:00","message":"[RangePool] free tier 5 refill done added=6 final=11"}
+{"level":"info","time":"2026-01-12T11:29:00+08:00","message":"size:5 range 5050~5109 len:11"}
+{"level":"info","time":"2026-01-12T11:29:00+08:00","message":"size:10 range 5060~5129 len:7"}
+{"level":"info","time":"2026-01-12T11:29:00+08:00","message":"size:20 range 5160~5359 len:10"}
+{"level":"info","time":"2026-01-12T11:29:00+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"warn","time":"2026-01-12T11:29:00+08:00","message":"[RangePool] free tier 5 exceeds max count final=11 max=10"}
+{"level":"info","time":"2026-01-12T11:29:00+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"debug","time":"2026-01-12T11:29:00+08:00","message":"[RangePool] free checkAndRefillAll start tiers=6"}
+{"level":"info","time":"2026-01-12T11:29:00+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:29:00+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:29:00+08:00","message":"size:5 range 5050~5109 len:11"}
+{"level":"info","time":"2026-01-12T11:29:00+08:00","message":"size:10 range 5060~5129 len:7"}
+{"level":"info","time":"2026-01-12T11:29:00+08:00","message":"size:20 range 5160~5359 len:10"}
+{"level":"info","time":"2026-01-12T11:29:00+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"info","time":"2026-01-12T11:29:00+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"debug","time":"2026-01-12T11:29:01+08:00","message":"[RangePool] free checkAndRefillAll start tiers=6"}
+{"level":"debug","time":"2026-01-12T11:29:01+08:00","message":"[RangePool] live checkAndRefillAll start tiers=6"}
+{"level":"info","time":"2026-01-12T11:29:01+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:29:01+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:29:01+08:00","message":"size:5 range 5050~5109 len:11"}
+{"level":"info","time":"2026-01-12T11:29:01+08:00","message":"size:10 range 5060~5129 len:7"}
+{"level":"info","time":"2026-01-12T11:29:01+08:00","message":"size:20 range 5160~5359 len:10"}
+{"level":"info","time":"2026-01-12T11:29:01+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"info","time":"2026-01-12T11:29:01+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"info","time":"2026-01-12T11:37:23+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4720 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-12T11:37:23+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4720 LiveEnableLoop:false free_start:5000 free_cursor:9720 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-12T11:37:23+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:37:23+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:37:23+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-12T11:37:23+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-12T11:37:23+08:00","message":"size:20 range 5160~5359 len:10"}
+{"level":"info","time":"2026-01-12T11:37:23+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"info","time":"2026-01-12T11:37:23+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"info","time":"2026-01-12T11:37:23+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:37:23+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:37:23+08:00","message":"size:5 range 5050~5034 len:5"}
+{"level":"info","time":"2026-01-12T11:37:23+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-12T11:37:23+08:00","message":"size:20 range 5160~5359 len:10"}
+{"level":"info","time":"2026-01-12T11:37:23+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"info","time":"2026-01-12T11:37:23+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"debug","time":"2026-01-12T11:37:23+08:00","message":"[RangePool] free tier 5 need refill len=5 threshold=6 max=10"}
+{"level":"info","time":"2026-01-12T11:37:23+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"debug","time":"2026-01-12T11:37:23+08:00","message":"[RangePool] free tier 5 refill start len=5 target=10 need=5"}
+{"level":"debug","time":"2026-01-12T11:37:23+08:00","message":"[RangePool] free tier 5 split from upper tier 10 parent=5150~5159 children=2"}
+{"level":"debug","time":"2026-01-12T11:37:23+08:00","message":"[RangePool] free tier 5 split from upper tier 10 parent=5060~5069 children=2"}
+{"level":"debug","time":"2026-01-12T11:37:23+08:00","message":"[RangePool] free tier 5 split from upper tier 10 parent=5120~5129 children=2"}
+{"level":"debug","time":"2026-01-12T11:37:23+08:00","message":"[RangePool] free tier 5 refill done added=6 final=11"}
+{"level":"warn","time":"2026-01-12T11:37:23+08:00","message":"[RangePool] free tier 5 exceeds max count final=11 max=10"}
+{"level":"info","time":"2026-01-12T11:37:23+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:37:23+08:00","message":"size:5 range 5050~5129 len:11"}
+{"level":"info","time":"2026-01-12T11:37:23+08:00","message":"size:10 range 5110~5099 len:4"}
+{"level":"info","time":"2026-01-12T11:37:23+08:00","message":"size:20 range 5160~5359 len:10"}
+{"level":"info","time":"2026-01-12T11:37:23+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"info","time":"2026-01-12T11:37:23+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"info","time":"2026-01-12T11:37:24+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:37:24+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:37:24+08:00","message":"size:5 range 5050~5129 len:11"}
+{"level":"info","time":"2026-01-12T11:37:24+08:00","message":"size:10 range 5110~5099 len:4"}
+{"level":"info","time":"2026-01-12T11:37:24+08:00","message":"size:20 range 5160~5359 len:10"}
+{"level":"info","time":"2026-01-12T11:37:24+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"info","time":"2026-01-12T11:37:24+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"info","time":"2026-01-12T11:37:24+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:37:24+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:37:24+08:00","message":"size:5 range 5050~5129 len:11"}
+{"level":"info","time":"2026-01-12T11:37:24+08:00","message":"size:10 range 5110~5099 len:4"}
+{"level":"info","time":"2026-01-12T11:37:24+08:00","message":"size:20 range 5160~5359 len:10"}
+{"level":"info","time":"2026-01-12T11:37:24+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"info","time":"2026-01-12T11:37:24+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"debug","time":"2026-01-12T11:37:24+08:00","message":"[RangePool] free checkAndRefillAll start tiers=6"}
+{"level":"debug","time":"2026-01-12T11:37:24+08:00","message":"[RangePool] free tier 10 need refill len=4 threshold=6 max=10"}
+{"level":"debug","time":"2026-01-12T11:37:24+08:00","message":"[RangePool] free tier 10 refill start len=4 target=10 need=6"}
+{"level":"debug","time":"2026-01-12T11:37:24+08:00","message":"[RangePool] free tier 10 split from upper tier 20 parent=5180~5199 children=2"}
+{"level":"debug","time":"2026-01-12T11:37:24+08:00","message":"[RangePool] live checkAndRefillAll start tiers=6"}
+{"level":"debug","time":"2026-01-12T11:37:24+08:00","message":"[RangePool] free tier 10 split from upper tier 20 parent=5220~5239 children=2"}
+{"level":"debug","time":"2026-01-12T11:37:24+08:00","message":"[RangePool] free tier 10 split from upper tier 20 parent=5340~5359 children=2"}
+{"level":"debug","time":"2026-01-12T11:37:24+08:00","message":"[RangePool] free tier 10 refill done added=6 final=10"}
+{"level":"info","time":"2026-01-12T11:37:25+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:37:25+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:37:25+08:00","message":"size:5 range 5050~5129 len:11"}
+{"level":"info","time":"2026-01-12T11:37:25+08:00","message":"size:10 range 5110~5359 len:10"}
+{"level":"info","time":"2026-01-12T11:37:25+08:00","message":"size:20 range 5160~5299 len:7"}
+{"level":"info","time":"2026-01-12T11:37:25+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"info","time":"2026-01-12T11:37:25+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"info","time":"2026-01-12T11:38:07+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4720 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-12T11:38:07+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4720 LiveEnableLoop:false free_start:5000 free_cursor:9720 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-12T11:38:07+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:38:07+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:38:07+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-12T11:38:07+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-12T11:38:07+08:00","message":"size:20 range 5160~5359 len:10"}
+{"level":"info","time":"2026-01-12T11:38:07+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"info","time":"2026-01-12T11:38:07+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"info","time":"2026-01-12T11:38:07+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:38:07+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:38:07+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-12T11:38:07+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-12T11:38:07+08:00","message":"size:20 range 5320~5259 len:5"}
+{"level":"info","time":"2026-01-12T11:38:07+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"debug","time":"2026-01-12T11:38:07+08:00","message":"[RangePool] free tier 20 need refill len=5 threshold=5 max=10"}
+{"level":"info","time":"2026-01-12T11:38:07+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"debug","time":"2026-01-12T11:38:07+08:00","message":"[RangePool] free tier 20 refill start len=5 target=10 need=5"}
+{"level":"debug","time":"2026-01-12T11:38:07+08:00","message":"[RangePool] free tier 20 split from upper tier 100 parent=6160~6259 children=5"}
+{"level":"debug","time":"2026-01-12T11:38:07+08:00","message":"[RangePool] free tier 20 refill done added=5 final=10"}
+{"level":"info","time":"2026-01-12T11:38:07+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:38:07+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:38:07+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-12T11:38:07+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-12T11:38:07+08:00","message":"size:20 range 5320~6259 len:10"}
+{"level":"info","time":"2026-01-12T11:38:07+08:00","message":"size:100 range 5360~5959 len:6"}
+{"level":"info","time":"2026-01-12T11:38:07+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"info","time":"2026-01-12T11:38:07+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:38:07+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:38:07+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-12T11:38:07+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-12T11:38:07+08:00","message":"size:20 range 5320~6259 len:10"}
+{"level":"info","time":"2026-01-12T11:38:07+08:00","message":"size:100 range 5360~5959 len:6"}
+{"level":"info","time":"2026-01-12T11:38:07+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"info","time":"2026-01-12T11:38:07+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:38:07+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:38:07+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-12T11:38:07+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-12T11:38:07+08:00","message":"size:20 range 5320~6259 len:10"}
+{"level":"info","time":"2026-01-12T11:38:07+08:00","message":"size:100 range 5360~5959 len:6"}
+{"level":"info","time":"2026-01-12T11:38:07+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"debug","time":"2026-01-12T11:38:08+08:00","message":"[RangePool] free checkAndRefillAll start tiers=6"}
+{"level":"debug","time":"2026-01-12T11:38:08+08:00","message":"[RangePool] live checkAndRefillAll start tiers=6"}
+{"level":"info","time":"2026-01-12T11:38:08+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:38:08+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:38:08+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-12T11:38:08+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-12T11:38:08+08:00","message":"size:20 range 5320~6259 len:10"}
+{"level":"info","time":"2026-01-12T11:38:08+08:00","message":"size:100 range 5360~5959 len:6"}
+{"level":"info","time":"2026-01-12T11:38:08+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"info","time":"2026-01-12T11:39:10+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4720 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-12T11:39:10+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4720 LiveEnableLoop:false free_start:5000 free_cursor:9720 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-12T11:39:10+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:39:10+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:39:10+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-12T11:39:10+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-12T11:39:10+08:00","message":"size:20 range 5160~5359 len:10"}
+{"level":"info","time":"2026-01-12T11:39:10+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"info","time":"2026-01-12T11:39:10+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"info","time":"2026-01-12T11:39:10+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:39:10+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:39:10+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-12T11:39:10+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-12T11:39:10+08:00","message":"size:20 range 5320~5259 len:5"}
+{"level":"debug","time":"2026-01-12T11:39:10+08:00","message":"[RangePool] free tier 20 need refill len=5 threshold=5 max=10"}
+{"level":"info","time":"2026-01-12T11:39:10+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"info","time":"2026-01-12T11:39:10+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"debug","time":"2026-01-12T11:39:10+08:00","message":"[RangePool] free tier 20 refill start len=5 target=10 need=5"}
+{"level":"debug","time":"2026-01-12T11:39:10+08:00","message":"[RangePool] free tier 20 split from upper tier 100 parent=6160~6259 children=5"}
+{"level":"debug","time":"2026-01-12T11:39:10+08:00","message":"[RangePool] free tier 20 refill done added=5 final=10"}
+{"level":"info","time":"2026-01-12T11:39:10+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:39:10+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:39:10+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-12T11:39:10+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-12T11:39:10+08:00","message":"size:20 range 5320~6259 len:10"}
+{"level":"info","time":"2026-01-12T11:39:10+08:00","message":"size:100 range 5860~5759 len:4"}
+{"level":"info","time":"2026-01-12T11:39:10+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"debug","time":"2026-01-12T11:39:10+08:00","message":"[RangePool] free tier 100 need refill len=4 threshold=5 max=10"}
+{"level":"debug","time":"2026-01-12T11:39:10+08:00","message":"[RangePool] free tier 100 refill start len=4 target=10 need=6"}
+{"level":"debug","time":"2026-01-12T11:39:10+08:00","message":"[RangePool] free tier 100 split from upper tier 500 parent=6860~7359 children=5"}
+{"level":"debug","time":"2026-01-12T11:39:10+08:00","message":"[RangePool] free tier 100 split from upper tier 500 parent=6360~6859 children=5"}
+{"level":"debug","time":"2026-01-12T11:39:10+08:00","message":"[RangePool] free tier 100 refill done added=10 final=14"}
+{"level":"warn","time":"2026-01-12T11:39:10+08:00","message":"[RangePool] free tier 100 exceeds max count final=14 max=10"}
+{"level":"info","time":"2026-01-12T11:39:10+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:39:10+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:39:10+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-12T11:39:10+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-12T11:39:10+08:00","message":"size:20 range 5320~6259 len:10"}
+{"level":"info","time":"2026-01-12T11:39:10+08:00","message":"size:100 range 5860~6859 len:14"}
+{"level":"info","time":"2026-01-12T11:39:10+08:00","message":"size:500 range <empty> len:0"}
+{"level":"info","time":"2026-01-12T11:39:10+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:39:10+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:39:10+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-12T11:39:10+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-12T11:39:10+08:00","message":"size:20 range 5320~6259 len:10"}
+{"level":"info","time":"2026-01-12T11:39:10+08:00","message":"size:100 range 5860~6859 len:14"}
+{"level":"info","time":"2026-01-12T11:39:10+08:00","message":"size:500 range <empty> len:0"}
+{"level":"debug","time":"2026-01-12T11:39:11+08:00","message":"[RangePool] free checkAndRefillAll start tiers=6"}
+{"level":"debug","time":"2026-01-12T11:39:11+08:00","message":"[RangePool] free tier 500 need refill len=0 threshold=1 max=2"}
+{"level":"debug","time":"2026-01-12T11:39:11+08:00","message":"[RangePool] free tier 500 refill start len=0 target=2 need=2"}
+{"level":"debug","time":"2026-01-12T11:39:11+08:00","message":"[RangePool] live checkAndRefillAll start tiers=6"}
+{"level":"debug","time":"2026-01-12T11:39:11+08:00","message":"[RangePool] free tier 500 refill done added=2 final=2"}
+{"level":"info","time":"2026-01-12T11:39:11+08:00","message":"[RangePool] free window start=5000 cursor=8360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:39:11+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:39:11+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-12T11:39:11+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-12T11:39:11+08:00","message":"size:20 range 5320~6259 len:10"}
+{"level":"info","time":"2026-01-12T11:39:11+08:00","message":"size:100 range 5860~6859 len:14"}
+{"level":"info","time":"2026-01-12T11:39:11+08:00","message":"size:500 range 7360~8359 len:2"}
+{"level":"info","time":"2026-01-12T11:40:16+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4720 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-12T11:40:16+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4720 LiveEnableLoop:false free_start:5000 free_cursor:9720 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-12T11:40:16+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:40:16+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:40:16+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-12T11:40:16+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-12T11:40:16+08:00","message":"size:20 range 5160~5359 len:10"}
+{"level":"info","time":"2026-01-12T11:40:16+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"info","time":"2026-01-12T11:40:16+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"info","time":"2026-01-12T11:40:16+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:40:16+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:40:16+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-12T11:40:16+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"debug","time":"2026-01-12T11:40:16+08:00","message":"[RangePool] free tier 20 need refill len=5 threshold=5 max=10"}
+{"level":"info","time":"2026-01-12T11:40:16+08:00","message":"size:20 range 5320~5259 len:5"}
+{"level":"info","time":"2026-01-12T11:40:16+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"info","time":"2026-01-12T11:40:16+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"debug","time":"2026-01-12T11:40:16+08:00","message":"[RangePool] free tier 20 refill start len=5 target=10 need=5"}
+{"level":"debug","time":"2026-01-12T11:40:16+08:00","message":"[RangePool] free tier 20 split from upper tier 100 parent=6160~6259 children=5"}
+{"level":"debug","time":"2026-01-12T11:40:16+08:00","message":"[RangePool] free tier 20 refill done added=5 final=10"}
+{"level":"info","time":"2026-01-12T11:40:16+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:40:16+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:40:16+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"debug","time":"2026-01-12T11:40:16+08:00","message":"[RangePool] free tier 100 need refill len=4 threshold=5 max=10"}
+{"level":"info","time":"2026-01-12T11:40:16+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-12T11:40:16+08:00","message":"size:20 range 5320~6259 len:10"}
+{"level":"info","time":"2026-01-12T11:40:16+08:00","message":"size:100 range 5860~5759 len:4"}
+{"level":"info","time":"2026-01-12T11:40:16+08:00","message":"size:500 range <empty> len:0"}
+{"level":"debug","time":"2026-01-12T11:40:16+08:00","message":"[RangePool] free tier 100 refill start len=4 target=10 need=6"}
+{"level":"debug","time":"2026-01-12T11:40:16+08:00","message":"[RangePool] free tier 100 refill done added=0 final=4"}
+{"level":"debug","time":"2026-01-12T11:40:16+08:00","message":"[RangePool] free tier 500 need refill len=0 threshold=1 max=2"}
+{"level":"debug","time":"2026-01-12T11:40:16+08:00","message":"[RangePool] free tier 500 refill start len=0 target=2 need=2"}
+{"level":"debug","time":"2026-01-12T11:40:16+08:00","message":"[RangePool] free tier 500 refill done added=2 final=2"}
+{"level":"debug","time":"2026-01-12T11:40:16+08:00","message":"[RangePool] free tier 100 need refill len=4 threshold=5 max=10"}
+{"level":"debug","time":"2026-01-12T11:40:16+08:00","message":"[RangePool] free tier 100 refill throttled since=458.667µs"}
+{"level":"info","time":"2026-01-12T11:40:16+08:00","message":"[RangePool] free window start=5000 cursor=8360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:40:16+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:40:16+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-12T11:40:16+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-12T11:40:16+08:00","message":"size:20 range 5320~6259 len:10"}
+{"level":"info","time":"2026-01-12T11:40:16+08:00","message":"size:100 range 5860~5759 len:4"}
+{"level":"info","time":"2026-01-12T11:40:16+08:00","message":"size:500 range 7360~8359 len:2"}
+{"level":"info","time":"2026-01-12T11:40:16+08:00","message":"[RangePool] free window start=5000 cursor=8360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:40:16+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:40:16+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-12T11:40:16+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-12T11:40:16+08:00","message":"size:20 range 5320~6259 len:10"}
+{"level":"info","time":"2026-01-12T11:40:16+08:00","message":"size:100 range 5860~5759 len:4"}
+{"level":"info","time":"2026-01-12T11:40:16+08:00","message":"size:500 range 7360~8359 len:2"}
+{"level":"debug","time":"2026-01-12T11:40:17+08:00","message":"[RangePool] free checkAndRefillAll start tiers=6"}
+{"level":"debug","time":"2026-01-12T11:40:17+08:00","message":"[RangePool] free tier 100 need refill len=4 threshold=5 max=10"}
+{"level":"debug","time":"2026-01-12T11:40:17+08:00","message":"[RangePool] free tier 100 refill start len=4 target=10 need=6"}
+{"level":"debug","time":"2026-01-12T11:40:17+08:00","message":"[RangePool] free tier 100 split from upper tier 500 parent=7860~8359 children=5"}
+{"level":"debug","time":"2026-01-12T11:40:17+08:00","message":"[RangePool] free tier 100 split from upper tier 500 parent=7360~7859 children=5"}
+{"level":"debug","time":"2026-01-12T11:40:17+08:00","message":"[RangePool] live checkAndRefillAll start tiers=6"}
+{"level":"debug","time":"2026-01-12T11:40:17+08:00","message":"[RangePool] free tier 100 refill done added=10 final=14"}
+{"level":"warn","time":"2026-01-12T11:40:17+08:00","message":"[RangePool] free tier 100 exceeds max count final=14 max=10"}
+{"level":"debug","time":"2026-01-12T11:40:17+08:00","message":"[RangePool] free tier 500 need refill len=0 threshold=1 max=2"}
+{"level":"debug","time":"2026-01-12T11:40:17+08:00","message":"[RangePool] free tier 500 refill start len=0 target=2 need=2"}
+{"level":"debug","time":"2026-01-12T11:40:17+08:00","message":"[RangePool] free tier 500 refill done added=2 final=2"}
+{"level":"info","time":"2026-01-12T11:40:17+08:00","message":"[RangePool] free window start=5000 cursor=9360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:40:17+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:40:17+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-12T11:40:17+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-12T11:40:17+08:00","message":"size:20 range 5320~6259 len:10"}
+{"level":"info","time":"2026-01-12T11:40:17+08:00","message":"size:100 range 5860~7859 len:14"}
+{"level":"info","time":"2026-01-12T11:40:17+08:00","message":"size:500 range 8360~9359 len:2"}
+{"level":"info","time":"2026-01-12T11:41:17+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4720 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-12T11:41:17+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4720 LiveEnableLoop:false free_start:5000 free_cursor:9720 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-12T11:41:17+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:41:17+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:41:17+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-12T11:41:17+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-12T11:41:17+08:00","message":"size:20 range 5160~5359 len:10"}
+{"level":"info","time":"2026-01-12T11:41:17+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"info","time":"2026-01-12T11:41:17+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"info","time":"2026-01-12T11:41:17+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:41:17+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:41:17+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-12T11:41:17+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-12T11:41:17+08:00","message":"size:20 range 5320~5259 len:5"}
+{"level":"info","time":"2026-01-12T11:41:17+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"debug","time":"2026-01-12T11:41:17+08:00","message":"[RangePool] free tier 20 need refill len=5 threshold=5 max=10"}
+{"level":"info","time":"2026-01-12T11:41:17+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"debug","time":"2026-01-12T11:41:17+08:00","message":"[RangePool] free tier 20 refill start len=5 target=10 need=5"}
+{"level":"debug","time":"2026-01-12T11:41:17+08:00","message":"[RangePool] free tier 20 split from upper tier 100 parent=6160~6259 children=5"}
+{"level":"debug","time":"2026-01-12T11:41:17+08:00","message":"[RangePool] free tier 20 refill done added=5 final=10"}
+{"level":"info","time":"2026-01-12T11:41:17+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:41:17+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:41:17+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-12T11:41:17+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-12T11:41:17+08:00","message":"size:20 range 5320~6259 len:10"}
+{"level":"info","time":"2026-01-12T11:41:17+08:00","message":"size:100 range 5860~5759 len:4"}
+{"level":"info","time":"2026-01-12T11:41:17+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"info","time":"2026-01-12T11:41:17+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:41:17+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:41:17+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-12T11:41:17+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-12T11:41:17+08:00","message":"size:20 range 5320~6259 len:10"}
+{"level":"info","time":"2026-01-12T11:41:17+08:00","message":"size:100 range 5860~5759 len:4"}
+{"level":"info","time":"2026-01-12T11:41:17+08:00","message":"size:500 range <empty> len:0"}
+{"level":"debug","time":"2026-01-12T11:41:17+08:00","message":"[RangePool] free tier 100 need refill len=4 threshold=5 max=10"}
+{"level":"debug","time":"2026-01-12T11:41:17+08:00","message":"[RangePool] free tier 100 refill start len=4 target=10 need=6"}
+{"level":"debug","time":"2026-01-12T11:41:17+08:00","message":"[RangePool] free tier 100 refill done added=0 final=4"}
+{"level":"debug","time":"2026-01-12T11:41:17+08:00","message":"[RangePool] free tier 100 need refill len=4 threshold=5 max=10"}
+{"level":"debug","time":"2026-01-12T11:41:17+08:00","message":"[RangePool] free tier 100 refill throttled since=8.917µs"}
+{"level":"debug","time":"2026-01-12T11:41:17+08:00","message":"[RangePool] free tier 500 need refill len=0 threshold=1 max=2"}
+{"level":"debug","time":"2026-01-12T11:41:17+08:00","message":"[RangePool] free tier 500 refill start len=0 target=2 need=2"}
+{"level":"debug","time":"2026-01-12T11:41:17+08:00","message":"[RangePool] free tier 500 refill done added=2 final=2"}
+{"level":"info","time":"2026-01-12T11:41:17+08:00","message":"[RangePool] free window start=5000 cursor=8360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:41:17+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:41:17+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-12T11:41:17+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-12T11:41:17+08:00","message":"size:20 range 5320~6259 len:10"}
+{"level":"info","time":"2026-01-12T11:41:17+08:00","message":"size:100 range 5860~5759 len:4"}
+{"level":"info","time":"2026-01-12T11:41:17+08:00","message":"size:500 range 7360~8359 len:2"}
+{"level":"info","time":"2026-01-12T11:41:18+08:00","message":"[RangePool] free window start=5000 cursor=8360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:41:18+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:41:18+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-12T11:41:18+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-12T11:41:18+08:00","message":"size:20 range 5320~6259 len:10"}
+{"level":"info","time":"2026-01-12T11:41:18+08:00","message":"size:100 range 5860~5759 len:4"}
+{"level":"info","time":"2026-01-12T11:41:18+08:00","message":"size:500 range 7360~8359 len:2"}
+{"level":"debug","time":"2026-01-12T11:41:18+08:00","message":"[RangePool] free checkAndRefillAll start tiers=6"}
+{"level":"debug","time":"2026-01-12T11:41:18+08:00","message":"[RangePool] live checkAndRefillAll start tiers=6"}
+{"level":"debug","time":"2026-01-12T11:41:18+08:00","message":"[RangePool] free tier 100 need refill len=4 threshold=5 max=10"}
+{"level":"debug","time":"2026-01-12T11:41:18+08:00","message":"[RangePool] free tier 100 refill start len=4 target=10 need=6"}
+{"level":"debug","time":"2026-01-12T11:41:18+08:00","message":"[RangePool] free tier 100 split from upper tier 500 parent=7860~8359 children=5"}
+{"level":"debug","time":"2026-01-12T11:41:18+08:00","message":"[RangePool] free tier 100 split from upper tier 500 parent=7360~7859 children=5"}
+{"level":"debug","time":"2026-01-12T11:41:18+08:00","message":"[RangePool] free tier 100 refill done added=10 final=14"}
+{"level":"warn","time":"2026-01-12T11:41:18+08:00","message":"[RangePool] free tier 100 exceeds max count final=14 max=10"}
+{"level":"debug","time":"2026-01-12T11:41:18+08:00","message":"[RangePool] free tier 500 need refill len=0 threshold=1 max=2"}
+{"level":"debug","time":"2026-01-12T11:41:18+08:00","message":"[RangePool] free tier 500 refill start len=0 target=2 need=2"}
+{"level":"debug","time":"2026-01-12T11:41:18+08:00","message":"[RangePool] free tier 500 refill done added=2 final=2"}
+{"level":"info","time":"2026-01-12T11:41:19+08:00","message":"[RangePool] free window start=5000 cursor=9360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:41:19+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:41:19+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-12T11:41:19+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-12T11:41:19+08:00","message":"size:20 range 5320~6259 len:10"}
+{"level":"info","time":"2026-01-12T11:41:19+08:00","message":"size:100 range 5860~7859 len:14"}
+{"level":"info","time":"2026-01-12T11:41:19+08:00","message":"size:500 range 8360~9359 len:2"}
+{"level":"info","time":"2026-01-12T11:42:14+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4720 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-12T11:42:14+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4720 LiveEnableLoop:false free_start:5000 free_cursor:9720 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-12T11:42:14+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:42:14+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:42:14+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-12T11:42:14+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-12T11:42:14+08:00","message":"size:20 range 5160~5359 len:10"}
+{"level":"info","time":"2026-01-12T11:42:14+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"info","time":"2026-01-12T11:42:14+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"info","time":"2026-01-12T11:42:14+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:42:14+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:42:14+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-12T11:42:14+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-12T11:42:14+08:00","message":"size:20 range 5320~5259 len:5"}
+{"level":"info","time":"2026-01-12T11:42:14+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"info","time":"2026-01-12T11:42:14+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"debug","time":"2026-01-12T11:42:14+08:00","message":"[RangePool] free tier 20 need refill len=5 threshold=5 max=10"}
+{"level":"debug","time":"2026-01-12T11:42:14+08:00","message":"[RangePool] free tier 20 refill start len=5 target=10 need=5"}
+{"level":"debug","time":"2026-01-12T11:42:14+08:00","message":"[RangePool] free tier 20 split from upper tier 100 parent=6060~6159 children=5"}
+{"level":"debug","time":"2026-01-12T11:42:14+08:00","message":"[RangePool] free tier 20 refill done added=5 final=10"}
+{"level":"debug","time":"2026-01-12T11:42:14+08:00","message":"[RangePool] free tier 100 need refill len=4 threshold=5 max=10"}
+{"level":"info","time":"2026-01-12T11:42:14+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"debug","time":"2026-01-12T11:42:14+08:00","message":"[RangePool] free tier 100 refill start len=4 target=10 need=6"}
+{"level":"debug","time":"2026-01-12T11:42:14+08:00","message":"[RangePool] free tier 100 refill done added=0 final=4"}
+{"level":"debug","time":"2026-01-12T11:42:14+08:00","message":"[RangePool] free tier 100 need refill len=4 threshold=5 max=10"}
+{"level":"info","time":"2026-01-12T11:42:14+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:42:14+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-12T11:42:14+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-12T11:42:14+08:00","message":"size:20 range 5320~6159 len:10"}
+{"level":"info","time":"2026-01-12T11:42:14+08:00","message":"size:100 range 5860~5759 len:4"}
+{"level":"info","time":"2026-01-12T11:42:14+08:00","message":"size:500 range <empty> len:0"}
+{"level":"debug","time":"2026-01-12T11:42:14+08:00","message":"[RangePool] free tier 100 refill throttled since=226.416µs"}
+{"level":"debug","time":"2026-01-12T11:42:14+08:00","message":"[RangePool] free tier 500 need refill len=0 threshold=1 max=2"}
+{"level":"debug","time":"2026-01-12T11:42:14+08:00","message":"[RangePool] free tier 500 refill start len=0 target=2 need=2"}
+{"level":"debug","time":"2026-01-12T11:42:14+08:00","message":"[RangePool] free tier 500 refill done added=2 final=2"}
+{"level":"info","time":"2026-01-12T11:42:14+08:00","message":"[RangePool] free window start=5000 cursor=8360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:42:14+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:42:14+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-12T11:42:14+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-12T11:42:14+08:00","message":"size:20 range 5320~6159 len:10"}
+{"level":"info","time":"2026-01-12T11:42:14+08:00","message":"size:100 range 5860~5759 len:4"}
+{"level":"info","time":"2026-01-12T11:42:14+08:00","message":"size:500 range 7360~8359 len:2"}
+{"level":"info","time":"2026-01-12T11:42:14+08:00","message":"[RangePool] free window start=5000 cursor=8360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:42:14+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:42:14+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-12T11:42:14+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-12T11:42:14+08:00","message":"size:20 range 5320~6159 len:10"}
+{"level":"info","time":"2026-01-12T11:42:14+08:00","message":"size:100 range 5860~5759 len:4"}
+{"level":"info","time":"2026-01-12T11:42:14+08:00","message":"size:500 range 7360~8359 len:2"}
+{"level":"debug","time":"2026-01-12T11:42:15+08:00","message":"[RangePool] free checkAndRefillAll start tiers=6"}
+{"level":"debug","time":"2026-01-12T11:42:15+08:00","message":"[RangePool] live checkAndRefillAll start tiers=6"}
+{"level":"debug","time":"2026-01-12T11:42:15+08:00","message":"[RangePool] free tier 100 need refill len=4 threshold=5 max=10"}
+{"level":"debug","time":"2026-01-12T11:42:15+08:00","message":"[RangePool] free tier 100 refill start len=4 target=10 need=6"}
+{"level":"debug","time":"2026-01-12T11:42:15+08:00","message":"[RangePool] free tier 100 split from upper tier 500 parent=7860~8359 children=5"}
+{"level":"debug","time":"2026-01-12T11:42:15+08:00","message":"[RangePool] free tier 100 split from upper tier 500 parent=7360~7859 children=5"}
+{"level":"debug","time":"2026-01-12T11:42:15+08:00","message":"[RangePool] free tier 100 refill done added=10 final=14"}
+{"level":"warn","time":"2026-01-12T11:42:15+08:00","message":"[RangePool] free tier 100 exceeds max count final=14 max=10"}
+{"level":"debug","time":"2026-01-12T11:42:15+08:00","message":"[RangePool] free tier 500 need refill len=0 threshold=1 max=2"}
+{"level":"debug","time":"2026-01-12T11:42:15+08:00","message":"[RangePool] free tier 500 refill start len=0 target=2 need=2"}
+{"level":"debug","time":"2026-01-12T11:42:15+08:00","message":"[RangePool] free tier 500 refill done added=2 final=2"}
+{"level":"info","time":"2026-01-12T11:42:15+08:00","message":"[RangePool] free window start=5000 cursor=9360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:42:15+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:42:15+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-12T11:42:15+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-12T11:42:15+08:00","message":"size:20 range 5320~6159 len:10"}
+{"level":"info","time":"2026-01-12T11:42:15+08:00","message":"size:100 range 5860~7859 len:14"}
+{"level":"info","time":"2026-01-12T11:42:15+08:00","message":"size:500 range 8360~9359 len:2"}
+{"level":"info","time":"2026-01-12T11:43:09+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4720 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-12T11:43:09+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4720 LiveEnableLoop:false free_start:5000 free_cursor:9720 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-12T11:43:09+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:43:09+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:43:09+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-12T11:43:09+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-12T11:43:09+08:00","message":"size:20 range 5160~5359 len:10"}
+{"level":"info","time":"2026-01-12T11:43:09+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"info","time":"2026-01-12T11:43:09+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"info","time":"2026-01-12T11:43:09+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"debug","time":"2026-01-12T11:43:09+08:00","message":"[RangePool] free tier 20 need refill len=5 threshold=5 max=10"}
+{"level":"info","time":"2026-01-12T11:43:09+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:43:09+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-12T11:43:09+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-12T11:43:09+08:00","message":"size:20 range 5320~5259 len:5"}
+{"level":"info","time":"2026-01-12T11:43:09+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"info","time":"2026-01-12T11:43:09+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"debug","time":"2026-01-12T11:43:09+08:00","message":"[RangePool] free tier 20 refill start len=5 target=10 need=5"}
+{"level":"debug","time":"2026-01-12T11:43:09+08:00","message":"[RangePool] free tier 20 split from upper tier 100 parent=6160~6259 children=5"}
+{"level":"debug","time":"2026-01-12T11:43:09+08:00","message":"[RangePool] free tier 20 refill done added=5 final=10"}
+{"level":"debug","time":"2026-01-12T11:43:09+08:00","message":"[RangePool] free tier 100 need refill len=4 threshold=5 max=10"}
+{"level":"debug","time":"2026-01-12T11:43:09+08:00","message":"[RangePool] free tier 100 refill start len=4 target=10 need=6"}
+{"level":"debug","time":"2026-01-12T11:43:09+08:00","message":"[RangePool] free tier 100 refill done added=0 final=4"}
+{"level":"debug","time":"2026-01-12T11:43:09+08:00","message":"[RangePool] free tier 100 need refill len=4 threshold=5 max=10"}
+{"level":"info","time":"2026-01-12T11:43:09+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:43:09+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:43:09+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"debug","time":"2026-01-12T11:43:09+08:00","message":"[RangePool] free tier 100 refill throttled since=29.792µs"}
+{"level":"info","time":"2026-01-12T11:43:09+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"debug","time":"2026-01-12T11:43:09+08:00","message":"[RangePool] free tier 500 need refill len=0 threshold=1 max=2"}
+{"level":"info","time":"2026-01-12T11:43:09+08:00","message":"size:20 range 5320~6259 len:10"}
+{"level":"info","time":"2026-01-12T11:43:09+08:00","message":"size:100 range 5860~5759 len:4"}
+{"level":"info","time":"2026-01-12T11:43:09+08:00","message":"size:500 range <empty> len:0"}
+{"level":"debug","time":"2026-01-12T11:43:09+08:00","message":"[RangePool] free tier 500 refill start len=0 target=2 need=2"}
+{"level":"debug","time":"2026-01-12T11:43:09+08:00","message":"[RangePool] free tier 500 refill done added=2 final=2"}
+{"level":"info","time":"2026-01-12T11:43:09+08:00","message":"[RangePool] free window start=5000 cursor=8360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:43:09+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:43:09+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-12T11:43:09+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-12T11:43:09+08:00","message":"size:20 range 5320~6259 len:10"}
+{"level":"info","time":"2026-01-12T11:43:09+08:00","message":"size:100 range 5860~5759 len:4"}
+{"level":"info","time":"2026-01-12T11:43:09+08:00","message":"size:500 range 7360~8359 len:2"}
+{"level":"info","time":"2026-01-12T11:43:09+08:00","message":"[RangePool] free window start=5000 cursor=8360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:43:09+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:43:09+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-12T11:43:09+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-12T11:43:09+08:00","message":"size:20 range 5320~6259 len:10"}
+{"level":"info","time":"2026-01-12T11:43:09+08:00","message":"size:100 range 5860~5759 len:4"}
+{"level":"info","time":"2026-01-12T11:43:09+08:00","message":"size:500 range 7360~8359 len:2"}
+{"level":"debug","time":"2026-01-12T11:43:10+08:00","message":"[RangePool] free checkAndRefillAll start tiers=6"}
+{"level":"debug","time":"2026-01-12T11:43:10+08:00","message":"[RangePool] free tier 100 need refill len=4 threshold=5 max=10"}
+{"level":"debug","time":"2026-01-12T11:43:10+08:00","message":"[RangePool] live checkAndRefillAll start tiers=6"}
+{"level":"debug","time":"2026-01-12T11:43:10+08:00","message":"[RangePool] free tier 100 refill start len=4 target=10 need=6"}
+{"level":"debug","time":"2026-01-12T11:43:10+08:00","message":"[RangePool] free tier 100 split from upper tier 500 parent=7860~8359 children=5"}
+{"level":"debug","time":"2026-01-12T11:43:10+08:00","message":"[RangePool] free tier 100 split from upper tier 500 parent=7360~7859 children=5"}
+{"level":"debug","time":"2026-01-12T11:43:10+08:00","message":"[RangePool] free tier 100 refill done added=10 final=14"}
+{"level":"warn","time":"2026-01-12T11:43:10+08:00","message":"[RangePool] free tier 100 exceeds max count final=14 max=10"}
+{"level":"debug","time":"2026-01-12T11:43:10+08:00","message":"[RangePool] free tier 500 need refill len=0 threshold=1 max=2"}
+{"level":"debug","time":"2026-01-12T11:43:10+08:00","message":"[RangePool] free tier 500 refill start len=0 target=2 need=2"}
+{"level":"debug","time":"2026-01-12T11:43:10+08:00","message":"[RangePool] free tier 500 refill done added=2 final=2"}
+{"level":"info","time":"2026-01-12T11:43:10+08:00","message":"[RangePool] free window start=5000 cursor=9360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:43:10+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:43:10+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-12T11:43:10+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-12T11:43:10+08:00","message":"size:20 range 5320~6259 len:10"}
+{"level":"info","time":"2026-01-12T11:43:10+08:00","message":"size:100 range 5860~7859 len:14"}
+{"level":"info","time":"2026-01-12T11:43:10+08:00","message":"size:500 range 8360~9359 len:2"}
+{"level":"info","time":"2026-01-12T11:44:06+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-12T11:44:06+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4720 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-12T11:44:06+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-12T11:44:06+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4720 LiveEnableLoop:false free_start:5000 free_cursor:9720 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-12T11:44:06+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:44:06+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:44:06+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-12T11:44:06+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-12T11:44:06+08:00","message":"size:20 range 5160~5359 len:10"}
+{"level":"info","time":"2026-01-12T11:44:06+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"info","time":"2026-01-12T11:44:06+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"info","time":"2026-01-12T11:44:06+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:44:06+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:44:06+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-12T11:44:06+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-12T11:44:06+08:00","message":"size:20 range 5320~5259 len:5"}
+{"level":"info","time":"2026-01-12T11:44:06+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"info","time":"2026-01-12T11:44:06+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"debug","time":"2026-01-12T11:44:06+08:00","message":"[RangePool] free tier 20 need refill len=5 threshold=5 max=10"}
+{"level":"debug","time":"2026-01-12T11:44:06+08:00","message":"[RangePool] free tier 20 refill start len=5 target=10 need=5"}
+{"level":"debug","time":"2026-01-12T11:44:06+08:00","message":"[RangePool] free tier 20 split from upper tier 100 parent=5360~5459 children=5"}
+{"level":"debug","time":"2026-01-12T11:44:06+08:00","message":"[RangePool] free tier 20 refill done added=5 final=10"}
+{"level":"debug","time":"2026-01-12T11:44:06+08:00","message":"[RangePool] free tier 100 need refill len=4 threshold=5 max=10"}
+{"level":"info","time":"2026-01-12T11:44:06+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"debug","time":"2026-01-12T11:44:06+08:00","message":"[RangePool] free tier 100 refill start len=4 target=10 need=6"}
+{"level":"debug","time":"2026-01-12T11:44:06+08:00","message":"[RangePool] free tier 100 refill done added=0 final=4"}
+{"level":"debug","time":"2026-01-12T11:44:06+08:00","message":"[RangePool] free tier 500 need refill len=0 threshold=1 max=2"}
+{"level":"info","time":"2026-01-12T11:44:06+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:44:06+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-12T11:44:06+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-12T11:44:06+08:00","message":"size:20 range 5320~5459 len:10"}
+{"level":"info","time":"2026-01-12T11:44:06+08:00","message":"size:100 range 5860~5759 len:4"}
+{"level":"info","time":"2026-01-12T11:44:06+08:00","message":"size:500 range <empty> len:0"}
+{"level":"debug","time":"2026-01-12T11:44:06+08:00","message":"[RangePool] free tier 500 refill start len=0 target=2 need=2"}
+{"level":"debug","time":"2026-01-12T11:44:06+08:00","message":"[RangePool] free tier 500 refill done added=2 final=2"}
+{"level":"info","time":"2026-01-12T11:44:06+08:00","message":"[RangePool] free window start=5000 cursor=8360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:44:06+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:44:06+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-12T11:44:06+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-12T11:44:06+08:00","message":"size:20 range 5320~5459 len:10"}
+{"level":"info","time":"2026-01-12T11:44:06+08:00","message":"size:100 range 5860~5759 len:4"}
+{"level":"info","time":"2026-01-12T11:44:06+08:00","message":"size:500 range 7360~8359 len:2"}
+{"level":"info","time":"2026-01-12T11:44:06+08:00","message":"[RangePool] free window start=5000 cursor=8360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:44:06+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:44:06+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-12T11:44:06+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-12T11:44:06+08:00","message":"size:20 range 5320~5459 len:10"}
+{"level":"info","time":"2026-01-12T11:44:06+08:00","message":"size:100 range 5860~5759 len:4"}
+{"level":"info","time":"2026-01-12T11:44:06+08:00","message":"size:500 range 7360~8359 len:2"}
+{"level":"debug","time":"2026-01-12T11:44:07+08:00","message":"[RangePool] free checkAndRefillAll start tiers=6"}
+{"level":"debug","time":"2026-01-12T11:44:07+08:00","message":"[RangePool] live checkAndRefillAll start tiers=6"}
+{"level":"debug","time":"2026-01-12T11:44:07+08:00","message":"[RangePool] free tier 100 need refill len=4 threshold=5 max=10"}
+{"level":"debug","time":"2026-01-12T11:44:07+08:00","message":"[RangePool] free tier 100 refill start len=4 target=10 need=6"}
+{"level":"debug","time":"2026-01-12T11:44:07+08:00","message":"[RangePool] free tier 100 split from upper tier 500 parent=7860~8359 children=5"}
+{"level":"debug","time":"2026-01-12T11:44:07+08:00","message":"[RangePool] free tier 100 split from upper tier 500 parent=7360~7859 children=5"}
+{"level":"debug","time":"2026-01-12T11:44:07+08:00","message":"[RangePool] free tier 100 refill done added=10 final=14"}
+{"level":"warn","time":"2026-01-12T11:44:07+08:00","message":"[RangePool] free tier 100 exceeds max count final=14 max=10"}
+{"level":"debug","time":"2026-01-12T11:44:07+08:00","message":"[RangePool] free tier 500 need refill len=0 threshold=1 max=2"}
+{"level":"debug","time":"2026-01-12T11:44:07+08:00","message":"[RangePool] free tier 500 refill start len=0 target=2 need=2"}
+{"level":"debug","time":"2026-01-12T11:44:07+08:00","message":"[RangePool] free tier 500 refill done added=2 final=2"}
+{"level":"info","time":"2026-01-12T11:44:07+08:00","message":"[RangePool] free window start=5000 cursor=9360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:44:07+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:44:07+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-12T11:44:07+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-12T11:44:07+08:00","message":"size:20 range 5320~5459 len:10"}
+{"level":"info","time":"2026-01-12T11:44:07+08:00","message":"size:100 range 5860~7859 len:14"}
+{"level":"info","time":"2026-01-12T11:44:07+08:00","message":"size:500 range 8360~9359 len:2"}
+{"level":"info","time":"2026-01-12T11:45:54+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-12T11:45:54+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4720 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-12T11:45:54+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-12T11:45:54+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4720 LiveEnableLoop:false free_start:5000 free_cursor:9720 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-12T11:45:54+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:45:54+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:45:54+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-12T11:45:54+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-12T11:45:54+08:00","message":"size:20 range 5160~5359 len:10"}
+{"level":"info","time":"2026-01-12T11:45:54+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"info","time":"2026-01-12T11:45:54+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"info","time":"2026-01-12T11:45:54+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:45:54+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:45:54+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-12T11:45:54+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-12T11:45:54+08:00","message":"size:20 range 5320~5259 len:5"}
+{"level":"debug","time":"2026-01-12T11:45:54+08:00","message":"[RangePool] free tier 20 need refill len=5 threshold=5 max=10"}
+{"level":"info","time":"2026-01-12T11:45:54+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"info","time":"2026-01-12T11:45:54+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"debug","time":"2026-01-12T11:45:54+08:00","message":"[RangePool] free tier 20 refill start len=5 target=10 need=5"}
+{"level":"debug","time":"2026-01-12T11:45:54+08:00","message":"[RangePool] free tier 20 split from upper tier 100 parent=6160~6259 children=5"}
+{"level":"debug","time":"2026-01-12T11:45:54+08:00","message":"[RangePool] free tier 20 refill done added=5 final=10"}
+{"level":"debug","time":"2026-01-12T11:45:54+08:00","message":"[RangePool] free tier 100 need refill len=4 threshold=5 max=10"}
+{"level":"info","time":"2026-01-12T11:45:54+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"debug","time":"2026-01-12T11:45:54+08:00","message":"[RangePool] free tier 100 refill start len=4 target=10 need=6"}
+{"level":"debug","time":"2026-01-12T11:45:54+08:00","message":"[RangePool] free tier 100 refill done added=0 final=4"}
+{"level":"info","time":"2026-01-12T11:45:54+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:45:54+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-12T11:45:54+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"debug","time":"2026-01-12T11:45:54+08:00","message":"[RangePool] free tier 100 need refill len=4 threshold=5 max=10"}
+{"level":"info","time":"2026-01-12T11:45:54+08:00","message":"size:20 range 5320~6259 len:10"}
+{"level":"debug","time":"2026-01-12T11:45:54+08:00","message":"[RangePool] free tier 100 refill throttled since=105.5µs"}
+{"level":"debug","time":"2026-01-12T11:45:54+08:00","message":"[RangePool] free tier 500 need refill len=0 threshold=1 max=2"}
+{"level":"info","time":"2026-01-12T11:45:54+08:00","message":"size:100 range 5860~5759 len:4"}
+{"level":"info","time":"2026-01-12T11:45:54+08:00","message":"size:500 range <empty> len:0"}
+{"level":"debug","time":"2026-01-12T11:45:54+08:00","message":"[RangePool] free tier 500 refill start len=0 target=2 need=2"}
+{"level":"debug","time":"2026-01-12T11:45:54+08:00","message":"[RangePool] free tier 500 refill done added=2 final=2"}
+{"level":"info","time":"2026-01-12T11:45:54+08:00","message":"[RangePool] free window start=5000 cursor=8360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:45:54+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:45:54+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-12T11:45:54+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-12T11:45:54+08:00","message":"size:20 range 5320~6259 len:10"}
+{"level":"info","time":"2026-01-12T11:45:54+08:00","message":"size:100 range 5860~5759 len:4"}
+{"level":"info","time":"2026-01-12T11:45:54+08:00","message":"size:500 range 7360~8359 len:2"}
+{"level":"info","time":"2026-01-12T11:45:54+08:00","message":"[RangePool] free window start=5000 cursor=8360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:45:54+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:45:54+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-12T11:45:54+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-12T11:45:54+08:00","message":"size:20 range 5320~6259 len:10"}
+{"level":"info","time":"2026-01-12T11:45:54+08:00","message":"size:100 range 5860~5759 len:4"}
+{"level":"info","time":"2026-01-12T11:45:54+08:00","message":"size:500 range 7360~8359 len:2"}
+{"level":"debug","time":"2026-01-12T11:45:55+08:00","message":"[RangePool] free checkAndRefillAll start tiers=6"}
+{"level":"debug","time":"2026-01-12T11:45:55+08:00","message":"[RangePool] live checkAndRefillAll start tiers=6"}
+{"level":"debug","time":"2026-01-12T11:45:55+08:00","message":"[RangePool] free tier 100 need refill len=4 threshold=5 max=10"}
+{"level":"debug","time":"2026-01-12T11:45:55+08:00","message":"[RangePool] free tier 100 refill start len=4 target=10 need=6"}
+{"level":"debug","time":"2026-01-12T11:45:55+08:00","message":"[RangePool] free tier 100 split from upper tier 500 parent=7860~8359 children=5"}
+{"level":"debug","time":"2026-01-12T11:45:55+08:00","message":"[RangePool] free tier 100 split from upper tier 500 parent=7360~7859 children=5"}
+{"level":"debug","time":"2026-01-12T11:45:55+08:00","message":"[RangePool] free tier 100 refill done added=10 final=14"}
+{"level":"warn","time":"2026-01-12T11:45:55+08:00","message":"[RangePool] free tier 100 exceeds max count final=14 max=10"}
+{"level":"debug","time":"2026-01-12T11:45:55+08:00","message":"[RangePool] free tier 500 need refill len=0 threshold=1 max=2"}
+{"level":"debug","time":"2026-01-12T11:45:55+08:00","message":"[RangePool] free tier 500 refill start len=0 target=2 need=2"}
+{"level":"debug","time":"2026-01-12T11:45:55+08:00","message":"[RangePool] free tier 500 refill done added=2 final=2"}
+{"level":"info","time":"2026-01-12T11:45:55+08:00","message":"[RangePool] free window start=5000 cursor=9360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-12T11:45:55+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-12T11:45:55+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-12T11:45:55+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-12T11:45:55+08:00","message":"size:20 range 5320~6259 len:10"}
+{"level":"info","time":"2026-01-12T11:45:55+08:00","message":"size:100 range 5860~7859 len:14"}
+{"level":"info","time":"2026-01-12T11:45:55+08:00","message":"size:500 range 8360~9359 len:2"}

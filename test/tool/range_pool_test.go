@@ -3,6 +3,7 @@ package tool
 import (
 	"math/rand"
 	"testing"
+	"time"
 
 	"github.com/xuenqlve/common/log"
 	"github.com/xuenqlve/kyogre/pkg/tool/range_pool"
@@ -22,6 +23,7 @@ type LiveRefill struct {
 }
 
 func (l *LiveRefill) Refill(partition string, need int64) (enableLoop bool, refillWindow range_pool.IntRange, err error) {
+	log.Infof("------------------start Refill ------------------")
 	switch partition {
 	case range_pool.RangePoolLiveName:
 		if l.LiveEnableLoop {
@@ -126,15 +128,40 @@ func TestRangePool(t *testing.T) {
 		return
 	}
 	pool.DebugLog(range_pool.RangePoolFreeName)
-	r, b := pool.ReserveInsert(5)
+	r, b := pool.ReserveInsert(20)
 	t.Logf("1 r:%v b:%v", r, b)
-	r, b = pool.ReserveInsert(5)
+	r, b = pool.ReserveInsert(20)
 	t.Logf("2 r:%v b:%v", r, b)
-	r, b = pool.ReserveInsert(5)
+	r, b = pool.ReserveInsert(20)
 	t.Logf("3 r:%v b:%v", r, b)
-	r, b = pool.ReserveInsert(5)
+	r, b = pool.ReserveInsert(20)
 	t.Logf("4 r:%v b:%v", r, b)
-	r, b = pool.ReserveInsert(5)
+	r, b = pool.ReserveInsert(20)
 	t.Logf("5 r:%v b:%v", r, b)
+	pool.DebugLog(range_pool.RangePoolFreeName)
+	r, b = pool.ReserveInsert(100)
+	t.Logf("6 r:%v b:%v", r, b)
+	r, b = pool.ReserveInsert(100)
+	t.Logf("7 r:%v b:%v", r, b)
+	r, b = pool.ReserveInsert(100)
+	t.Logf("8 r:%v b:%v", r, b)
+	r, b = pool.ReserveInsert(100)
+	t.Logf("9 r:%v b:%v", r, b)
+	r, b = pool.ReserveInsert(100)
+	t.Logf("10 r:%v b:%v", r, b)
+	r, b = pool.ReserveInsert(500)
+	t.Logf("11 r:%v b:%v", r, b)
+	r, b = pool.ReserveInsert(500)
+	t.Logf("12 r:%v b:%v", r, b)
+	r, b = pool.ReserveInsert(500)
+	t.Logf("13 r:%v b:%v", r, b)
+	r, b = pool.ReserveInsert(500)
+	t.Logf("14 r:%v b:%v", r, b)
+	pool.DebugLog(range_pool.RangePoolFreeName)
+	time.Sleep(100 * time.Millisecond)
+	pool.DebugLog(range_pool.RangePoolFreeName)
+	time.Sleep(100 * time.Millisecond)
+	pool.DebugLog(range_pool.RangePoolFreeName)
+	time.Sleep(1 * time.Second)
 	pool.DebugLog(range_pool.RangePoolFreeName)
 }

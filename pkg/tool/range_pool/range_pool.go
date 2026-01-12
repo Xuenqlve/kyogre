@@ -118,12 +118,11 @@ func NewRangePool(opts ...RangePoolOption) (*RangePool, error) {
 	if err := cfg.ValidateAndSetDefault(); err != nil {
 		return nil, err
 	}
-	rnd := cfg.rand()
-	live, err := newTierPartition(RangePoolLiveName, cfg.LiveTiers, cfg.Refill, rnd)
+	live, err := newTierPartition(RangePoolLiveName, cfg.LiveTiers, cfg.Refill, cfg.rand())
 	if err != nil {
 		return nil, err
 	}
-	free, err := newTierPartition(RangePoolFreeName, cfg.FreeTiers, cfg.Refill, rnd)
+	free, err := newTierPartition(RangePoolFreeName, cfg.FreeTiers, cfg.Refill, cfg.rand())
 	if err != nil {
 		return nil, err
 	}
@@ -132,6 +131,10 @@ func NewRangePool(opts ...RangePoolOption) (*RangePool, error) {
 		live: live,
 		free: free,
 	}
+	// Start refill IO workers before bootstrap to handle window initialization.
+	ctx := context.Background()
+	pool.live.startRefillWorker(ctx)
+	pool.free.startRefillWorker(ctx)
 	if err = pool.live.bootstrap(); err != nil {
 		return nil, err
 	}
@@ -140,7 +143,6 @@ func NewRangePool(opts ...RangePoolOption) (*RangePool, error) {
 	}
 
 	// Start background refiller goroutines
-	ctx := context.Background()
 	pool.live.startRefiller(ctx)
 	pool.free.startRefiller(ctx)
 
@@ -284,6 +286,9 @@ type tierPartition struct {
 	windowEnd   int64
 	cursor      int64
 	enableLoop  bool
+	closed      bool
+	closedErr   error
+	closeOnce   sync.Once
 
 	// Background refiller fields
 	refillSignal chan int      // Buffered channel for refill signals (tier index)
@@ -291,6 +296,7 @@ type tierPartition struct {
 	wg           sync.WaitGroup
 	ctx          context.Context
 	cancel       context.CancelFunc
+	refillReqCh  chan refillRequest
 }
 
 type tierState struct {
@@ -299,6 +305,30 @@ type tierState struct {
 	lastRefill time.Time // Last refill time (throttling)
 }
 
+type windowState struct {
+	init   bool
+	start  int64
+	end    int64
+	cursor int64
+	loop   bool
+}
+
+type refillRequest struct {
+	need int64
+	resp chan refillResult
+}
+
+type refillResult struct {
+	enableLoop bool
+	window     IntRange
+	err        error
+}
+
+const (
+	refillTimeout = 5 * time.Second
+	refillRetries = 3
+)
+
 // newTierPartition 构建一个分区(tierPartition)，并按 Size 升序组织 tiers，同时建立 size->tier 索引表用于快速定位。
 func newTierPartition(name string, tiers []TierConfig, refill RangePoolRefillFunc, rnd *rand.Rand) (*tierPartition, error) {
 	if len(tiers) == 0 {
@@ -306,6 +336,7 @@ func newTierPartition(name string, tiers []TierConfig, refill RangePoolRefillFun
 	}
 	sort.Slice(tiers, func(i, j int) bool { return tiers[i].Size < tiers[j].Size })
 	index := make(map[int64]int, len(tiers))
+
 	tp := &tierPartition{name: name, rand: rnd, refill: refill, idx: index}
 	for i := range tiers {
 		if tiers[i].Size <= 0 {
@@ -326,6 +357,65 @@ func (p *tierPartition) windowState() (start, cursor, end int64, enableLoop bool
 	p.mu.RLock()
 	defer p.mu.RUnlock()
 	return p.windowStart, p.cursor, p.windowEnd, p.enableLoop
+}
+
+func (p *tierPartition) readWindowState() windowState {
+	p.mu.RLock()
+	defer p.mu.RUnlock()
+	return windowState{
+		init:   p.windowInit,
+		start:  p.windowStart,
+		end:    p.windowEnd,
+		cursor: p.cursor,
+		loop:   p.enableLoop,
+	}
+}
+
+func (p *tierPartition) withWindowWrite(fn func(*windowState) error) error {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	ws := windowState{
+		init:   p.windowInit,
+		start:  p.windowStart,
+		end:    p.windowEnd,
+		cursor: p.cursor,
+		loop:   p.enableLoop,
+	}
+	err := fn(&ws)
+	if err == nil {
+		p.windowInit = ws.init
+		p.windowStart = ws.start
+		p.windowEnd = ws.end
+		p.cursor = ws.cursor
+		p.enableLoop = ws.loop
+	}
+	return err
+}
+
+func (p *tierPartition) checkClosed() error {
+	p.mu.RLock()
+	closed := p.closed
+	err := p.closedErr
+	p.mu.RUnlock()
+	if !closed {
+		return nil
+	}
+	if err == nil {
+		return fmt.Errorf("%s partition closed", p.name)
+	}
+	return err
+}
+
+func (p *tierPartition) closeWithError(err error) {
+	p.mu.Lock()
+	if p.closed {
+		p.mu.Unlock()
+		return
+	}
+	p.closed = true
+	p.closedErr = err
+	p.mu.Unlock()
+	_ = p.Close()
 }
 
 // pickTierSize 根据 need 选择一个可用的 tier size（选择满足 Size>=need 的最小 Size）。
@@ -385,6 +475,9 @@ func (p *tierPartition) initNeedCapacity() int64 {
 // ensureWindowCapacity 确保当前分配窗口至少具备 need 的容量。
 // 该方法采用“两段式”策略：refill(IO) 在锁外执行，回写 window 状态时才加锁。
 func (p *tierPartition) ensureWindowCapacity(need int64, bootstrap bool) error {
+	if err := p.checkClosed(); err != nil {
+		return err
+	}
 	if p.refill == nil {
 		// Window must already be initialized by seed.
 		p.mu.RLock()
@@ -404,12 +497,8 @@ func (p *tierPartition) ensureWindowCapacity(need int64, bootstrap bool) error {
 	}
 
 	for {
-		p.mu.RLock()
-		inited := p.windowInit
-		window := IntRange{Start: p.windowStart, End: p.windowEnd}
-		p.mu.RUnlock()
-
-		if !inited {
+		state := p.readWindowState()
+		if !state.init {
 			// Two-phase: do IO refill out of lock, then apply under lock.
 			enableLoop, win, err := p.refillWindow(need)
 			if err != nil {
@@ -418,36 +507,39 @@ func (p *tierPartition) ensureWindowCapacity(need int64, bootstrap bool) error {
 			if !win.Valid() {
 				return fmt.Errorf("%s refill returned invalid window", p.name)
 			}
-			p.mu.Lock()
-			// Another goroutine may have initialized the window while we were refilling.
-			if !p.windowInit {
-				p.windowInit = true
-				p.windowStart = win.Start
-				p.windowEnd = win.End
-				p.cursor = win.Start
-				p.enableLoop = p.enableLoop || enableLoop
-				p.mu.Unlock()
-				continue
+			err = p.withWindowWrite(func(ws *windowState) error {
+				// Another goroutine may have initialized the window while we were refilling.
+				if !ws.init {
+					ws.init = true
+					ws.start = win.Start
+					ws.end = win.End
+					ws.cursor = win.Start
+					ws.loop = ws.loop || enableLoop
+					return nil
+				}
+				// Window already initialized: enforce stable start.
+				if win.Start != ws.start {
+					return fmt.Errorf("%s refill window start changed: %d -> %d", p.name, ws.start, win.Start)
+				}
+				ws.loop = ws.loop || enableLoop
+				if win.End > ws.end {
+					ws.end = win.End
+				}
+				return nil
+			})
+			if err != nil {
+				return err
 			}
-			// Window already initialized: enforce stable start.
-			if win.Start != p.windowStart {
-				p.mu.Unlock()
-				return fmt.Errorf("%s refill window start changed: %d -> %d", p.name, p.windowStart, win.Start)
-			}
-			p.enableLoop = p.enableLoop || enableLoop
-			if win.End > p.windowEnd {
-				p.windowEnd = win.End
-			}
-			p.mu.Unlock()
 			continue
 		}
 
+		window := IntRange{Start: state.start, End: state.end}
 		if window.Len() >= need {
 			return nil
 		}
 
 		missing := need - window.Len()
-		prevEnd := window.End
+		prevEnd := state.end
 		enableLoop, win, err := p.refillWindow(missing)
 		if err != nil {
 			return err
@@ -455,19 +547,23 @@ func (p *tierPartition) ensureWindowCapacity(need int64, bootstrap bool) error {
 		if !win.Valid() {
 			return fmt.Errorf("%s refill returned invalid window", p.name)
 		}
-		p.mu.Lock()
-		if win.Start != p.windowStart {
-			p.mu.Unlock()
-			return fmt.Errorf("%s refill window start changed: %d -> %d", p.name, p.windowStart, win.Start)
+		err = p.withWindowWrite(func(ws *windowState) error {
+			if win.Start != ws.start {
+				return fmt.Errorf("%s refill window start changed: %d -> %d", p.name, ws.start, win.Start)
+			}
+			ws.loop = ws.loop || enableLoop
+			if win.End > ws.end {
+				ws.end = win.End
+				return nil
+			}
+			if bootstrap && win.End <= prevEnd {
+				return fmt.Errorf("%s allocation window capacity insufficient after refill: need=%d have=%d", p.name, need, (IntRange{Start: ws.start, End: ws.end}).Len())
+			}
+			return nil
+		})
+		if err != nil {
+			return err
 		}
-		p.enableLoop = p.enableLoop || enableLoop
-		if win.End > p.windowEnd {
-			p.windowEnd = win.End
-		} else if bootstrap && win.End <= prevEnd {
-			p.mu.Unlock()
-			return fmt.Errorf("%s allocation window capacity insufficient after refill: need=%d have=%d", p.name, need, (IntRange{Start: p.windowStart, End: p.windowEnd}).Len())
-		}
-		p.mu.Unlock()
 	}
 }
 
@@ -481,100 +577,114 @@ func (p *tierPartition) allocateSequential(size int64, count int, bootstrap bool
 	if size <= 0 {
 		return nil, fmt.Errorf("%s allocate invalid size %d", p.name, size)
 	}
+	if err := p.checkClosed(); err != nil {
+		return nil, err
+	}
 	for {
-		p.mu.Lock()
-		if !p.windowInit {
-			p.mu.Unlock()
-			return nil, fmt.Errorf("%s allocation window not initialized", p.name)
-		}
-		window := IntRange{Start: p.windowStart, End: p.windowEnd}
-		if !window.Valid() {
-			p.mu.Unlock()
-			return nil, fmt.Errorf("%s allocation window not initialized", p.name)
-		}
-		if window.Len() < size {
-			p.mu.Unlock()
-			return nil, fmt.Errorf("%s allocation window too small for size=%d", p.name, size)
-		}
-
-		// If looping is enabled and we are at the tail, wrap before computing need.
-		if p.enableLoop && p.cursor+size-1 > p.windowEnd {
-			p.cursor = p.windowStart
-		}
-
-		startCursor := p.cursor
-		desiredEnd := startCursor + size*int64(count) - 1
-		prevEnd := p.windowEnd
-
-		if desiredEnd <= p.windowEnd {
-			segs := make([]IntRange, 0, count)
-			cursor := p.cursor
-			for i := 0; i < count; i++ {
-				end := cursor + size - 1
-				segs = append(segs, IntRange{Start: cursor, End: end})
-				cursor = end + 1
+		var (
+			segs        []IntRange
+			startCursor int64
+			desiredEnd  int64
+			prevEnd     int64
+			needExtra   int64
+			needRefill  bool
+		)
+		err := p.withWindowWrite(func(ws *windowState) error {
+			if !ws.init {
+				return fmt.Errorf("%s allocation window not initialized", p.name)
 			}
-			p.cursor = cursor
-			p.mu.Unlock()
+			window := IntRange{Start: ws.start, End: ws.end}
+			if !window.Valid() {
+				return fmt.Errorf("%s allocation window not initialized", p.name)
+			}
+			if window.Len() < size {
+				return fmt.Errorf("%s allocation window too small for size=%d", p.name, size)
+			}
+
+			// If looping is enabled and we are at the tail, wrap before computing need.
+			if ws.loop && ws.cursor+size-1 > ws.end {
+				ws.cursor = ws.start
+			}
+
+			startCursor = ws.cursor
+			desiredEnd = startCursor + size*int64(count) - 1
+			prevEnd = ws.end
+
+			if desiredEnd <= ws.end {
+				segs = make([]IntRange, 0, count)
+				cursor := ws.cursor
+				for i := 0; i < count; i++ {
+					end := cursor + size - 1
+					segs = append(segs, IntRange{Start: cursor, End: end})
+					cursor = end + 1
+				}
+				ws.cursor = cursor
+				return nil
+			}
+
+			needExtra = desiredEnd - prevEnd
+			needRefill = true
+			return nil
+		})
+		if err != nil {
+			return nil, err
+		}
+		if segs != nil {
 			return segs, nil
 		}
-		p.mu.Unlock()
-
-		needExtra := desiredEnd - prevEnd
-		if p.refill != nil {
-			enableLoop, win, err := p.refillWindow(needExtra)
-			if err != nil {
-				return nil, err
-			}
-			if !win.Valid() {
-				return nil, fmt.Errorf("%s refill returned invalid window", p.name)
-			}
-			p.mu.Lock()
-			if win.Start != p.windowStart {
-				p.mu.Unlock()
-				return nil, fmt.Errorf("%s refill window start changed: %d -> %d", p.name, p.windowStart, win.Start)
-			}
-			p.enableLoop = p.enableLoop || enableLoop
-			if win.End > p.windowEnd {
-				p.windowEnd = win.End
-				p.mu.Unlock()
-				continue
-			}
-			// No growth: if loop is enabled, we may wrap on next iteration; otherwise fail.
-			if bootstrap {
-				p.mu.Unlock()
-				return nil, fmt.Errorf("%s allocation window exhausted during bootstrap: cursor=%d size=%d desiredEnd=%d windowEnd=%d", p.name, p.cursor, size, desiredEnd, p.windowEnd)
-			}
-			if !p.enableLoop {
-				p.mu.Unlock()
-				return nil, &partitionError{name: p.name, size: size}
-			}
-			p.mu.Unlock()
+		if !needRefill {
 			continue
 		}
 
-		// No refill: only possible via loop.
-		p.mu.RLock()
-		loop := p.enableLoop
-		winStart := p.windowStart
-		winEnd := p.windowEnd
-		p.mu.RUnlock()
-		if bootstrap {
-			return nil, fmt.Errorf("%s allocation window exhausted during bootstrap: cursor=%d size=%d desiredEnd=%d windowEnd=%d", p.name, startCursor, size, desiredEnd, winEnd)
+		var enableLoop bool
+		var win IntRange
+		if enableLoop, win, err = p.refillWindow(needExtra); err != nil {
+			return nil, err
 		}
-		if !loop {
+		if !win.Valid() {
+			return nil, fmt.Errorf("%s refill returned invalid window", p.name)
+		}
+		var grew bool
+		var loopEnabled bool
+		if err = p.withWindowWrite(func(ws *windowState) error {
+			if win.Start != ws.start {
+				return fmt.Errorf("%s refill window start changed: %d -> %d", p.name, ws.start, win.Start)
+			}
+			ws.loop = ws.loop || enableLoop
+			loopEnabled = ws.loop
+			if win.End > ws.end {
+				ws.end = win.End
+				grew = true
+			}
+			return nil
+		}); err != nil {
+			return nil, err
+		}
+		if grew {
+			continue
+		}
+		// No growth: if loop is enabled, we may wrap on next iteration; otherwise fail.
+		if bootstrap {
+			state := p.readWindowState()
+			return nil, fmt.Errorf("%s allocation window exhausted during bootstrap: cursor=%d size=%d desiredEnd=%d windowEnd=%d", p.name, startCursor, size, desiredEnd, state.end)
+		}
+		if !loopEnabled {
 			return nil, &partitionError{name: p.name, size: size}
 		}
 		// Wrap and retry.
-		p.mu.Lock()
-		p.cursor = winStart
-		p.mu.Unlock()
+		_ = p.withWindowWrite(func(ws *windowState) error {
+			ws.cursor = ws.start
+			return nil
+		})
 	}
 }
 
 // peek 从指定 size 的 tier 中随机选择一个 segment 返回，但不消费库存（用于 UPDATE 场景）。
 // 注意：按约定 peek 不触发补货逻辑（补货由 consume 后置触发或后台定时器兜底）。
 func (p *tierPartition) peek(size int64) (IntRange, error) {
+	if err := p.checkClosed(); err != nil {
+		return IntRange{}, err
+	}
 	idx, ok := p.idx[size]
 	if !ok {
 		return IntRange{}, fmt.Errorf("%s tier %d not configured", p.name, size)
@@ -604,6 +714,9 @@ func (p *tierPartition) randInt(num int) int {
 // consume 从指定 size 的 tier 中随机消费一个 segment 并返回（用于 INSERT/DELETE 场景）。
 // 消费后若库存触达阈值(<=Threshold)，会尝试发送异步补货信号，由后台 refiller 补到 MaxCount。
 func (p *tierPartition) consume(size int64) (IntRange, error) {
+	if err := p.checkClosed(); err != nil {
+		return IntRange{}, err
+	}
 	idx, ok := p.idx[size]
 	if !ok {
 		return IntRange{}, fmt.Errorf("%s tier %d not configured", p.name, size)
@@ -612,14 +725,25 @@ func (p *tierPartition) consume(size int64) (IntRange, error) {
 	// 1. Read lock: quick check if tier has segments
 	p.mu.RLock()
 	tier := p.tiers[idx]
-	if len(tier.segments) == 0 {
-		p.mu.RUnlock()
-		return IntRange{}, fmt.Errorf("%s tier %d exhausted", p.name, size)
-	}
+	hasSeg := len(tier.segments) > 0
 	p.mu.RUnlock()
 
 	// 2. Write lock: consume segment
 	p.mu.Lock()
+	if !hasSeg && len(tier.segments) == 0 {
+		// Emergency refill to improve availability.
+		target := tier.cfg.MaxCount
+		if target <= 0 {
+			target = tier.cfg.Threshold + 1
+		}
+		var added int
+		if idx == len(p.tiers)-1 {
+			added = p.refillTopTierUnsafe(idx, target)
+		} else {
+			added = p.refillMiddleTierUnsafe(idx, target)
+		}
+		log.Debugf("[RangePool] %s tier %d emergency refill added=%d len=%d", p.name, tier.cfg.Size, added, len(tier.segments))
+	}
 	// Double-check after acquiring write lock
 	if len(tier.segments) == 0 {
 		p.mu.Unlock()
@@ -684,7 +808,6 @@ func (p *tierPartition) splitFromUpper(idx int) bool {
 	}
 
 	sel := p.randInt(len(upper.segments))
-
 	parent := upper.segments[sel]
 	upper.segments[sel] = upper.segments[len(upper.segments)-1]
 	upper.segments = upper.segments[:len(upper.segments)-1]
@@ -700,15 +823,31 @@ func (p *tierPartition) splitFromUpper(idx int) bool {
 
 // refillWindow 调用外部 refill 回调获取/扩展窗口（串行化回调，避免并发多次打 DB）。
 func (p *tierPartition) refillWindow(need int64) (enableLoop bool, refillWindow IntRange, err error) {
-	if p.refill == nil {
-		return false, IntRange{}, fmt.Errorf("%s partition missing refill callback", p.name)
+	if err = p.checkClosed(); err != nil {
+		return false, IntRange{}, err
 	}
 	if need <= 0 {
 		need = 1
 	}
-	p.refillMu.Lock()
-	defer p.refillMu.Unlock()
-	return p.refill(p.name, need)
+	if p.refillReqCh == nil {
+		return false, IntRange{}, fmt.Errorf("%s refill worker not started", p.name)
+	}
+
+	req := refillRequest{
+		need: need,
+		resp: make(chan refillResult, 1),
+	}
+	select {
+	case p.refillReqCh <- req:
+	case <-p.ctx.Done():
+		return false, IntRange{}, fmt.Errorf("%s refill canceled", p.name)
+	}
+
+	res := <-req.resp
+	if res.err != nil {
+		p.closeWithError(res.err)
+	}
+	return res.enableLoop, res.window, res.err
 }
 
 // defaultRangePoolConfig returns the default tier ladder used for both partitions.
@@ -806,9 +945,61 @@ func validateTierDivisible(name string, tiers []TierConfig) error {
 
 // ==================== Background Refiller Implementation ====================
 
+// startRefillWorker 启动 IO refill 协程：串行执行 refill 回调，避免在业务路径中做 IO。
+func (p *tierPartition) startRefillWorker(ctx context.Context) {
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	if p.ctx == nil {
+		p.ctx, p.cancel = context.WithCancel(ctx)
+	}
+	if p.refillReqCh == nil {
+		p.refillReqCh = make(chan refillRequest, 1)
+		p.wg.Add(1)
+		go p.refillIOLoop()
+	}
+}
+
+func (p *tierPartition) refillIOLoop() {
+	defer p.wg.Done()
+	for {
+		select {
+		case <-p.ctx.Done():
+			return
+		case req := <-p.refillReqCh:
+			res := p.doRefillWithRetry(req.need)
+			req.resp <- res
+		}
+	}
+}
+
+func (p *tierPartition) doRefillWithRetry(need int64) refillResult {
+	var lastErr error
+	for attempt := 1; attempt <= refillRetries; attempt++ {
+		resCh := make(chan refillResult, 1)
+		go func() {
+			enableLoop, window, err := p.refill(p.name, need)
+			resCh <- refillResult{enableLoop: enableLoop, window: window, err: err}
+		}()
+
+		select {
+		case res := <-resCh:
+			if res.err == nil {
+				return res
+			}
+			lastErr = res.err
+		case <-time.After(refillTimeout):
+			lastErr = fmt.Errorf("%s refill timeout after %s (attempt %d/%d)", p.name, refillTimeout, attempt, refillRetries)
+		}
+	}
+	return refillResult{err: lastErr}
+}
+
 // startRefiller 启动后台补货协程：支持定时扫描补货，以及按信号触发补货。
 func (p *tierPartition) startRefiller(ctx context.Context) {
-	p.ctx, p.cancel = context.WithCancel(ctx)
+	if p.ctx == nil {
+		p.ctx, p.cancel = context.WithCancel(ctx)
+	}
 	p.refillSignal = make(chan int, len(p.tiers)) // Buffered channel
 	p.stopChan = make(chan struct{})
 
@@ -820,7 +1011,7 @@ func (p *tierPartition) startRefiller(ctx context.Context) {
 func (p *tierPartition) refillerLoop() {
 	defer p.wg.Done()
 
-	ticker := time.NewTicker(100 * time.Millisecond) // Periodic check interval
+	ticker := time.NewTicker(1 * time.Second) // Periodic check interval
 	defer ticker.Stop()
 
 	for {
@@ -829,7 +1020,6 @@ func (p *tierPartition) refillerLoop() {
 			return
 		case <-p.stopChan:
 			return
-
 		case <-ticker.C:
 			// Periodic check: refill all tiers if needed
 			p.checkAndRefillAll()
@@ -843,6 +1033,7 @@ func (p *tierPartition) refillerLoop() {
 
 // checkAndRefillAll 遍历所有 tiers，逐个执行检查与补货。
 func (p *tierPartition) checkAndRefillAll() {
+	log.Debugf("[RangePool] %s checkAndRefillAll start tiers=%d", p.name, len(p.tiers))
 	for i := range p.tiers {
 		p.checkAndRefill(i)
 	}
@@ -859,23 +1050,29 @@ func (p *tierPartition) checkAndRefill(idx int) {
 
 	// 1. Read lock: quick check if refill is needed
 	p.mu.RLock()
-	needRefill := len(tier.segments) <= tier.cfg.Threshold
+	curLen := len(tier.segments)
+	needRefill := curLen <= tier.cfg.Threshold
 	timeSinceLastRefill := time.Since(tier.lastRefill)
+	threshold := tier.cfg.Threshold
+	maxCount := tier.cfg.MaxCount
 	p.mu.RUnlock()
 
 	if !needRefill {
 		return
 	}
+	log.Debugf("[RangePool] %s tier %d need refill len=%d threshold=%d max=%d", p.name, tier.cfg.Size, curLen, threshold, maxCount)
 
 	// 2. Throttling: avoid refilling too frequently
 	if timeSinceLastRefill < 50*time.Millisecond {
+		log.Debugf("[RangePool] %s tier %d refill throttled since=%s", p.name, tier.cfg.Size, timeSinceLastRefill)
 		return
 	}
 
 	// 3. Perform refill (write lock)
 	p.mu.Lock()
 	// Double-check after acquiring write lock
-	if len(tier.segments) > tier.cfg.Threshold {
+	curLen = len(tier.segments)
+	if curLen > tier.cfg.Threshold {
 		p.mu.Unlock()
 		return
 	}
@@ -884,28 +1081,35 @@ func (p *tierPartition) checkAndRefill(idx int) {
 	if target <= 0 {
 		target = tier.cfg.Threshold + 1
 	}
+	needCount := target - curLen
+	log.Debugf("[RangePool] %s tier %d refill start len=%d target=%d need=%d", p.name, tier.cfg.Size, curLen, target, needCount)
 
+	var added int
 	if idx == len(p.tiers)-1 {
 		// Top tier: refill from allocation window
-		p.refillTopTierUnsafe(idx, target)
+		added = p.refillTopTierUnsafe(idx, target)
 	} else {
 		// Middle tier: refill by splitting from upper tiers
-		p.refillMiddleTierUnsafe(idx, target)
+		added = p.refillMiddleTierUnsafe(idx, target)
 	}
 
+	finalLen := len(tier.segments)
 	tier.lastRefill = time.Now()
 	p.mu.Unlock()
 
-	log.Debugf("[RangePool] %s tier %d refilled to %d segments", p.name, tier.cfg.Size, len(tier.segments))
+	log.Debugf("[RangePool] %s tier %d refill done added=%d final=%d", p.name, tier.cfg.Size, added, finalLen)
+	if maxCount > 0 && finalLen > maxCount {
+		log.Warnf("[RangePool] %s tier %d exceeds max count final=%d max=%d", p.name, tier.cfg.Size, finalLen, maxCount)
+	}
 }
 
 // refillTopTierUnsafe 补顶层 tier：从分配窗口顺序切分 segment，直到补到 target。
 // 调用方必须已持有写锁；该方法会主动释放写锁以执行可能的 IO(refill)，随后再重新加锁写回。
-func (p *tierPartition) refillTopTierUnsafe(idx int, target int) {
+func (p *tierPartition) refillTopTierUnsafe(idx int, target int) int {
 	tier := p.tiers[idx]
 	needCount := target - len(tier.segments)
 	if needCount <= 0 {
-		return
+		return 0
 	}
 
 	// Release lock before IO operation
@@ -915,15 +1119,17 @@ func (p *tierPartition) refillTopTierUnsafe(idx int, target int) {
 
 	if err != nil {
 		log.Warnf("[RangePool] %s tier %d refill failed: %v", p.name, tier.cfg.Size, err)
-		return
+		return 0
 	}
 	p.tiers[idx].segments = append(p.tiers[idx].segments, segs...)
+	return len(segs)
 }
 
 // refillMiddleTierUnsafe 补中间层/底层 tier：通过不断从上层拆分 segment 来补到 target。
 // 调用方必须已持有写锁；该方法不会做 IO。
-func (p *tierPartition) refillMiddleTierUnsafe(idx int, target int) {
+func (p *tierPartition) refillMiddleTierUnsafe(idx int, target int) int {
 	tier := p.tiers[idx]
+	beforeLen := len(tier.segments)
 	maxAttempts := target * 2 // Avoid infinite loop
 
 	for attempt := 0; attempt < maxAttempts && len(tier.segments) < target; attempt++ {
@@ -945,6 +1151,7 @@ func (p *tierPartition) refillMiddleTierUnsafe(idx int, target int) {
 			}
 		}
 	}
+	return len(tier.segments) - beforeLen
 }
 
 // splitFromUpperUnsafe 为 splitFromUpper 的无锁版本：调用方必须已持有写锁。
@@ -967,13 +1174,13 @@ func (p *tierPartition) splitFromUpperUnsafe(idx int) bool {
 	}
 
 	// Use randMu to protect rand access
-	p.randMu.Lock()
-	sel := p.rand.Intn(len(upper.segments))
-	p.randMu.Unlock()
+	sel := p.randInt(len(upper.segments))
 
 	parent := upper.segments[sel]
 	upper.segments[sel] = upper.segments[len(upper.segments)-1]
 	upper.segments = upper.segments[:len(upper.segments)-1]
+
+	log.Debugf("[RangePool] %s tier %d split from upper tier %d parent=%d~%d children=%d", p.name, p.tiers[idx].cfg.Size, upper.cfg.Size, parent.Start, parent.End, ratio)
 
 	childSize := lowerSize
 	cursor := parent.Start
@@ -987,12 +1194,14 @@ func (p *tierPartition) splitFromUpperUnsafe(idx int) bool {
 
 // Close 停止后台补货协程并等待退出（需由上层保证只调用一次，避免重复 close channel）。
 func (p *tierPartition) Close() error {
-	if p.cancel != nil {
-		p.cancel()
-	}
-	if p.stopChan != nil {
-		close(p.stopChan)
-	}
+	p.closeOnce.Do(func() {
+		if p.cancel != nil {
+			p.cancel()
+		}
+		if p.stopChan != nil {
+			close(p.stopChan)
+		}
+	})
 	p.wg.Wait()
 	return nil
 }
