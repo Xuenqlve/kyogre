@@ -168,7 +168,7 @@ func (w *windowManager) allocateSequential(size int64, count int, bootstrap bool
 			continue
 		}
 
-		if err := refill(needExtra, "allocate-sequential", true); err != nil {
+		if err = refill(needExtra, "allocate-sequential", true); err != nil {
 			return nil, err
 		}
 

@@ -5,6 +5,7 @@ import (
 	"math/rand"
 	"sort"
 	"sync"
+	"sync/atomic"
 	"time"
 )
 
@@ -22,6 +23,8 @@ type tierManager struct {
 
 	mu     sync.RWMutex
 	randMu sync.Mutex
+
+	emergency []uint32
 }
 
 func newTierManager(name string, tiers []TierConfig, rnd *rand.Rand) (*tierManager, error) {
@@ -43,6 +46,7 @@ func newTierManager(name string, tiers []TierConfig, rnd *rand.Rand) (*tierManag
 		tm.tiers = append(tm.tiers, &tierState{cfg: copyCfg})
 		index[copyCfg.Size] = len(tm.tiers) - 1
 	}
+	tm.emergency = make([]uint32, len(tm.tiers))
 	return tm, nil
 }
 
@@ -101,11 +105,17 @@ func (t *tierManager) consume(size int64, emergency func(idx int, target int) in
 	tier := t.tiers[idx]
 	if !hasSeg && len(tier.segments) == 0 {
 		t.mu.Unlock()
-		target := tier.cfg.MaxCount
-		if target <= 0 {
-			target = tier.cfg.Threshold + 1
+		doEmergency := atomic.CompareAndSwapUint32(&t.emergency[idx], 0, 1)
+		if doEmergency {
+			target := tier.cfg.MaxCount
+			if target <= 0 {
+				target = tier.cfg.Threshold + 1
+			}
+			func() {
+				defer atomic.StoreUint32(&t.emergency[idx], 0)
+				emergency(idx, target)
+			}()
 		}
-		emergency(idx, target)
 		t.mu.Lock()
 		tier = t.tiers[idx]
 	}
@@ -171,7 +181,10 @@ func (t *tierManager) splitFromUpperUnsafe(idx int) bool {
 func (t *tierManager) refillMiddleTier(idx int, target int) int {
 	t.mu.Lock()
 	defer t.mu.Unlock()
+	return t.refillMiddleTierUnsafe(idx, target)
+}
 
+func (t *tierManager) refillMiddleTierUnsafe(idx int, target int) int {
 	tier := t.tiers[idx]
 	beforeLen := len(tier.segments)
 	maxAttempts := target * 2
@@ -183,7 +196,7 @@ func (t *tierManager) refillMiddleTier(idx int, target int) int {
 				if upperTarget <= 0 {
 					upperTarget = t.tiers[idx+1].cfg.Threshold + 1
 				}
-				t.refillMiddleTier(idx+1, upperTarget)
+				t.refillMiddleTierUnsafe(idx+1, upperTarget)
 				if !t.splitFromUpperUnsafe(idx) {
 					break
 				}

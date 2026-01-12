@@ -2,6 +2,7 @@ package tool
 
 import (
 	"math/rand"
+	"sync"
 	"testing"
 	"time"
 
@@ -164,4 +165,131 @@ func TestRangePool(t *testing.T) {
 	pool.DebugLog(range_pool.RangePoolFreeName)
 	time.Sleep(1 * time.Second)
 	pool.DebugLog(range_pool.RangePoolFreeName)
+}
+
+type testRefill struct {
+	mu    sync.Mutex
+	start map[string]int64
+	end   map[string]int64
+	max   int64
+	loop  bool
+}
+
+func newTestRefill(max int64, loop bool) *testRefill {
+	return &testRefill{
+		start: map[string]int64{
+			range_pool.RangePoolLiveName: 0,
+			range_pool.RangePoolFreeName: 0,
+		},
+		end: map[string]int64{
+			range_pool.RangePoolLiveName: 0,
+			range_pool.RangePoolFreeName: 0,
+		},
+		max:  max,
+		loop: loop,
+	}
+}
+
+func (r *testRefill) Refill(partition string, need int64) (bool, range_pool.IntRange, error) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	start := r.start[partition]
+	end := r.end[partition] + need
+	enableLoop := false
+	if end >= r.max {
+		end = r.max
+		enableLoop = r.loop
+	}
+	r.end[partition] = end
+	return enableLoop, range_pool.IntRange{Start: start, End: end}, nil
+}
+
+func TestRangePoolInvalidConfig(t *testing.T) {
+	refill := newTestRefill(1000, false)
+	invalidTiers := []range_pool.TierConfig{
+		{Size: 5, Threshold: 1, MaxCount: 1},
+		{Size: 6, Threshold: 1, MaxCount: 2},
+	}
+	_, err := range_pool.NewRangePool(
+		range_pool.WithRefill(refill.Refill),
+		range_pool.WithLiveTiers(invalidTiers),
+		range_pool.WithFreeTiers(invalidTiers),
+	)
+	if err == nil {
+		t.Fatal("expected invalid tier config error")
+	}
+}
+
+func TestRangePoolReserveInsertTooLarge(t *testing.T) {
+	refill := newTestRefill(1000, false)
+	tiers := []range_pool.TierConfig{
+		{Size: 2, Threshold: 1, MaxCount: 3},
+		{Size: 4, Threshold: 1, MaxCount: 2},
+	}
+	pool, err := range_pool.NewRangePool(
+		range_pool.WithRefill(refill.Refill),
+		range_pool.WithLiveTiers(tiers),
+		range_pool.WithFreeTiers(tiers),
+		range_pool.WithRandSource(rand.NewSource(1)),
+	)
+	if err != nil {
+		t.Fatalf("new pool: %v", err)
+	}
+	defer pool.Close()
+
+	if _, ok := pool.ReserveInsert(10); ok {
+		t.Fatal("expected reserve insert to fail for oversized need")
+	}
+	r, ok := pool.ReserveInsert(3)
+	if !ok {
+		t.Fatal("expected reserve insert to succeed")
+	}
+	if r.Len() != 4 {
+		t.Fatalf("expected length 4, got %d", r.Len())
+	}
+}
+
+func TestRangePoolConcurrentReserveInsert(t *testing.T) {
+	refill := newTestRefill(1_000_000, true)
+	tiers := []range_pool.TierConfig{
+		{Size: 2, Threshold: 1, MaxCount: 4},
+		{Size: 4, Threshold: 1, MaxCount: 2},
+	}
+	pool, err := range_pool.NewRangePool(
+		range_pool.WithRefill(refill.Refill),
+		range_pool.WithLiveTiers(tiers),
+		range_pool.WithFreeTiers(tiers),
+		range_pool.WithRandSource(rand.NewSource(1)),
+	)
+	if err != nil {
+		t.Fatalf("new pool: %v", err)
+	}
+	defer pool.Close()
+
+	const goroutines = 20
+	const perG = 50
+	var wg sync.WaitGroup
+	wg.Add(goroutines)
+
+	for i := 0; i < goroutines; i++ {
+		go func() {
+			defer wg.Done()
+			for j := 0; j < perG; j++ {
+				pool.ReserveInsert(2)
+			}
+		}()
+	}
+
+	done := make(chan struct{})
+	go func() {
+		wg.Wait()
+		close(done)
+	}()
+
+	select {
+	case <-done:
+	case <-time.After(2 * time.Second):
+		t.Fatal("concurrent reserve insert timed out")
+	}
 }
