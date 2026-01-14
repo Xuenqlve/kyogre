@@ -4,6 +4,9 @@ import (
 	"context"
 	"fmt"
 	"sync"
+	"time"
+
+	"github.com/xuenqlve/common/log"
 )
 
 type refillRequest struct {
@@ -26,6 +29,8 @@ type refillScheduler struct {
 
 	reqCh chan refillRequest
 	wg    sync.WaitGroup
+
+	lastRefill time.Time
 }
 
 func newRefillScheduler(name string, refill RangePoolRefillFunc, window *windowManager) *refillScheduler {
@@ -81,14 +86,20 @@ func (s *refillScheduler) schedule(need int64, reason string, wait bool) error {
 		case <-s.ctx.Done():
 			return fmt.Errorf("%s refill canceled", s.name)
 		}
-		res := <-resp
-		return res.err
+		select {
+		case res := <-resp:
+			return res.err
+		case <-s.ctx.Done():
+			return fmt.Errorf("%s refill canceled", s.name)
+		}
 	}
 
 	select {
 	case s.reqCh <- req:
+		log.Infof("---------- Push refill:%v", req.need)
 	default:
 		// Drop if queue is busy; next consume will retry.
+		log.Warnf("---------- Drop if queue is busy: name=%s need=%d reason=%s", s.name, req.need, req.reason)
 	}
 	return nil
 }
@@ -100,6 +111,7 @@ func (s *refillScheduler) loop() {
 		case <-s.ctx.Done():
 			return
 		case req := <-s.reqCh:
+			log.Infof("---------- [doRefill] req:%v", req.need)
 			err := s.doRefill(req.need)
 			if req.resp != nil {
 				req.resp <- refillResult{err: err}
@@ -109,9 +121,18 @@ func (s *refillScheduler) loop() {
 }
 
 func (s *refillScheduler) doRefill(need int64) error {
+	const minRefillInterval = 50 * time.Millisecond
+
+	if !s.lastRefill.IsZero() {
+		elapsed := time.Since(s.lastRefill)
+		if elapsed < minRefillInterval {
+			time.Sleep(minRefillInterval - elapsed)
+		}
+	}
 	enableLoop, win, err := s.refill(s.name, need)
 	if err != nil {
 		return err
 	}
+	s.lastRefill = time.Now()
 	return s.window.applyRefillWindow(enableLoop, win)
 }

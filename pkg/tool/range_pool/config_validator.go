@@ -15,7 +15,7 @@ func defaultRangePoolConfig() RangePoolConfig {
 		{Size: 10, Threshold: 6, MaxCount: 10},
 		{Size: 20, Threshold: 5, MaxCount: 10},
 		{Size: 100, Threshold: 5, MaxCount: 10},
-		{Size: 500, Threshold: 1, MaxCount: 2},
+		{Size: 500, Threshold: 2, MaxCount: 5},
 	}
 	return RangePoolConfig{LiveTiers: tiers, FreeTiers: tiers}
 }

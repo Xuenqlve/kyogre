@@ -35,7 +35,8 @@ func (l *LiveRefill) Refill(partition string, need int64) (enableLoop bool, refi
 		if end >= l.Max {
 			end = l.Max
 			l.LiveEnableLoop = true
-			l.LiveCursor = l.Min
+			//enableLoop = true
+			l.LiveStart = l.Min
 			l.LiveCursor = l.Min
 		} else {
 			l.LiveEnableLoop = false
@@ -44,6 +45,9 @@ func (l *LiveRefill) Refill(partition string, need int64) (enableLoop bool, refi
 		refillWindow = range_pool.IntRange{
 			start,
 			end,
+		}
+		if enableLoop {
+			log.Infof("min:%d max:%d live_start:%d live_cursor:%d LiveEnableLoop:%v refillWindow:%d~%d", l.Min, l.Max, l.LiveStart, l.LiveCursor, l.LiveEnableLoop, refillWindow.Start, refillWindow.End)
 		}
 	case range_pool.RangePoolFreeName:
 		if l.FreeEnableLoop {
@@ -64,8 +68,8 @@ func (l *LiveRefill) Refill(partition string, need int64) (enableLoop bool, refi
 			start,
 			end,
 		}
+		//log.Infof("min:%d max:%d live_start:%d live_cursor:%d LiveEnableLoop:%v refillWindow:%d~%d", l.Min, l.Max, l.FreeStart, l.FreeCursor, l.FreeEnableLoop, refillWindow.Start, refillWindow.End)
 	}
-	log.Infof("min:%d max:%d live_start:%d live_cursor:%d LiveEnableLoop:%v free_start:%d free_cursor:%d FreeEnableLoop:%v", l.Min, l.Max, l.LiveStart, l.LiveCursor, l.LiveEnableLoop, l.FreeStart, l.FreeCursor, l.FreeEnableLoop)
 	return
 }
 
@@ -115,7 +119,7 @@ func TestLiveRefill(t *testing.T) {
 func TestRangePool(t *testing.T) {
 	refill := &LiveRefill{
 		Min:            0,
-		Max:            10000,
+		Max:            15000,
 		LiveStart:      0,
 		LiveCursor:     0,
 		LiveEnableLoop: false,
@@ -128,43 +132,27 @@ func TestRangePool(t *testing.T) {
 		t.Fatal(err)
 		return
 	}
-	pool.DebugLog(range_pool.RangePoolFreeName)
-	r, b := pool.ReserveInsert(20)
-	t.Logf("1 r:%v b:%v", r, b)
-	r, b = pool.ReserveInsert(20)
-	t.Logf("2 r:%v b:%v", r, b)
-	r, b = pool.ReserveInsert(20)
-	t.Logf("3 r:%v b:%v", r, b)
-	r, b = pool.ReserveInsert(20)
-	t.Logf("4 r:%v b:%v", r, b)
-	r, b = pool.ReserveInsert(20)
-	t.Logf("5 r:%v b:%v", r, b)
-	pool.DebugLog(range_pool.RangePoolFreeName)
-	r, b = pool.ReserveInsert(100)
-	t.Logf("6 r:%v b:%v", r, b)
-	r, b = pool.ReserveInsert(100)
-	t.Logf("7 r:%v b:%v", r, b)
-	r, b = pool.ReserveInsert(100)
-	t.Logf("8 r:%v b:%v", r, b)
-	r, b = pool.ReserveInsert(100)
-	t.Logf("9 r:%v b:%v", r, b)
-	r, b = pool.ReserveInsert(100)
-	t.Logf("10 r:%v b:%v", r, b)
-	r, b = pool.ReserveInsert(500)
-	t.Logf("11 r:%v b:%v", r, b)
-	r, b = pool.ReserveInsert(500)
-	t.Logf("12 r:%v b:%v", r, b)
-	r, b = pool.ReserveInsert(500)
-	t.Logf("13 r:%v b:%v", r, b)
-	r, b = pool.ReserveInsert(500)
-	t.Logf("14 r:%v b:%v", r, b)
-	pool.DebugLog(range_pool.RangePoolFreeName)
-	time.Sleep(100 * time.Millisecond)
-	pool.DebugLog(range_pool.RangePoolFreeName)
-	time.Sleep(100 * time.Millisecond)
-	pool.DebugLog(range_pool.RangePoolFreeName)
-	time.Sleep(1 * time.Second)
-	pool.DebugLog(range_pool.RangePoolFreeName)
+	//r := rand.NewSource(time.Now().UnixNano())
+	sizeMap := map[int]int64{
+		0: 1,
+		1: 5,
+		2: 10,
+		3: 20,
+		4: 100,
+		5: 500,
+	}
+	for i := 0; i < 10000; i++ {
+		index := rand.Intn(6)
+		size := sizeMap[index]
+		reserveDelete, b := pool.ReserveDelete(size)
+		if !b {
+			pool.DebugLog(range_pool.RangePoolLiveName)
+			//t.Logf("reserveDelete false")
+			break
+		}
+		t.Logf("index:%d size:%d:%d~%d", i, size, reserveDelete.Start, reserveDelete.End)
+		//pool.DebugLog(range_pool.RangePoolLiveName)
+	}
 }
 
 type testRefill struct {

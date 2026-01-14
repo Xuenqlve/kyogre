@@ -18,6 +18,9 @@ type tierPartition struct {
 	tiers     *tierManager
 	scheduler *refillScheduler
 
+	triggerFactor int64
+	refillFactor  int64
+
 	mu        sync.RWMutex
 	closed    bool
 	closedErr error
@@ -78,6 +81,20 @@ func (p *tierPartition) closeWithError(err error) {
 // pickTierSize 根据 need 选择一个可用的 tier size（选择满足 Size>=need 的最小 Size）。
 func (p *tierPartition) pickTierSize(need int64) (int64, bool) {
 	return p.tiers.pickTierSize(need)
+}
+
+func (p *tierPartition) setRefillFactors(triggerFactor, refillFactor int64) {
+	if triggerFactor <= 0 {
+		triggerFactor = 3
+	}
+	if refillFactor <= 0 {
+		refillFactor = 5
+	}
+	if refillFactor <= triggerFactor {
+		refillFactor = triggerFactor + 2
+	}
+	p.triggerFactor = triggerFactor
+	p.refillFactor = refillFactor
 }
 
 // bootstrap 在分区初始化阶段一次性填充各 tier 的初始库存（按 MaxCount）。
@@ -196,13 +213,20 @@ func (p *tierPartition) consume(size int64) (IntRange, error) {
 		return IntRange{}, err
 	}
 
-	// 3. Post-consumption: send non-blocking refill signal
-	if needRefill && p.refillSignal != nil {
-		select {
-		case p.refillSignal <- idx:
-			// Signal sent successfully
-		default:
-			// Channel full, signal already queued
+	// 3. Post-consumption: ensure critical tiers refill synchronously to avoid empty inventory.
+	if needRefill {
+		if idx == p.tiers.tiersCount()-1 {
+			p.checkAndRefill(idx)
+		} else if p.refillSignal != nil {
+			select {
+			case p.refillSignal <- idx:
+				log.Infof("[RangePool] tier %d refill signal received", size)
+				// Signal sent successfully
+			default:
+				// Channel full: fall back to sync refill to avoid empty tiers.
+				log.Warnf("[RangePool] tier %d refill signal channel is full", size)
+				p.checkAndRefill(idx)
+			}
 		}
 	}
 
@@ -216,7 +240,7 @@ func (p *tierPartition) consume(size int64) (IntRange, error) {
 	return r, nil
 }
 
-// maybeTriggerWindowRefill 在顶层 tier 剩余空间不足时尝试提前触发窗口补货（异步、无阻塞）。
+// maybeTriggerWindowRefill 在顶层 tier 剩余空间不足时触发窗口补货（同步）。
 func (p *tierPartition) maybeTriggerWindowRefill(topSize int64) {
 	state := p.window.stateSnapshot()
 	if !state.init {
@@ -226,14 +250,22 @@ func (p *tierPartition) maybeTriggerWindowRefill(topSize int64) {
 	if remaining < 0 {
 		remaining = 0
 	}
-	if remaining > topSize*2 {
+	triggerFactor := p.triggerFactor
+	if triggerFactor <= 0 {
+		triggerFactor = 2
+	}
+	if remaining > topSize*triggerFactor {
 		return
 	}
-	need := topSize * 4
+	refillFactor := p.refillFactor
+	if refillFactor <= 0 {
+		refillFactor = 4
+	}
+	need := topSize * refillFactor
 	if need <= 0 {
 		need = topSize
 	}
-	p.fireAndForgetRefill(need, "near-window-end")
+	_ = p.refillWindow(need, "near-window-end", true)
 }
 
 func (p *tierPartition) fireAndForgetRefill(need int64, reason string) {
@@ -283,18 +315,20 @@ func (p *tierPartition) refillerLoop() {
 			return
 		case idx := <-p.refillSignal:
 			// Triggered refill for specific tier
+			log.Infof("[RangePool CheckAndRefill Size:%d start]", p.tiers.tiers[idx].cfg.Size)
 			p.checkAndRefill(idx)
+			log.Infof("[RangePool CheckAndRefill Size:%d Done]", p.tiers.tiers[idx].cfg.Size)
 		}
 	}
 }
 
 // checkAndRefillAll 遍历所有 tiers，逐个执行检查与补货。
-func (p *tierPartition) checkAndRefillAll() {
-	log.Debugf("[RangePool] %s checkAndRefillAll start tiers=%d", p.name, p.tiers.tiersCount())
-	for i := 0; i < p.tiers.tiersCount(); i++ {
-		p.checkAndRefill(i)
-	}
-}
+//func (p *tierPartition) checkAndRefillAll() {
+//	log.Debugf("[RangePool] %s checkAndRefillAll start tiers=%d", p.name, p.tiers.tiersCount())
+//	for i := 0; i < p.tiers.tiersCount(); i++ {
+//		p.checkAndRefill(i)
+//	}
+//}
 
 // checkAndRefill 检查指定 tier 是否需要补货（<=Threshold），若需要则补到 MaxCount。
 // 中间层通过拆分上层补货；顶层通过分配窗口(window)+refill 扩展补货。
@@ -310,7 +344,6 @@ func (p *tierPartition) checkAndRefill(idx int) {
 
 	curLen := len(tierSnap.segments)
 	needRefill := curLen <= tierSnap.cfg.Threshold
-	timeSinceLastRefill := time.Since(tierSnap.lastRefill)
 	threshold := tierSnap.cfg.Threshold
 	maxCount := tierSnap.cfg.MaxCount
 
@@ -318,11 +351,6 @@ func (p *tierPartition) checkAndRefill(idx int) {
 		return
 	}
 	log.Debugf("[RangePool] %s tier %d need refill len=%d threshold=%d max=%d", p.name, tierSnap.cfg.Size, curLen, threshold, maxCount)
-
-	if timeSinceLastRefill < 50*time.Millisecond {
-		log.Debugf("[RangePool] %s tier %d refill throttled since=%s", p.name, tierSnap.cfg.Size, timeSinceLastRefill)
-		return
-	}
 
 	target := tierSnap.cfg.MaxCount
 	if target <= 0 {
@@ -338,10 +366,20 @@ func (p *tierPartition) checkAndRefill(idx int) {
 		added = p.refillMiddleTier(idx, target)
 	}
 
-	p.tiers.setLastRefill(idx, time.Now())
+	state := p.window.stateSnapshot()
+	log.Infof("++[RangePool] %s tier %d refill result added=%d need=%d window_start=%d window_cursor=%d window_end=%d enableLoop=%v",
+		p.name, tierSnap.cfg.Size, added, needCount, state.start, state.cursor, state.end, state.loop)
+	if added > 0 {
+		p.tiers.setLastRefill(idx, time.Now())
+	}
 	finalLen := p.tiers.tierLen(idx)
 
 	log.Debugf("[RangePool] %s tier %d refill done added=%d final=%d", p.name, tierSnap.cfg.Size, added, finalLen)
+	if finalLen == 0 {
+		log.Warnf("[RangePool] %s tier %d inventory empty after refill", p.name, tierSnap.cfg.Size)
+	} else {
+		log.Infof("[RangePool] %s tier %d inventory len=%d", p.name, tierSnap.cfg.Size, finalLen)
+	}
 	if maxCount > 0 && finalLen > maxCount {
 		log.Warnf("[RangePool] %s tier %d exceeds max count final=%d max=%d", p.name, tierSnap.cfg.Size, finalLen, maxCount)
 	}
@@ -374,6 +412,11 @@ func (p *tierPartition) refillMiddleTier(idx int, target int) int {
 // Close 停止后台补货协程并等待退出（需由上层保证只调用一次，避免重复 close channel）。
 func (p *tierPartition) Close() error {
 	p.closeOnce.Do(func() {
+		p.mu.Lock()
+		if !p.closed {
+			p.closed = true
+		}
+		p.mu.Unlock()
 		if p.cancel != nil {
 			p.cancel()
 		}

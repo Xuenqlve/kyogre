@@ -18,6 +18,7 @@ type windowManager struct {
 
 	mu    sync.RWMutex
 	state windowState
+	carry []IntRange
 }
 
 func newWindowManager(name string) *windowManager {
@@ -61,7 +62,17 @@ func (w *windowManager) applyRefillWindow(enableLoop bool, win IntRange) error {
 			return nil
 		}
 		if win.Start != ws.start {
-			return fmt.Errorf("%s refill window start changed: %d -> %d", w.name, ws.start, win.Start)
+			if !enableLoop {
+				return fmt.Errorf("%s refill window start changed without loop: %d -> %d", w.name, ws.start, win.Start)
+			}
+			if !ws.loop && ws.cursor <= ws.end {
+				w.carry = append(w.carry, IntRange{Start: ws.cursor, End: ws.end})
+			}
+			ws.start = win.Start
+			ws.end = win.End
+			ws.cursor = ws.start
+			ws.loop = true
+			return nil
 		}
 		ws.loop = ws.loop || enableLoop
 		if win.End > ws.end {
@@ -113,19 +124,27 @@ func (w *windowManager) allocateSequential(size int64, count int, bootstrap bool
 		return nil, fmt.Errorf("%s allocate invalid size %d", w.name, size)
 	}
 
-	for {
+	segs := make([]IntRange, 0, count)
+	remaining := count
+	for remaining > 0 {
 		var (
-			segs        []IntRange
 			startCursor int64
 			desiredEnd  int64
 			prevEnd     int64
 			needExtra   int64
 			needRefill  bool
+			produced    []IntRange
 		)
 		err := w.withWrite(func(ws *windowState) error {
 			if !ws.init {
 				return fmt.Errorf("%s allocation window not initialized", w.name)
 			}
+			produced = w.takeFromCarry(size, remaining)
+			remainingAfterCarry := remaining - len(produced)
+			if remainingAfterCarry == 0 {
+				return nil
+			}
+
 			window := IntRange{Start: ws.start, End: ws.end}
 			if !window.Valid() {
 				return fmt.Errorf("%s allocation window not initialized", w.name)
@@ -139,15 +158,14 @@ func (w *windowManager) allocateSequential(size int64, count int, bootstrap bool
 			}
 
 			startCursor = ws.cursor
-			desiredEnd = startCursor + size*int64(count) - 1
+			desiredEnd = startCursor + size*int64(remainingAfterCarry) - 1
 			prevEnd = ws.end
 
 			if desiredEnd <= ws.end {
-				segs = make([]IntRange, 0, count)
 				cursor := ws.cursor
-				for i := 0; i < count; i++ {
+				for i := 0; i < remainingAfterCarry; i++ {
 					end := cursor + size - 1
-					segs = append(segs, IntRange{Start: cursor, End: end})
+					produced = append(produced, IntRange{Start: cursor, End: end})
 					cursor = end + 1
 				}
 				ws.cursor = cursor
@@ -161,8 +179,12 @@ func (w *windowManager) allocateSequential(size int64, count int, bootstrap bool
 		if err != nil {
 			return nil, err
 		}
-		if segs != nil {
-			return segs, nil
+		if len(produced) > 0 {
+			segs = append(segs, produced...)
+			remaining -= len(produced)
+			if remaining == 0 {
+				return segs, nil
+			}
 		}
 		if !needRefill {
 			continue
@@ -187,4 +209,35 @@ func (w *windowManager) allocateSequential(size int64, count int, bootstrap bool
 			return nil
 		})
 	}
+	return segs, nil
+}
+
+func (w *windowManager) takeFromCarry(size int64, count int) []IntRange {
+	if count <= 0 || size <= 0 || len(w.carry) == 0 {
+		return nil
+	}
+	segs := make([]IntRange, 0, count)
+	newCarry := w.carry[:0]
+	for i, r := range w.carry {
+		if !r.Valid() {
+			continue
+		}
+		for count > 0 && r.Len() >= size {
+			seg := IntRange{Start: r.Start, End: r.Start + size - 1}
+			segs = append(segs, seg)
+			r.Start = seg.End + 1
+			count--
+		}
+		if r.Valid() {
+			newCarry = append(newCarry, r)
+		}
+		if count == 0 {
+			if i+1 < len(w.carry) {
+				newCarry = append(newCarry, w.carry[i+1:]...)
+			}
+			break
+		}
+	}
+	w.carry = newCarry
+	return segs
 }

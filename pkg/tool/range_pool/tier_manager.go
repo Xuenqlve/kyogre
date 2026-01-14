@@ -7,6 +7,8 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"github.com/xuenqlve/common/log"
 )
 
 type tierState struct {
@@ -97,19 +99,16 @@ func (t *tierManager) consume(size int64, emergency func(idx int, target int) in
 		return IntRange{}, false, fmt.Errorf("%s tier %d not configured", t.name, size)
 	}
 
-	t.mu.RLock()
-	hasSeg := len(t.tiers[idx].segments) > 0
-	t.mu.RUnlock()
-
 	t.mu.Lock()
 	tier := t.tiers[idx]
-	if !hasSeg && len(tier.segments) == 0 {
+	cfg := tier.cfg
+	if len(tier.segments) == 0 {
 		t.mu.Unlock()
 		doEmergency := atomic.CompareAndSwapUint32(&t.emergency[idx], 0, 1)
 		if doEmergency {
-			target := tier.cfg.MaxCount
+			target := cfg.MaxCount
 			if target <= 0 {
-				target = tier.cfg.Threshold + 1
+				target = cfg.Threshold + 1
 			}
 			func() {
 				defer atomic.StoreUint32(&t.emergency[idx], 0)
@@ -130,7 +129,10 @@ func (t *tierManager) consume(size int64, emergency func(idx int, target int) in
 	tier.segments[sel] = tier.segments[len(tier.segments)-1]
 	tier.segments = tier.segments[:len(tier.segments)-1]
 
-	needRefill := len(tier.segments) <= tier.cfg.Threshold
+	needRefill := len(tier.segments) <= cfg.Threshold
+	if len(tier.segments) == 0 || needRefill {
+		log.Infof("[RangePool] %s tier %d consume len=%d needRefill=%v", t.name, size, len(tier.segments), needRefill)
+	}
 	t.mu.Unlock()
 
 	return r, needRefill, nil

@@ -29,9 +29,8 @@ func (r IntRange) Valid() bool { return r.Len() > 0 }
 // and a "free" partition (insert consumers).
 //
 // live and free are intentionally independent. This package does not implicitly
-// transfer segments between partitions; instead, each partition is replenished
-// exclusively via its own refill callback (LiveRefill / FreeRefill) or explicit
-// AddLiveRange/AddFreeRange calls by the caller.
+// transfer segments between partitions; each partition is replenished only through
+// the shared refill callback, distinguished by partition name.
 type RangePool struct {
 	cfg RangePoolConfig
 
@@ -42,7 +41,8 @@ type RangePool struct {
 // RangePoolRefillFunc is invoked when a partition needs additional allocation capacity.
 //
 // enableLoop indicates the partition's allocation domain has entered looping mode.
-// When enableLoop is true, refillWindow.Start must remain stable for the lifetime of the pool.
+// When enableLoop is true, the returned refillWindow defines a new allocation domain
+// that may reset Start/End immediately.
 //
 // refillWindow describes the allocation domain window (inclusive) for the partition.
 // The window may be expanded over time; holes inside the window are allowed by design.
@@ -64,6 +64,11 @@ type RangePoolConfig struct {
 	//FreeRefill RangePoolRefillFunc
 
 	RandSource rand.Source
+
+	// TriggerFactor/RefillFactor control when to pre-refill the window for top tier.
+	// When <= 0, they are computed from tier config and initial window size.
+	TriggerFactor int64
+	RefillFactor  int64
 }
 
 // RangePoolOption mutates RangePool configuration before construction.
@@ -83,7 +88,7 @@ func WithFreeTiers(tiers []TierConfig) RangePoolOption {
 	}
 }
 
-// WithLiveRefill sets the live partition refill callback.
+// WithRefill sets the refill callback for both partitions.
 func WithRefill(fn RangePoolRefillFunc) RangePoolOption {
 	return func(cfg *RangePoolConfig) { cfg.Refill = fn }
 }
@@ -98,15 +103,20 @@ func WithRandSource(src rand.Source) RangePoolOption {
 	return func(cfg *RangePoolConfig) { cfg.RandSource = src }
 }
 
+// WithRefillFactors overrides auto-computed window pre-refill factors.
+func WithRefillFactors(triggerFactor, refillFactor int64) RangePoolOption {
+	return func(cfg *RangePoolConfig) {
+		cfg.TriggerFactor = triggerFactor
+		cfg.RefillFactor = refillFactor
+	}
+}
+
 const (
 	RangePoolLiveName = "live"
 	RangePoolFreeName = "free"
 )
 
 // NewRangePool builds a RangePool.
-//
-// liveSeed defines the initial allocation window for the live partition when LiveRefill is nil.
-// For free partition, the allocation window is only defined by FreeRefill (or explicitly injected ranges).
 func NewRangePool(opts ...RangePoolOption) (*RangePool, error) {
 	cfg := defaultRangePoolConfig()
 	for _, opt := range opts {
@@ -128,6 +138,11 @@ func NewRangePool(opts ...RangePoolOption) (*RangePool, error) {
 		live: live,
 		free: free,
 	}
+	defer func() {
+		if err != nil {
+			_ = pool.Close()
+		}
+	}()
 	// Start refill IO workers before bootstrap to handle window initialization.
 	ctx := context.Background()
 	pool.live.startRefillWorker(ctx)
@@ -139,11 +154,32 @@ func NewRangePool(opts ...RangePoolOption) (*RangePool, error) {
 		return nil, err
 	}
 
+	pool.applyRefillFactors()
+
 	// Start background refiller goroutines
 	pool.live.startRefiller(ctx)
 	pool.free.startRefiller(ctx)
 
 	return pool, nil
+}
+
+func (p *RangePool) applyRefillFactors() {
+	p.applyPartitionRefillFactors(p.live, p.cfg.LiveTiers)
+	p.applyPartitionRefillFactors(p.free, p.cfg.FreeTiers)
+}
+
+func (p *RangePool) applyPartitionRefillFactors(part *tierPartition, tiers []TierConfig) {
+	if part == nil {
+		return
+	}
+	if p.cfg.TriggerFactor > 0 && p.cfg.RefillFactor > 0 {
+		part.setRefillFactors(p.cfg.TriggerFactor, p.cfg.RefillFactor)
+		return
+	}
+	start, _, end, _ := part.window.windowState()
+	windowLen := IntRange{Start: start, End: end}.Len()
+	trigger, refill := computeRefillFactors(windowLen, tiers)
+	part.setRefillFactors(trigger, refill)
 }
 
 func (p *RangePool) DebugLog(t string) {
@@ -158,7 +194,7 @@ func (p *RangePool) DebugLog(t string) {
 				log.Infof("size:%v range <empty> len:%d", v.cfg.Size, 0)
 				continue
 			}
-			log.Infof("size:%v range %d~%d len:%d", v.cfg.Size, v.segments[0].Start, v.segments[len(v.segments)-1].End, len(v.segments))
+			//log.Infof("size:%v range %d~%d len:%d", v.cfg.Size, v.segments[0].Start, v.segments[len(v.segments)-1].End, len(v.segments))
 		}
 		p.free.tiers.mu.RUnlock()
 	case RangePoolLiveName:
@@ -219,8 +255,7 @@ func (p *RangePool) ReserveInsert(need int64) (IntRange, bool) {
 // ReserveUpdate returns a continuous range for UPDATE operations from the live partition.
 //
 // It does not consume the chosen segment from the live tiers; repeated calls may return
-// the same segment. When the live tiers are exhausted, it falls back to best-effort
-// sampling within the current live allocation window.
+// the same segment. When the live tiers are exhausted, it returns false.
 func (p *RangePool) ReserveUpdate(need int64) (IntRange, bool) {
 	size, ok := p.live.pickTierSize(need)
 	if !ok {
@@ -236,7 +271,7 @@ func (p *RangePool) ReserveUpdate(need int64) (IntRange, bool) {
 // ReserveDelete reserves a continuous range for DELETE operations from the live partition.
 //
 // It consumes the chosen segment from the live tiers. When the live tiers are exhausted,
-// it falls back to best-effort sampling within the current live allocation window.
+// it returns false.
 func (p *RangePool) ReserveDelete(need int64) (IntRange, bool) {
 	size, ok := p.live.pickTierSize(need)
 	if !ok {
