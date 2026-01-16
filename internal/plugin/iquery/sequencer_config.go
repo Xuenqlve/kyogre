@@ -22,8 +22,8 @@ type SequencerConfig struct {
 	// When StrictSizes is false, it is used to round up to the nearest size.
 	AllowedSizes []int64
 
-	// WrapAt, when >0, enables cyclic reuse for inserts. Inserts will try to wrap
-	// into the already-deleted low region [BaseMin, ExistMin).
+	// WrapAt, when >0, enables cyclic reuse for inserts. The free window may wrap
+	// around when it reaches the upper bound, allowing reuse per lookup strategy.
 	WrapAt int64
 
 	// AliveSetCapacity controls in-memory tuple cache size for non-int / composite unique constraints.

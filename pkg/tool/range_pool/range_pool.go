@@ -4,8 +4,6 @@ import (
 	"context"
 	"fmt"
 	"math/rand"
-
-	"github.com/xuenqlve/common/log"
 )
 
 // IntRange represents a contiguous, inclusive range of int64 identifiers.
@@ -182,64 +180,11 @@ func (p *RangePool) applyPartitionRefillFactors(part *tierPartition, tiers []Tie
 	part.setRefillFactors(trigger, refill)
 }
 
-func (p *RangePool) DebugLog(t string) {
-	ls, lc, le, ll := p.live.window.windowState()
-	fs, fc, fe, fl := p.free.window.windowState()
-	switch t {
-	case RangePoolFreeName:
-		log.Infof("[RangePool] free window start=%d cursor=%d end=%d loop=%v", fs, fc, fe, fl)
-		p.free.tiers.mu.RLock()
-		for _, v := range p.free.tiers.tiers {
-			if len(v.segments) == 0 {
-				log.Infof("size:%v range <empty> len:%d", v.cfg.Size, 0)
-				continue
-			}
-			//log.Infof("size:%v range %d~%d len:%d", v.cfg.Size, v.segments[0].Start, v.segments[len(v.segments)-1].End, len(v.segments))
-		}
-		p.free.tiers.mu.RUnlock()
-	case RangePoolLiveName:
-		log.Infof("[RangePool] live window start=%d cursor=%d end=%d loop=%v", ls, lc, le, ll)
-		p.live.tiers.mu.RLock()
-		for _, v := range p.live.tiers.tiers {
-			if len(v.segments) == 0 {
-				log.Infof("size:%v range <empty> len:%d", v.cfg.Size, 0)
-				continue
-			}
-			log.Infof("size:%v range %d~%d len:%d", v.cfg.Size, v.segments[0].Start, v.segments[len(v.segments)-1].End, len(v.segments))
-		}
-		p.live.tiers.mu.RUnlock()
-	default:
-		log.Infof("[RangePool] live window start=%d cursor=%d end=%d loop=%v", ls, lc, le, ll)
-		log.Infof("[RangePool] free window start=%d cursor=%d end=%d loop=%v", fs, fc, fe, fl)
-		log.Infof("[RangePool] live tiers ...")
-		p.live.tiers.mu.RLock()
-		for _, v := range p.live.tiers.tiers {
-			if len(v.segments) == 0 {
-				log.Infof("size:%v range <empty> len:%d", v.cfg.Size, 0)
-				continue
-			}
-			log.Infof("size:%v range %d~%d len:%d", v.cfg.Size, v.segments[0].Start, v.segments[len(v.segments)-1].End, len(v.segments))
-		}
-		p.live.tiers.mu.RUnlock()
-		log.Infof("[RangePool] free tiers ...")
-		p.free.tiers.mu.RLock()
-		for _, v := range p.free.tiers.tiers {
-			if len(v.segments) == 0 {
-				log.Infof("size:%v range <empty> len:%d", v.cfg.Size, 0)
-				continue
-			}
-			log.Infof("size:%v range %d~%d len:%d", v.cfg.Size, v.segments[0].Start, v.segments[len(v.segments)-1].End, len(v.segments))
-		}
-		p.free.tiers.mu.RUnlock()
-	}
-
-}
-
 // ReserveInsert reserves a continuous range for INSERT operations from the free partition.
 //
-// It consumes the chosen segment from the free tiers. This is typically used to reuse
-// previously-deleted id ranges. It does not allocate "new ids" beyond the current pool;
-// callers may implement a separate high-water allocator if needed.
+// The free partition represents the insertable window: it can cover never-written ranges
+// and, when enableLoop is on, reusable ranges after wrap-around. It does not imply that
+// the range is already deleted; deletion reuse is only one of the possible sources.
 func (p *RangePool) ReserveInsert(need int64) (IntRange, bool) {
 	size, ok := p.free.pickTierSize(need)
 	if !ok {

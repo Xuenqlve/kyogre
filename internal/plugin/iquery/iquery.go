@@ -7,23 +7,26 @@ import (
 	"sync"
 
 	"github.com/xuenqlve/common/schema_store"
+	"github.com/xuenqlve/kyogre/pkg/tool/range_pool"
 )
 
-// LookupRequest 描述一次反查任务需要查询的表及字段
+// LookupRequest 描述一次反查任务需要查询的表及字段及分配窗口需求。
 //type LookupRequest struct {
 //	Items []LookupRequestItem
 //}
 
-// LookupRequestItem 指定单个 schema 与字段的反查需求
 type LookupRequest struct {
-	Schema schema_store.SchemaKey
-	Params []BoundParam
+	Schema    schema_store.SchemaKey
+	Params    []BoundParam
+	Partition string
+	Need      int64
+	WrapAt    int64
 }
 
-// LookupResult 承载反查模块返回的最大值、行数等信息
+// LookupResult 承载反查模块返回的分配窗口信息
 type LookupResult struct {
-	Bounds   []Bound
-	TopLimit bool
+	EnableLoop bool
+	Window     range_pool.IntRange
 }
 
 type ValuesRequest struct {
@@ -54,7 +57,7 @@ type Bound struct {
 type Lookup interface {
 	// Configure 根据配置初始化反查插件
 	Configure(pipeline string, cfg map[string]any) error
-	// LookupBounds 返回字段的边界信息（min/max/count），用于 sequencer 初始化和高水位刷新。
+	// LookupBounds 返回分配窗口信息，用于 range_pool 的 refill 回调。
 	LookupBounds(ctx context.Context, req LookupRequest) (LookupResult, error)
 	// ScanValues 按游标分页扫描值集合，用于 AliveSet 等“非 int/联合唯一”场景。
 	ScanValues(ctx context.Context, req ValuesRequest) (ValuesResult, error)

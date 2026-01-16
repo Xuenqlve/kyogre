@@ -202,9 +202,6 @@ func (p *tierPartition) consume(size int64) (IntRange, error) {
 		} else {
 			added = p.refillMiddleTier(tierIdx, target)
 		}
-		if cfg, ok := p.tiers.tierConfig(tierIdx); ok {
-			log.Debugf("[RangePool] %s tier %d emergency refill added=%d len=%d", p.name, cfg.Size, added, p.tiers.tierLen(tierIdx))
-		}
 		return added
 	}
 
@@ -220,11 +217,9 @@ func (p *tierPartition) consume(size int64) (IntRange, error) {
 		} else if p.refillSignal != nil {
 			select {
 			case p.refillSignal <- idx:
-				log.Infof("[RangePool] tier %d refill signal received", size)
 				// Signal sent successfully
 			default:
 				// Channel full: fall back to sync refill to avoid empty tiers.
-				log.Warnf("[RangePool] tier %d refill signal channel is full", size)
 				p.checkAndRefill(idx)
 			}
 		}
@@ -315,20 +310,10 @@ func (p *tierPartition) refillerLoop() {
 			return
 		case idx := <-p.refillSignal:
 			// Triggered refill for specific tier
-			log.Infof("[RangePool CheckAndRefill Size:%d start]", p.tiers.tiers[idx].cfg.Size)
 			p.checkAndRefill(idx)
-			log.Infof("[RangePool CheckAndRefill Size:%d Done]", p.tiers.tiers[idx].cfg.Size)
 		}
 	}
 }
-
-// checkAndRefillAll 遍历所有 tiers，逐个执行检查与补货。
-//func (p *tierPartition) checkAndRefillAll() {
-//	log.Debugf("[RangePool] %s checkAndRefillAll start tiers=%d", p.name, p.tiers.tiersCount())
-//	for i := 0; i < p.tiers.tiersCount(); i++ {
-//		p.checkAndRefill(i)
-//	}
-//}
 
 // checkAndRefill 检查指定 tier 是否需要补货（<=Threshold），若需要则补到 MaxCount。
 // 中间层通过拆分上层补货；顶层通过分配窗口(window)+refill 扩展补货。
@@ -344,21 +329,14 @@ func (p *tierPartition) checkAndRefill(idx int) {
 
 	curLen := len(tierSnap.segments)
 	needRefill := curLen <= tierSnap.cfg.Threshold
-	threshold := tierSnap.cfg.Threshold
-	maxCount := tierSnap.cfg.MaxCount
-
 	if !needRefill {
 		return
 	}
-	log.Debugf("[RangePool] %s tier %d need refill len=%d threshold=%d max=%d", p.name, tierSnap.cfg.Size, curLen, threshold, maxCount)
 
 	target := tierSnap.cfg.MaxCount
 	if target <= 0 {
 		target = tierSnap.cfg.Threshold + 1
 	}
-	needCount := target - curLen
-	log.Debugf("[RangePool] %s tier %d refill start len=%d target=%d need=%d", p.name, tierSnap.cfg.Size, curLen, target, needCount)
-
 	var added int
 	if idx == p.tiers.tiersCount()-1 {
 		added = p.refillTopTier(idx, target)
@@ -366,22 +344,8 @@ func (p *tierPartition) checkAndRefill(idx int) {
 		added = p.refillMiddleTier(idx, target)
 	}
 
-	state := p.window.stateSnapshot()
-	log.Infof("++[RangePool] %s tier %d refill result added=%d need=%d window_start=%d window_cursor=%d window_end=%d enableLoop=%v",
-		p.name, tierSnap.cfg.Size, added, needCount, state.start, state.cursor, state.end, state.loop)
 	if added > 0 {
 		p.tiers.setLastRefill(idx, time.Now())
-	}
-	finalLen := p.tiers.tierLen(idx)
-
-	log.Debugf("[RangePool] %s tier %d refill done added=%d final=%d", p.name, tierSnap.cfg.Size, added, finalLen)
-	if finalLen == 0 {
-		log.Warnf("[RangePool] %s tier %d inventory empty after refill", p.name, tierSnap.cfg.Size)
-	} else {
-		log.Infof("[RangePool] %s tier %d inventory len=%d", p.name, tierSnap.cfg.Size, finalLen)
-	}
-	if maxCount > 0 && finalLen > maxCount {
-		log.Warnf("[RangePool] %s tier %d exceeds max count final=%d max=%d", p.name, tierSnap.cfg.Size, finalLen, maxCount)
 	}
 }
 

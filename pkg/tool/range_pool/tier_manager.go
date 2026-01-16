@@ -7,8 +7,6 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
-
-	"github.com/xuenqlve/common/log"
 )
 
 type tierState struct {
@@ -130,9 +128,6 @@ func (t *tierManager) consume(size int64, emergency func(idx int, target int) in
 	tier.segments = tier.segments[:len(tier.segments)-1]
 
 	needRefill := len(tier.segments) <= cfg.Threshold
-	if len(tier.segments) == 0 || needRefill {
-		log.Infof("[RangePool] %s tier %d consume len=%d needRefill=%v", t.name, size, len(tier.segments), needRefill)
-	}
 	t.mu.Unlock()
 
 	return r, needRefill, nil

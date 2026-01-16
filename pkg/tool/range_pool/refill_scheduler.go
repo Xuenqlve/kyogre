@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"sync"
 	"time"
-
-	"github.com/xuenqlve/common/log"
 )
 
 type refillRequest struct {
@@ -96,10 +94,8 @@ func (s *refillScheduler) schedule(need int64, reason string, wait bool) error {
 
 	select {
 	case s.reqCh <- req:
-		log.Infof("---------- Push refill:%v", req.need)
 	default:
 		// Drop if queue is busy; next consume will retry.
-		log.Warnf("---------- Drop if queue is busy: name=%s need=%d reason=%s", s.name, req.need, req.reason)
 	}
 	return nil
 }
@@ -111,7 +107,6 @@ func (s *refillScheduler) loop() {
 		case <-s.ctx.Done():
 			return
 		case req := <-s.reqCh:
-			log.Infof("---------- [doRefill] req:%v", req.need)
 			err := s.doRefill(req.need)
 			if req.resp != nil {
 				req.resp <- refillResult{err: err}
