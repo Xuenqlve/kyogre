@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/xuenqlve/kyogre/internal/plugin/iquery"
+	"github.com/xuenqlve/kyogre/pkg/tool/range_pool"
 )
 
 const (
@@ -39,21 +40,51 @@ func (q *MemoryLookup) LookupBounds(ctx context.Context, req iquery.LookupReques
 	if _, ok := q.maxBySchemaColumn[sid]; !ok {
 		q.maxBySchemaColumn[sid] = make(map[string]int64)
 	}
-
-	out := iquery.LookupResult{Bounds: make([]iquery.Bound, 0, len(req.Params))}
-	for _, p := range req.Params {
-		if p.Column == "" {
-			continue
-		}
-		maxV := q.maxBySchemaColumn[sid][p.Column]
-		out.Bounds = append(out.Bounds, iquery.Bound{
-			BoundParam: p,
-			MinValue:   int64(0),
-			MaxValue:   maxV,
-			Count:      int(maxV),
-		})
+	if len(req.Params) == 0 || req.Params[0].Column == "" {
+		return iquery.LookupResult{}, fmt.Errorf("lookup params empty")
 	}
-	return out, nil
+
+	partition := req.Partition
+	if partition == "" {
+		partition = range_pool.RangePoolLiveName
+	}
+	need := req.Need
+	if need <= 0 {
+		need = 1
+	}
+
+	maxV := q.maxBySchemaColumn[sid][req.Params[0].Column]
+	if partition == range_pool.RangePoolFreeName {
+		enableLoop := req.WrapAt > 0 && maxV >= req.WrapAt
+		if enableLoop {
+			start := int64(1)
+			end := start + need - 1
+			if req.WrapAt > 0 && end > req.WrapAt {
+				end = req.WrapAt
+			}
+			if end < start {
+				return iquery.LookupResult{}, fmt.Errorf("lookup returned invalid window for %s", req.Schema.UniqueID())
+			}
+			return iquery.LookupResult{
+				EnableLoop: true,
+				Window:     range_pool.IntRange{Start: start, End: end},
+			}, nil
+		}
+		start := maxV + 1
+		if req.WrapAt > 0 && start > req.WrapAt {
+			return iquery.LookupResult{}, fmt.Errorf("insert range exhausted for %s: start=%d wrapAt=%d", req.Schema.UniqueID(), start, req.WrapAt)
+		}
+		end := start + need - 1
+		if req.WrapAt > 0 && end > req.WrapAt {
+			end = req.WrapAt
+		}
+		if end < start {
+			return iquery.LookupResult{}, fmt.Errorf("lookup returned invalid window for %s", req.Schema.UniqueID())
+		}
+		return iquery.LookupResult{Window: range_pool.IntRange{Start: start, End: end}}, nil
+	}
+
+	return iquery.LookupResult{Window: range_pool.IntRange{Start: 0, End: maxV}}, nil
 }
 
 func (q *MemoryLookup) ScanValues(ctx context.Context, req iquery.ValuesRequest) (iquery.ValuesResult, error) {
@@ -95,4 +126,3 @@ func (q *MemoryLookup) ScanValues(ctx context.Context, req iquery.ValuesRequest)
 }
 
 func (q *MemoryLookup) Close() error { return nil }
-

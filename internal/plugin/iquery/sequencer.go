@@ -60,11 +60,6 @@ type sequenceState struct {
 
 	wrapAt int64
 	alive  *aliveSet
-
-	// nextNew is the next id in the "new high-water" region to allocate for inserts.
-	nextNew int64
-	// newEnd is the current end boundary for the in-memory new window.
-	newEnd int64
 }
 
 func NewSequencer() (*Sequencer, error) {
@@ -145,44 +140,52 @@ func (s *Sequencer) initState(ctx context.Context, spec SequenceSpec) (*sequence
 		return st, nil
 	}
 
-	req := LookupRequest{
-		Schema: spec.Schema,
-		Params: params,
-	}
-	res, err := s.lookup.LookupBounds(ctx, req)
-	if err != nil {
-		return nil, err
-	}
-	// For now, only support "90% case": first field is int and drives allocation.
-	if len(res.Bounds) == 0 {
-		return nil, fmt.Errorf("lookup returned empty bounds for %s", key)
-	}
-	//b := res.Bounds[0]
-	//maxV, err := toInt64(b.MaxValue)
-	//if err != nil {
-	//	return nil, err
-	//}
-	//minV, err := toInt64(b.MinValue)
-	//if err != nil {
-	//	return nil, err
-	//}
-	pool, err := range_pool.NewRangePool()
-	if err != nil {
-		return nil, err
-	}
 	st := &sequenceState{
 		spec: spec,
-		pool: pool,
-		//nextNew: maxV + 1,
-		//newEnd:  maxV,
 	}
 	st.wrapAt = minInt64(s.cfg.WrapAt, hardMaxInt64(params[0].Type))
+	pool, err := range_pool.NewRangePool(range_pool.WithRefill(func(partition string, need int64) (bool, range_pool.IntRange, error) {
+		return s.lookupWindow(st, params, partition, need)
+	}))
+	if err != nil {
+		return nil, err
+	}
+	st.pool = pool
 	s.setState(key, st)
 	return st, nil
 }
 
-// ReserveInsert reserves a continuous range for INSERT operations.
-// It tries to reuse deleted ranges first; otherwise, it allocates new ids above high-water.
+func (s *Sequencer) lookupWindow(st *sequenceState, params []BoundParam, partition string, need int64) (bool, range_pool.IntRange, error) {
+	if s.lookup == nil {
+		return false, range_pool.IntRange{}, fmt.Errorf("sequencer lookup is nil")
+	}
+	if need <= 0 {
+		need = 1
+	}
+	if partition == range_pool.RangePoolFreeName && s.cfg.InsertWindowSize > 0 && need < s.cfg.InsertWindowSize {
+		need = s.cfg.InsertWindowSize
+	}
+	res, err := s.lookup.LookupBounds(context.Background(), LookupRequest{
+		Schema:    st.spec.Schema,
+		Params:    params,
+		Partition: partition,
+		Need:      need,
+		WrapAt:    st.wrapAt,
+	})
+	if err != nil {
+		return false, range_pool.IntRange{}, err
+	}
+	if !res.Window.Valid() {
+		return false, range_pool.IntRange{}, fmt.Errorf("lookup returned invalid window for %s", st.spec.Key())
+	}
+
+	if !res.Window.Valid() {
+		return false, range_pool.IntRange{}, fmt.Errorf("lookup returned invalid window for %s", st.spec.Key())
+	}
+	return res.EnableLoop, res.Window, nil
+}
+
+// ReserveInsert reserves a continuous range for INSERT operations from the free partition.
 func (s *Sequencer) ReserveInsert(ctx context.Context, spec SequenceSpec, need int64) (*SequenceConfig, error) {
 	key := spec.Key()
 	if key == "" {
@@ -208,12 +211,7 @@ func (s *Sequencer) ReserveInsert(ctx context.Context, spec SequenceSpec, need i
 		return nil, err
 	}
 
-	// 1) reuse deleted ids (safe).
 	if r, ok := st.pool.ReserveInsert(size); ok {
-		//if err := st.pool.AddLiveRange(r); err != nil {
-		//	_ = st.pool.AddFreeRange(r)
-		//	return nil, err
-		//}
 		return &SequenceConfig{
 			Key:          key,
 			Field:        st.specField(),
@@ -225,59 +223,7 @@ func (s *Sequencer) ReserveInsert(ctx context.Context, spec SequenceSpec, need i
 			Schema:       st.spec.Schema,
 		}, nil
 	}
-
-	// 2) allocate from new high-water window. Refill window by refreshing max from lookup when needed.
-	if st.wrapAt > 0 && st.nextNew > st.wrapAt {
-		return nil, fmt.Errorf("insert range exhausted for %s: next=%d wrapAt=%d", key, st.nextNew, st.wrapAt)
-	}
-	if st.nextNew > st.newEnd {
-		// Refresh high-water.
-		req := LookupRequest{Schema: spec.Schema, Params: []BoundParam{{Column: st.specField()}}}
-		res, err := s.lookup.LookupBounds(ctx, req)
-		if err != nil {
-			return nil, err
-		}
-		if len(res.Bounds) == 0 {
-			return nil, fmt.Errorf("lookup returned empty bounds for %s", key)
-		}
-		maxV, err := toInt64(res.Bounds[0].MaxValue)
-		if err != nil {
-			return nil, err
-		}
-		// Ensure monotonic.
-		if maxV >= st.nextNew {
-			st.nextNew = maxV + 1
-		}
-		st.newEnd = st.nextNew + s.cfg.InsertWindowSize - 1
-	}
-
-	start := st.nextNew
-	end := start + size - 1
-	if st.wrapAt > 0 && end > st.wrapAt {
-		end = st.wrapAt
-	}
-	if end > st.newEnd {
-		end = st.newEnd
-	}
-	if end < start {
-		return nil, fmt.Errorf("insert range exhausted for %s: next=%d wrapAt=%d", key, st.nextNew, st.wrapAt)
-	}
-	st.nextNew = end + 1
-	r := range_pool.IntRange{Start: start, End: end}
-	//if err = st.pool.AddLiveRange(r); err != nil {
-	//	return nil, err
-	//}
-
-	return &SequenceConfig{
-		Key:          key,
-		Field:        st.specField(),
-		StartValue:   r.Start,
-		EndValue:     r.End,
-		CurrentValue: r.Start,
-		Step:         1,
-		Width:        r.Len(),
-		Schema:       st.spec.Schema,
-	}, nil
+	return nil, fmt.Errorf("no free range available for insert: %s", key)
 }
 
 func (s *Sequencer) ReserveInsertProvider(ctx context.Context, spec SequenceSpec, need int64) (RowProvider, *SequenceConfig, error) {
@@ -298,16 +244,13 @@ func (s *Sequencer) ReserveInsertProvider(ctx context.Context, spec SequenceSpec
 
 	// Numeric: range provider
 	if st.pool != nil {
-		size, err := normalizeSize(need, s.cfg.AllowedSizes, s.cfg.StrictSizes)
+		var size int64
+		size, err = normalizeSize(need, s.cfg.AllowedSizes, s.cfg.StrictSizes)
 		if err != nil {
 			return nil, nil, err
 		}
 
 		if r, ok := st.pool.ReserveInsert(size); ok {
-			//if err := st.pool.AddLiveRange(r); err != nil {
-			//	_ = st.pool.AddFreeRange(r)
-			//	return nil, nil, err
-			//}
 			cfg := &SequenceConfig{
 				Key:          key,
 				Field:        st.specField(),
@@ -320,57 +263,7 @@ func (s *Sequencer) ReserveInsertProvider(ctx context.Context, spec SequenceSpec
 			}
 			return newRangeProvider(cfg.Field, cfg.StartValue, cfg.EndValue, cfg.Step), cfg, nil
 		}
-
-		if st.wrapAt > 0 && st.nextNew > st.wrapAt {
-			return nil, nil, fmt.Errorf("insert range exhausted for %s: next=%d wrapAt=%d", key, st.nextNew, st.wrapAt)
-		}
-		if st.nextNew > st.newEnd {
-			req := LookupRequest{Schema: spec.Schema, Params: []BoundParam{{Column: st.specField()}}}
-			res, err := s.lookup.LookupBounds(ctx, req)
-			if err != nil {
-				return nil, nil, err
-			}
-			if len(res.Bounds) == 0 {
-				return nil, nil, fmt.Errorf("lookup returned empty bounds for %s", key)
-			}
-			maxV, err := toInt64(res.Bounds[0].MaxValue)
-			if err != nil {
-				return nil, nil, err
-			}
-			if maxV >= st.nextNew {
-				st.nextNew = maxV + 1
-			}
-			st.newEnd = st.nextNew + s.cfg.InsertWindowSize - 1
-		}
-
-		start := st.nextNew
-		end := start + size - 1
-		if st.wrapAt > 0 && end > st.wrapAt {
-			end = st.wrapAt
-		}
-		if end > st.newEnd {
-			end = st.newEnd
-		}
-		if end < start {
-			return nil, nil, fmt.Errorf("insert range exhausted for %s: next=%d wrapAt=%d", key, st.nextNew, st.wrapAt)
-		}
-		st.nextNew = end + 1
-		r := range_pool.IntRange{Start: start, End: end}
-		//if err := st.pool.AddLiveRange(r); err != nil {
-		//	return nil, nil, err
-		//}
-
-		cfg := &SequenceConfig{
-			Key:          key,
-			Field:        st.specField(),
-			StartValue:   r.Start,
-			EndValue:     r.End,
-			CurrentValue: r.Start,
-			Step:         1,
-			Width:        r.Len(),
-			Schema:       st.spec.Schema,
-		}
-		return newRangeProvider(cfg.Field, cfg.StartValue, cfg.EndValue, cfg.Step), cfg, nil
+		return nil, nil, fmt.Errorf("no free range available for insert: %s", key)
 	}
 
 	// AliveSet: tuple provider -> map[column]any for IN batch usage
@@ -483,7 +376,8 @@ func (s *Sequencer) ReserveUpdateProvider(ctx context.Context, spec SequenceSpec
 	return tp, nil, nil
 }
 
-// ReserveDelete reserves an existing live range for DELETE and immediately moves it to free pool.
+// ReserveDelete reserves an existing live range for DELETE by consuming from the live partition.
+// It does not return the range to the free partition; reuse depends on the lookup refill strategy.
 func (s *Sequencer) ReserveDelete(ctx context.Context, spec SequenceSpec, need int64) (*SequenceConfig, error) {
 	key := spec.Key()
 	if key == "" {
@@ -512,11 +406,6 @@ func (s *Sequencer) ReserveDelete(ctx context.Context, spec SequenceSpec, need i
 	if !ok {
 		return nil, fmt.Errorf("no live range available for delete: %s", key)
 	}
-	//if err = st.pool.AddFreeRange(r); err != nil {
-	//_ = st.pool.AddLiveRange(r)
-	//return nil, err
-	//}
-
 	return &SequenceConfig{
 		Key:          key,
 		Field:        st.specField(),
@@ -554,10 +443,6 @@ func (s *Sequencer) ReserveDeleteProvider(ctx context.Context, spec SequenceSpec
 		if !ok {
 			return nil, nil, fmt.Errorf("no live range available for delete: %s", key)
 		}
-		//if err = st.pool.AddFreeRange(r); err != nil {
-		//_ = st.pool.AddLiveRange(r)
-		//return nil, nil, err
-		//}
 		cfg := &SequenceConfig{
 			Key:          key,
 			Field:        st.specField(),

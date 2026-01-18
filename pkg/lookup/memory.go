@@ -3,9 +3,13 @@ package lookup
 import (
 	"context"
 	"fmt"
+	"strings"
 	"sync"
 
+	"github.com/mitchellh/mapstructure"
 	"github.com/xuenqlve/kyogre/internal/plugin/iquery"
+	"github.com/xuenqlve/kyogre/pkg/tool/mock"
+	"github.com/xuenqlve/kyogre/pkg/tool/range_pool"
 )
 
 const (
@@ -18,15 +22,38 @@ func init() {
 
 type MemoryLookup struct {
 	pipeline string
+	cfg      MemoryLookupConfig
 
 	mu sync.Mutex
 	// maxBySchemaColumn tracks "existing" max value for bounds.
 	maxBySchemaColumn map[string]map[string]int64
+	rowSeqBySchemaKey map[string]mock.RowSequence
+	loopSeqByKey      map[string]mock.RangeSequence
 }
 
-func (q *MemoryLookup) Configure(pipeline string, _ map[string]any) error {
+type MemoryLookupConfig struct {
+	StringLength int  `mapstructure:"string-length" json:"string-length"`
+	IntDigits    int  `mapstructure:"int-digits" json:"int-digits"`
+	Wrap         bool `mapstructure:"wrap" json:"wrap"`
+}
+
+func (q *MemoryLookup) Configure(pipeline string, data map[string]any) error {
 	q.pipeline = pipeline
+	q.cfg = MemoryLookupConfig{StringLength: 8, IntDigits: 8}
+	if len(data) > 0 {
+		if err := mapstructure.Decode(data, &q.cfg); err != nil {
+			return err
+		}
+	}
+	if q.cfg.StringLength <= 0 {
+		q.cfg.StringLength = 8
+	}
+	if q.cfg.IntDigits <= 0 {
+		q.cfg.IntDigits = 8
+	}
 	q.maxBySchemaColumn = make(map[string]map[string]int64)
+	q.rowSeqBySchemaKey = make(map[string]mock.RowSequence)
+	q.loopSeqByKey = make(map[string]mock.RangeSequence)
 	return nil
 }
 
@@ -39,21 +66,71 @@ func (q *MemoryLookup) LookupBounds(ctx context.Context, req iquery.LookupReques
 	if _, ok := q.maxBySchemaColumn[sid]; !ok {
 		q.maxBySchemaColumn[sid] = make(map[string]int64)
 	}
-
-	out := iquery.LookupResult{Bounds: make([]iquery.Bound, 0, len(req.Params))}
-	for _, p := range req.Params {
-		if p.Column == "" {
-			continue
-		}
-		maxV := q.maxBySchemaColumn[sid][p.Column]
-		out.Bounds = append(out.Bounds, iquery.Bound{
-			BoundParam: p,
-			MinValue:   int64(0),
-			MaxValue:   maxV,
-			Count:      int(maxV),
-		})
+	if len(req.Params) == 0 || req.Params[0].Column == "" {
+		return iquery.LookupResult{}, fmt.Errorf("lookup params empty")
 	}
-	return out, nil
+
+	partition := req.Partition
+	if partition == "" {
+		partition = range_pool.RangePoolLiveName
+	}
+	need := req.Need
+	if need <= 0 {
+		need = 1
+	}
+
+	col := req.Params[0].Column
+	maxV := q.maxBySchemaColumn[sid][col]
+	if partition == range_pool.RangePoolFreeName {
+		wrapEnabled := req.WrapAt > 0 && maxV >= req.WrapAt
+		if wrapEnabled {
+			seqKey := sid + ":" + col
+			seq := q.loopSeqByKey[seqKey]
+			if seq == nil {
+				seq, _ = mock.NewRangeSequence(mock.SequenceColumn{
+					Name:   col,
+					Type:   mock.SequenceTypeInt,
+					Start:  1,
+					Max:    req.WrapAt,
+					Digits: q.cfg.IntDigits,
+				}, mock.WithWrap(true))
+				q.loopSeqByKey[seqKey] = seq
+			}
+			win, _ := seq.NextRange(int(need))
+			if !win.Valid() {
+				return iquery.LookupResult{}, fmt.Errorf("lookup returned invalid window for %s", req.Schema.UniqueID())
+			}
+			if win.End > maxV {
+				q.maxBySchemaColumn[sid][col] = win.End
+			}
+			return iquery.LookupResult{
+				EnableLoop: true,
+				Window:     range_pool.IntRange{Start: win.Start, End: win.End},
+			}, nil
+		}
+
+		seq, err := mock.NewRangeSequence(mock.SequenceColumn{
+			Name:   col,
+			Type:   mock.SequenceTypeInt,
+			Start:  maxV + 1,
+			Max:    req.WrapAt,
+			Digits: q.cfg.IntDigits,
+		})
+		if err != nil {
+			return iquery.LookupResult{}, err
+		}
+		win, done := seq.NextRange(int(need))
+		if !win.Valid() {
+			return iquery.LookupResult{}, fmt.Errorf("lookup returned invalid window for %s", req.Schema.UniqueID())
+		}
+		if win.End > maxV {
+			q.maxBySchemaColumn[sid][col] = win.End
+		}
+		_ = done
+		return iquery.LookupResult{Window: range_pool.IntRange{Start: win.Start, End: win.End}}, nil
+	}
+
+	return iquery.LookupResult{Window: range_pool.IntRange{Start: 0, End: maxV}}, nil
 }
 
 func (q *MemoryLookup) ScanValues(ctx context.Context, req iquery.ValuesRequest) (iquery.ValuesResult, error) {
@@ -66,32 +143,146 @@ func (q *MemoryLookup) ScanValues(ctx context.Context, req iquery.ValuesRequest)
 		limit = 1000
 	}
 
-	var cursor int64
-	switch v := req.Cursor.(type) {
-	case nil:
-		cursor = 0
-	case int64:
-		cursor = v
-	case int:
-		cursor = int64(v)
-	default:
-		return iquery.ValuesResult{}, fmt.Errorf("memory ScanValues unsupported cursor type %T", req.Cursor)
+	seqKey := q.rowSeqKey(req.Schema.UniqueID(), req.Columns)
+	q.mu.Lock()
+	defer q.mu.Unlock()
+	seq := q.rowSeqBySchemaKey[seqKey]
+	if seq == nil {
+		columns, err := buildSequenceColumns(req.Columns, req.Cursor, q.cfg)
+		if err != nil {
+			return iquery.ValuesResult{}, err
+		}
+		seq, err = mock.NewRowSequence(columns)
+		if err != nil {
+			return iquery.ValuesResult{}, err
+		}
+		q.rowSeqBySchemaKey[seqKey] = seq
+	}
+	if req.Cursor == nil {
+		seq.Reset()
 	}
 
-	rows := make([][]any, 0, limit)
-	for i := 0; i < limit; i++ {
-		val := cursor + int64(i) + 1
-		row := make([]any, len(req.Columns))
-		for j := range row {
-			row[j] = val
-		}
-		rows = append(rows, row)
+	rows, done := seq.NextRows(limit)
+	if len(rows) == 0 {
+		return iquery.ValuesResult{HasMore: !done}, nil
 	}
-	return iquery.ValuesResult{
-		Rows:       rows,
-		NextCursor: cursor + int64(limit),
-		HasMore:    true,
-	}, nil
+
+	cols := make([]string, 0, len(req.Columns))
+	for _, c := range req.Columns {
+		cols = append(cols, c.Column)
+	}
+	out := make([][]any, 0, len(rows))
+	for _, row := range rows {
+		vals := make([]any, len(cols))
+		for i, col := range cols {
+			vals[i] = row[col]
+		}
+		out = append(out, vals)
+	}
+	result := iquery.ValuesResult{Rows: out, HasMore: !done}
+	if len(out) > 0 {
+		result.NextCursor = out[len(out)-1][0]
+	}
+	return result, nil
 }
 
 func (q *MemoryLookup) Close() error { return nil }
+
+func (q *MemoryLookup) rowSeqKey(schemaID string, cols []iquery.BoundParam) string {
+	parts := make([]string, 0, len(cols)+1)
+	parts = append(parts, schemaID)
+	for _, c := range cols {
+		parts = append(parts, c.Column+":"+sequenceTypeFromColumn(c.Type))
+	}
+	return strings.Join(parts, "|")
+}
+
+func buildSequenceColumns(cols []iquery.BoundParam, cursor any, cfg MemoryLookupConfig) ([]mock.SequenceColumn, error) {
+	seqCols := make([]mock.SequenceColumn, 0, len(cols))
+	var cursorValue int64
+	cursorOK := false
+	if cursor != nil && isNumericType(cols[0].Type) {
+		if v, err := toInt64(cursor); err == nil {
+			cursorValue = v
+			cursorOK = true
+		}
+	}
+	for i, c := range cols {
+		if c.Column == "" {
+			return nil, fmt.Errorf("empty column name")
+		}
+		seqCol := mock.SequenceColumn{
+			Name: c.Column,
+			Type: sequenceTypeFromColumn(c.Type),
+		}
+		if seqCol.Type == mock.SequenceTypeString {
+			seqCol.Length = cfg.StringLength
+		}
+		if seqCol.Type == mock.SequenceTypeInt {
+			seqCol.Digits = cfg.IntDigits
+		}
+		if i == 0 && cursorOK {
+			seqCol.Start = cursorValue + 1
+		}
+		seqCols = append(seqCols, seqCol)
+	}
+	return seqCols, nil
+}
+
+func sequenceTypeFromColumn(typ string) string {
+	if isNumericType(typ) {
+		return mock.SequenceTypeInt
+	}
+	return mock.SequenceTypeString
+}
+
+func isNumericType(typ string) bool {
+	if typ == "" {
+		return true
+	}
+	t := strings.ToLower(strings.TrimSpace(typ))
+	switch {
+	case strings.Contains(t, "int"),
+		strings.Contains(t, "decimal"),
+		strings.Contains(t, "numeric"),
+		strings.Contains(t, "float"),
+		strings.Contains(t, "double"):
+		return true
+	default:
+		return false
+	}
+}
+
+//func toInt64(v any) (int64, bool) {
+//	switch n := v.(type) {
+//	case int:
+//		return int64(n), true
+//	case int8:
+//		return int64(n), true
+//	case int16:
+//		return int64(n), true
+//	case int32:
+//		return int64(n), true
+//	case int64:
+//		return n, true
+//	case uint:
+//		return int64(n), true
+//	case uint8:
+//		return int64(n), true
+//	case uint16:
+//		return int64(n), true
+//	case uint32:
+//		return int64(n), true
+//	case uint64:
+//		if n > uint64(^uint64(0)>>1) {
+//			return 0, false
+//		}
+//		return int64(n), true
+//	case float32:
+//		return int64(n), true
+//	case float64:
+//		return int64(n), true
+//	default:
+//		return 0, false
+//	}
+//}
