@@ -832,25 +832,26 @@ func (p *tierPartition) refillerLoop() {
 
 		case <-ticker.C:
 			// Periodic check: refill all tiers if needed
-			p.checkAndRefillAll()
+			p.checkAndRefillAll("ticker")
 
 		case idx := <-p.refillSignal:
 			// Triggered refill for specific tier
-			p.checkAndRefill(idx)
+			log.Debugf("[RangePool] %s tier idx=%d received refill signal", p.name, idx)
+			p.checkAndRefill(idx, "signal")
 		}
 	}
 }
 
 // checkAndRefillAll 遍历所有 tiers，逐个执行检查与补货。
-func (p *tierPartition) checkAndRefillAll() {
+func (p *tierPartition) checkAndRefillAll(reason string) {
 	for i := range p.tiers {
-		p.checkAndRefill(i)
+		p.checkAndRefill(i, reason)
 	}
 }
 
 // checkAndRefill 检查指定 tier 是否需要补货（<=Threshold），若需要则补到 MaxCount。
 // 中间层通过拆分上层补货；顶层通过分配窗口(window)+refill 扩展补货。
-func (p *tierPartition) checkAndRefill(idx int) {
+func (p *tierPartition) checkAndRefill(idx int, reason string) {
 	if idx < 0 || idx >= len(p.tiers) {
 		return
 	}
@@ -861,14 +862,17 @@ func (p *tierPartition) checkAndRefill(idx int) {
 	p.mu.RLock()
 	needRefill := len(tier.segments) <= tier.cfg.Threshold
 	timeSinceLastRefill := time.Since(tier.lastRefill)
+	currentLen := len(tier.segments)
 	p.mu.RUnlock()
 
+	log.Debugf("[RangePool] %s tier size=%d reason=%s len=%d threshold=%d need=%v", p.name, tier.cfg.Size, reason, currentLen, tier.cfg.Threshold, needRefill)
 	if !needRefill {
 		return
 	}
 
 	// 2. Throttling: avoid refilling too frequently
 	if timeSinceLastRefill < 50*time.Millisecond {
+		log.Debugf("[RangePool] %s tier size=%d reason=%s skip refill because throttled (%v)", p.name, tier.cfg.Size, reason, timeSinceLastRefill)
 		return
 	}
 
@@ -885,27 +889,37 @@ func (p *tierPartition) checkAndRefill(idx int) {
 		target = tier.cfg.Threshold + 1
 	}
 
+	beforeLen := len(tier.segments)
+	needCount := target - beforeLen
+	log.Debugf("[RangePool] %s tier size=%d reason=%s needCount=%d target=%d before=%d", p.name, tier.cfg.Size, reason, needCount, target, beforeLen)
+	var addedSegments int
+	var splitCount int
 	if idx == len(p.tiers)-1 {
 		// Top tier: refill from allocation window
-		p.refillTopTierUnsafe(idx, target)
+		addedSegments = p.refillTopTierUnsafe(idx, target)
 	} else {
 		// Middle tier: refill by splitting from upper tiers
-		p.refillMiddleTierUnsafe(idx, target)
+		addedSegments, splitCount = p.refillMiddleTierUnsafe(idx, target)
 	}
 
 	tier.lastRefill = time.Now()
+	afterLen := len(tier.segments)
 	p.mu.Unlock()
 
-	log.Debugf("[RangePool] %s tier %d refilled to %d segments", p.name, tier.cfg.Size, len(tier.segments))
+	if addedSegments == 0 {
+		log.Warnf("[RangePool] %s tier size=%d reason=%s refill produced no new segments (need=%d)", p.name, tier.cfg.Size, reason, needCount)
+		return
+	}
+	log.Debugf("[RangePool] %s tier size=%d reason=%s refill added=%d splitFromUpper=%d after=%d", p.name, tier.cfg.Size, reason, addedSegments, splitCount, afterLen)
 }
 
 // refillTopTierUnsafe 补顶层 tier：从分配窗口顺序切分 segment，直到补到 target。
 // 调用方必须已持有写锁；该方法会主动释放写锁以执行可能的 IO(refill)，随后再重新加锁写回。
-func (p *tierPartition) refillTopTierUnsafe(idx int, target int) {
+func (p *tierPartition) refillTopTierUnsafe(idx int, target int) int {
 	tier := p.tiers[idx]
 	needCount := target - len(tier.segments)
 	if needCount <= 0 {
-		return
+		return 0
 	}
 
 	// Release lock before IO operation
@@ -915,19 +929,22 @@ func (p *tierPartition) refillTopTierUnsafe(idx int, target int) {
 
 	if err != nil {
 		log.Warnf("[RangePool] %s tier %d refill failed: %v", p.name, tier.cfg.Size, err)
-		return
+		return 0
 	}
 	p.tiers[idx].segments = append(p.tiers[idx].segments, segs...)
+	return len(segs)
 }
 
 // refillMiddleTierUnsafe 补中间层/底层 tier：通过不断从上层拆分 segment 来补到 target。
 // 调用方必须已持有写锁；该方法不会做 IO。
-func (p *tierPartition) refillMiddleTierUnsafe(idx int, target int) {
+func (p *tierPartition) refillMiddleTierUnsafe(idx int, target int) (int, int) {
 	tier := p.tiers[idx]
 	maxAttempts := target * 2 // Avoid infinite loop
+	var added int
+	var splitCount int
 
 	for attempt := 0; attempt < maxAttempts && len(tier.segments) < target; attempt++ {
-		if !p.splitFromUpperUnsafe(idx) {
+		if addedChildren, ok := p.splitFromUpperUnsafe(idx); !ok {
 			// Upper tier exhausted, try to refill upper tier
 			if idx+1 < len(p.tiers) {
 				upperTarget := p.tiers[idx+1].cfg.MaxCount
@@ -935,35 +952,41 @@ func (p *tierPartition) refillMiddleTierUnsafe(idx int, target int) {
 					upperTarget = p.tiers[idx+1].cfg.Threshold + 1
 				}
 				p.refillMiddleTierUnsafe(idx+1, upperTarget) // Recursive refill
-
 				// Retry splitting after upper refill
-				if !p.splitFromUpperUnsafe(idx) {
+				if addedChildrenRetry, okRetry := p.splitFromUpperUnsafe(idx); okRetry {
+					added += addedChildrenRetry
+					splitCount++
+				} else {
 					break
 				}
 			} else {
 				break
 			}
+		} else {
+			added += addedChildren
+			splitCount++
 		}
 	}
+	return added, splitCount
 }
 
 // splitFromUpperUnsafe 为 splitFromUpper 的无锁版本：调用方必须已持有写锁。
-func (p *tierPartition) splitFromUpperUnsafe(idx int) bool {
+func (p *tierPartition) splitFromUpperUnsafe(idx int) (int, bool) {
 	upperIdx := idx + 1
 	if upperIdx >= len(p.tiers) {
-		return false
+		return 0, false
 	}
 	upper := p.tiers[upperIdx]
 	if len(upper.segments) == 0 {
-		return false
+		return 0, false
 	}
 	lowerSize := p.tiers[idx].cfg.Size
 	if lowerSize == 0 || upper.cfg.Size%lowerSize != 0 {
-		return false
+		return 0, false
 	}
 	ratio := int(upper.cfg.Size / lowerSize)
 	if ratio <= 1 {
-		return false
+		return 0, false
 	}
 
 	// Use randMu to protect rand access
@@ -982,7 +1005,7 @@ func (p *tierPartition) splitFromUpperUnsafe(idx int) bool {
 		p.tiers[idx].segments = append(p.tiers[idx].segments, child)
 		cursor += childSize
 	}
-	return true
+	return ratio, true
 }
 
 // Close 停止后台补货协程并等待退出（需由上层保证只调用一次，避免重复 close channel）。

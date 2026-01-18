@@ -1828,3 +1828,95 @@
 {"level":"info","time":"2026-01-08T13:38:39+08:00","message":"size:20 range 5160~5359 len:10"}
 {"level":"info","time":"2026-01-08T13:38:39+08:00","message":"size:100 range 5360~6359 len:10"}
 {"level":"info","time":"2026-01-08T13:38:39+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"info","time":"2026-01-11T17:18:19+08:00","message":"min:0 max:100 live_start:0 live_cursor:20 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-11T17:18:26+08:00","message":"min:0 max:100 live_start:0 live_cursor:21 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-11T17:18:26+08:00","message":"min:0 max:100 live_start:0 live_cursor:42 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-11T17:18:26+08:00","message":"min:0 max:100 live_start:0 live_cursor:63 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-11T17:18:26+08:00","message":"min:0 max:100 live_start:0 live_cursor:84 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-11T17:18:26+08:00","message":"min:0 max:100 live_start:0 live_cursor:0 LiveEnableLoop:true free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-11T17:18:26+08:00","message":"min:0 max:100 live_start:0 live_cursor:21 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-11T17:18:26+08:00","message":"min:0 max:100 live_start:0 live_cursor:42 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-11T17:18:26+08:00","message":"min:0 max:100 live_start:0 live_cursor:63 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-11T17:18:26+08:00","message":"min:0 max:100 live_start:0 live_cursor:84 LiveEnableLoop:false free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-11T17:18:26+08:00","message":"min:0 max:100 live_start:0 live_cursor:0 LiveEnableLoop:true free_start:50 free_cursor:50 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-11T17:19:11+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4720 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-11T17:19:11+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4720 LiveEnableLoop:false free_start:5000 free_cursor:9720 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-11T17:19:11+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-11T17:19:11+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-11T17:19:11+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-11T17:19:11+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-11T17:19:11+08:00","message":"size:20 range 5160~5359 len:10"}
+{"level":"info","time":"2026-01-11T17:19:11+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"info","time":"2026-01-11T17:19:11+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"info","time":"2026-01-11T17:19:11+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-11T17:19:11+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-11T17:19:11+08:00","message":"size:5 range 5050~5034 len:5"}
+{"level":"info","time":"2026-01-11T17:19:11+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-11T17:19:11+08:00","message":"size:20 range 5160~5359 len:10"}
+{"level":"info","time":"2026-01-11T17:19:11+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"info","time":"2026-01-11T17:19:11+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"info","time":"2026-01-11T17:20:41+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4720 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-11T17:20:41+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4720 LiveEnableLoop:false free_start:5000 free_cursor:9720 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-11T17:20:41+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-11T17:20:41+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-11T17:20:41+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-11T17:20:41+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-11T17:20:41+08:00","message":"size:20 range 5160~5359 len:10"}
+{"level":"info","time":"2026-01-11T17:20:41+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"info","time":"2026-01-11T17:20:41+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"info","time":"2026-01-11T17:20:41+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-11T17:20:41+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-11T17:20:41+08:00","message":"size:5 range 5050~5104 len:10"}
+{"level":"info","time":"2026-01-11T17:20:41+08:00","message":"size:10 range 5060~5129 len:7"}
+{"level":"info","time":"2026-01-11T17:20:41+08:00","message":"size:20 range 5160~5359 len:10"}
+{"level":"debug","time":"2026-01-11T17:20:41+08:00","message":"[RangePool] free tier 5 refilled to 11 segments"}
+{"level":"info","time":"2026-01-11T17:20:41+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"info","time":"2026-01-11T17:20:41+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"info","time":"2026-01-11T17:21:03+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4720 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-11T17:21:03+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4720 LiveEnableLoop:false free_start:5000 free_cursor:9720 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-11T17:21:03+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-11T17:21:03+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-11T17:21:03+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-11T17:21:03+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-11T17:21:03+08:00","message":"size:20 range 5160~5359 len:10"}
+{"level":"info","time":"2026-01-11T17:21:03+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"info","time":"2026-01-11T17:21:03+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"info","time":"2026-01-11T17:21:03+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-11T17:21:03+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-11T17:21:03+08:00","message":"size:5 range 5050~5024 len:3"}
+{"level":"info","time":"2026-01-11T17:21:03+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-11T17:21:03+08:00","message":"size:20 range 5160~5359 len:10"}
+{"level":"info","time":"2026-01-11T17:21:03+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"info","time":"2026-01-11T17:21:03+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"info","time":"2026-01-11T17:22:00+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4720 LiveEnableLoop:false free_start:5000 free_cursor:5000 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-11T17:22:00+08:00","message":"min:0 max:10000 live_start:0 live_cursor:4720 LiveEnableLoop:false free_start:5000 free_cursor:9720 FreeEnableLoop:false"}
+{"level":"info","time":"2026-01-11T17:22:00+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-11T17:22:00+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-11T17:22:00+08:00","message":"size:5 range 5010~5059 len:10"}
+{"level":"info","time":"2026-01-11T17:22:00+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-11T17:22:00+08:00","message":"size:20 range 5160~5359 len:10"}
+{"level":"info","time":"2026-01-11T17:22:00+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"info","time":"2026-01-11T17:22:00+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"info","time":"2026-01-11T17:22:00+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-11T17:22:00+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-11T17:22:00+08:00","message":"size:5 range 5050~5024 len:3"}
+{"level":"info","time":"2026-01-11T17:22:00+08:00","message":"size:10 range 5060~5159 len:10"}
+{"level":"info","time":"2026-01-11T17:22:00+08:00","message":"size:20 range 5160~5359 len:10"}
+{"level":"info","time":"2026-01-11T17:22:00+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"info","time":"2026-01-11T17:22:00+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"debug","time":"2026-01-11T17:22:00+08:00","message":"[RangePool] free tier 5 refilled to 11 segments"}
+{"level":"debug","time":"2026-01-11T17:22:00+08:00","message":"[RangePool] free tier 10 refilled to 10 segments"}
+{"level":"info","time":"2026-01-11T17:22:05+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-11T17:22:05+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-11T17:22:05+08:00","message":"size:5 range 5050~5139 len:11"}
+{"level":"info","time":"2026-01-11T17:22:05+08:00","message":"size:10 range 5150~5239 len:10"}
+{"level":"info","time":"2026-01-11T17:22:05+08:00","message":"size:20 range 5160~5319 len:8"}
+{"level":"info","time":"2026-01-11T17:22:05+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"info","time":"2026-01-11T17:22:05+08:00","message":"size:500 range 6360~7359 len:2"}
+{"level":"info","time":"2026-01-11T17:22:10+08:00","message":"[RangePool] free window start=5000 cursor=7360 end=9720 loop=false"}
+{"level":"info","time":"2026-01-11T17:22:10+08:00","message":"size:1 range 5000~5009 len:10"}
+{"level":"info","time":"2026-01-11T17:22:10+08:00","message":"size:5 range 5050~5139 len:11"}
+{"level":"info","time":"2026-01-11T17:22:10+08:00","message":"size:10 range 5150~5239 len:10"}
+{"level":"info","time":"2026-01-11T17:22:10+08:00","message":"size:20 range 5160~5319 len:8"}
+{"level":"info","time":"2026-01-11T17:22:10+08:00","message":"size:100 range 5360~6359 len:10"}
+{"level":"info","time":"2026-01-11T17:22:10+08:00","message":"size:500 range 6360~7359 len:2"}

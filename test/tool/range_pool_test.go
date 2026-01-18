@@ -3,6 +3,7 @@ package tool
 import (
 	"math/rand"
 	"testing"
+	"time"
 
 	"github.com/xuenqlve/common/log"
 	"github.com/xuenqlve/kyogre/pkg/tool/range_pool"
@@ -136,5 +137,14 @@ func TestRangePool(t *testing.T) {
 	t.Logf("4 r:%v b:%v", r, b)
 	r, b = pool.ReserveInsert(5)
 	t.Logf("5 r:%v b:%v", r, b)
+	r, b = pool.ReserveInsert(5)
+	t.Logf("6 r:%v b:%v", r, b)
+	r, b = pool.ReserveInsert(5)
+	t.Logf("7 r:%v b:%v", r, b)
 	pool.DebugLog(range_pool.RangePoolFreeName)
+	time.Sleep(5 * time.Second)
+	pool.DebugLog(range_pool.RangePoolFreeName)
+	time.Sleep(5 * time.Second)
+	pool.DebugLog(range_pool.RangePoolFreeName)
+	t.Logf("-----")
 }
