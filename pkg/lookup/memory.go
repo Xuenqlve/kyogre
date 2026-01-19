@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"github.com/mitchellh/mapstructure"
+	"github.com/xuenqlve/common/transform"
 	"github.com/xuenqlve/kyogre/internal/plugin/iquery"
 	"github.com/xuenqlve/kyogre/pkg/tool/mock"
 	"github.com/xuenqlve/kyogre/pkg/tool/range_pool"
@@ -152,7 +153,7 @@ func (q *MemoryLookup) ScanValues(ctx context.Context, req iquery.ValuesRequest)
 		if err != nil {
 			return iquery.ValuesResult{}, err
 		}
-		seq, err = mock.NewRowSequence(columns)
+		seq, err = newRowSequenceWithCursor(columns, req.Cursor, q.cfg)
 		if err != nil {
 			return iquery.ValuesResult{}, err
 		}
@@ -181,7 +182,12 @@ func (q *MemoryLookup) ScanValues(ctx context.Context, req iquery.ValuesRequest)
 	}
 	result := iquery.ValuesResult{Rows: out, HasMore: !done}
 	if len(out) > 0 {
-		result.NextCursor = out[len(out)-1][0]
+		last := out[len(out)-1]
+		if len(last) == 1 {
+			result.NextCursor = last[0]
+		} else {
+			result.NextCursor = last
+		}
 	}
 	return result, nil
 }
@@ -202,7 +208,7 @@ func buildSequenceColumns(cols []iquery.BoundParam, cursor any, cfg MemoryLookup
 	var cursorValue int64
 	cursorOK := false
 	if cursor != nil && isNumericType(cols[0].Type) {
-		if v, err := toInt64(cursor); err == nil {
+		if v, err := transform.ToInt(cursor); err == nil {
 			cursorValue = v
 			cursorOK = true
 		}
@@ -229,6 +235,50 @@ func buildSequenceColumns(cols []iquery.BoundParam, cursor any, cfg MemoryLookup
 	return seqCols, nil
 }
 
+func newRowSequenceWithCursor(columns []mock.SequenceColumn, cursor any, cfg MemoryLookupConfig) (mock.RowSequence, error) {
+	if cursor == nil {
+		return mock.NewRowSequence(columns, mock.WithWrap(cfg.Wrap))
+	}
+	row, ok := cursor.([]any)
+	if !ok || len(row) != len(columns) {
+		return mock.NewRowSequence(columns, mock.WithWrap(cfg.Wrap))
+	}
+	colNames := make([]string, 0, len(columns))
+	gens := make([]mock.ValueGenerator, 0, len(columns))
+	for i, col := range columns {
+		colNames = append(colNames, col.Name)
+		switch col.Type {
+		case mock.SequenceTypeString:
+			val, ok := row[i].(string)
+			if !ok {
+				return mock.NewRowSequence(columns, mock.WithWrap(cfg.Wrap))
+			}
+			length := col.Length
+			if length <= 0 {
+				length = cfg.StringLength
+			}
+			gen, err := mock.NewStringValueGeneratorWithCursor(length, val)
+			if err != nil {
+				return mock.NewRowSequence(columns, mock.WithWrap(cfg.Wrap))
+			}
+			gens = append(gens, gen)
+		case mock.SequenceTypeInt:
+			val, err := transform.ToInt(row[i])
+			if err != nil {
+				return mock.NewRowSequence(columns, mock.WithWrap(cfg.Wrap))
+			}
+			digits := col.Digits
+			if digits <= 0 {
+				digits = cfg.IntDigits
+			}
+			gens = append(gens, mock.NewInt64DigitsGeneratorWithCursor(col.Start, digits, cfg.Wrap, val))
+		default:
+			return mock.NewRowSequence(columns, mock.WithWrap(cfg.Wrap))
+		}
+	}
+	return mock.NewRowSequenceFromGeneratorsWithCursor(colNames, gens, row)
+}
+
 func sequenceTypeFromColumn(typ string) string {
 	if isNumericType(typ) {
 		return mock.SequenceTypeInt
@@ -252,37 +302,3 @@ func isNumericType(typ string) bool {
 		return false
 	}
 }
-
-//func toInt64(v any) (int64, bool) {
-//	switch n := v.(type) {
-//	case int:
-//		return int64(n), true
-//	case int8:
-//		return int64(n), true
-//	case int16:
-//		return int64(n), true
-//	case int32:
-//		return int64(n), true
-//	case int64:
-//		return n, true
-//	case uint:
-//		return int64(n), true
-//	case uint8:
-//		return int64(n), true
-//	case uint16:
-//		return int64(n), true
-//	case uint32:
-//		return int64(n), true
-//	case uint64:
-//		if n > uint64(^uint64(0)>>1) {
-//			return 0, false
-//		}
-//		return int64(n), true
-//	case float32:
-//		return int64(n), true
-//	case float64:
-//		return int64(n), true
-//	default:
-//		return 0, false
-//	}
-//}

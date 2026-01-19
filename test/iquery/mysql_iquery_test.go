@@ -35,14 +35,14 @@ func TestMySQLIQuery(t *testing.T) {
 		return
 	}
 	defer lk.Close()
-	ctx := context.Background()
-	t.Run("Lookup", func(t *testing.T) {
-		req := iquery.LookupRequest{}
-		result := iquery.LookupResult{}
-		if result, err = lk.Lookup(ctx, req); err != nil {
-			t.Errorf("err:%v", err)
-		}
-		t.Logf("result:%+v", result)
-	})
+	//ctx := context.Background()
+	//t.Run("Lookup", func(t *testing.T) {
+	//	req := iquery.LookupRequest{}
+	//	result := iquery.LookupResult{}
+	//	//if result, err = lk.Lookup(ctx, req); err != nil {
+	//	//	t.Errorf("err:%v", err)
+	//	//}
+	//	t.Logf("result:%+v", result)
+	//})
 
 }

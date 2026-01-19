@@ -88,3 +88,27 @@ func TestMemoryLookupScanValuesComposite(t *testing.T) {
 		}
 	}
 }
+
+func TestMemoryLookupScanValuesCursorComposite(t *testing.T) {
+	lookup := &MemoryLookup{}
+	if err := lookup.Configure("test", map[string]any{"string-length": 2, "int-digits": 1}); err != nil {
+		t.Fatalf("configure err: %v", err)
+	}
+	schema := testSchemaKey{id: "t3"}
+	cols := []iquery.BoundParam{{Column: "code", Type: "varchar"}, {Column: "seq", Type: "int"}}
+
+	cursor := []any{"aa", int64(2)}
+	res, err := lookup.ScanValues(nil, iquery.ValuesRequest{Schema: schema, Columns: cols, Cursor: cursor, Limit: 2})
+	if err != nil {
+		t.Fatalf("scan err: %v", err)
+	}
+	if len(res.Rows) != 2 {
+		t.Fatalf("expected 2 rows, got %d", len(res.Rows))
+	}
+	expected := [][]any{{"aa", int64(3)}, {"aa", int64(4)}}
+	for i := range expected {
+		if res.Rows[i][0] != expected[i][0] || res.Rows[i][1] != expected[i][1] {
+			t.Fatalf("row %d expected %v got %v", i, expected[i], res.Rows[i])
+		}
+	}
+}

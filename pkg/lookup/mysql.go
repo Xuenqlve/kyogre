@@ -4,12 +4,12 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"strconv"
 	"strings"
 
 	"github.com/mitchellh/mapstructure"
 	mysql_schema "github.com/xuenqlve/common/relational_database/mysql"
 	"github.com/xuenqlve/common/schema_store"
+	"github.com/xuenqlve/common/transform"
 	"github.com/xuenqlve/kyogre/internal/plugin/iquery"
 	ds "github.com/xuenqlve/kyogre/pkg/data_source/mysql"
 	"github.com/xuenqlve/kyogre/pkg/tool/range_pool"
@@ -89,11 +89,11 @@ func (q *MySQLLookup) LookupBounds(ctx context.Context, req iquery.LookupRequest
 		return iquery.LookupResult{}, fmt.Errorf("empty live range for %s", req.Schema.UniqueID())
 	}
 
-	minID, err := toInt64(minV)
+	minID, err := transform.ToInt(minV)
 	if err != nil {
 		return iquery.LookupResult{}, err
 	}
-	maxID, err := toInt64(maxV)
+	maxID, err := transform.ToInt(maxV)
 	if err != nil {
 		return iquery.LookupResult{}, err
 	}
@@ -242,53 +242,4 @@ func (q *MySQLLookup) queryMinMaxCount(ctx context.Context, table *mysql_schema.
 
 func quoteIdentifier(name string) string {
 	return fmt.Sprintf("`%s`", strings.ReplaceAll(name, "`", "``"))
-}
-
-func toInt64(v any) (int64, error) {
-	switch n := v.(type) {
-	case nil:
-		return 0, nil
-	case int:
-		return int64(n), nil
-	case int8:
-		return int64(n), nil
-	case int16:
-		return int64(n), nil
-	case int32:
-		return int64(n), nil
-	case int64:
-		return n, nil
-	case uint:
-		return int64(n), nil
-	case uint8:
-		return int64(n), nil
-	case uint16:
-		return int64(n), nil
-	case uint32:
-		return int64(n), nil
-	case uint64:
-		if n > uint64(^uint64(0)>>1) {
-			return 0, fmt.Errorf("uint64 overflow: %d", n)
-		}
-		return int64(n), nil
-	case float32:
-		return int64(n), nil
-	case float64:
-		return int64(n), nil
-	case []byte:
-		return toInt64(string(n))
-	case string:
-		v, err := strconv.ParseInt(strings.TrimSpace(n), 10, 64)
-		if err != nil {
-			return 0, fmt.Errorf("string cannot convert to int64: %q", n)
-		}
-		return v, nil
-	case sql.NullInt64:
-		if !n.Valid {
-			return 0, nil
-		}
-		return n.Int64, nil
-	default:
-		return 0, fmt.Errorf("unsupported type %T to int64", v)
-	}
 }
