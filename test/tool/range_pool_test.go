@@ -23,8 +23,9 @@ type LiveRefill struct {
 	FreeEnableLoop bool
 }
 
-func (l *LiveRefill) Refill(partition string, need int64) (enableLoop bool, refillWindow range_pool.IntRange, err error) {
+func (l *LiveRefill) Refill(partition string, req range_pool.RefillRequest) (enableLoop bool, refillWindow range_pool.IntRange, err error) {
 	log.Infof("------------------start Refill ------------------")
+	need := req.Need
 	switch partition {
 	case range_pool.RangePoolLiveName:
 		if l.LiveEnableLoop {
@@ -85,7 +86,7 @@ func TestLiveRefill(t *testing.T) {
 		FreeEnableLoop: false,
 	}
 	t.Run("run 1", func(t *testing.T) {
-		loop, window, err := refill.Refill(range_pool.RangePoolLiveName, 20)
+		loop, window, err := refill.Refill(range_pool.RangePoolLiveName, range_pool.RefillRequest{Need: 20})
 		if err != nil {
 			t.Fatal(err)
 			return
@@ -95,7 +96,7 @@ func TestLiveRefill(t *testing.T) {
 
 	t.Run("run 2", func(t *testing.T) {
 		for i := 0; i < 10; i++ {
-			loop, window, err := refill.Refill(range_pool.RangePoolLiveName, 21)
+			loop, window, err := refill.Refill(range_pool.RangePoolLiveName, range_pool.RefillRequest{Need: 21})
 			if err != nil {
 				t.Fatal(err)
 				return
@@ -106,7 +107,7 @@ func TestLiveRefill(t *testing.T) {
 
 	t.Run("run 3", func(t *testing.T) {
 		for i := 0; i < 10; i++ {
-			loop, window, err := refill.Refill(range_pool.RangePoolFreeName, 21)
+			loop, window, err := refill.Refill(range_pool.RangePoolFreeName, range_pool.RefillRequest{Need: 21})
 			if err != nil {
 				t.Fatal(err)
 				return
@@ -177,12 +178,12 @@ func newTestRefill(max int64, loop bool) *testRefill {
 	}
 }
 
-func (r *testRefill) Refill(partition string, need int64) (bool, range_pool.IntRange, error) {
+func (r *testRefill) Refill(partition string, req range_pool.RefillRequest) (bool, range_pool.IntRange, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
 	start := r.start[partition]
-	end := r.end[partition] + need
+	end := r.end[partition] + req.Need
 	enableLoop := false
 	if end >= r.max {
 		end = r.max

@@ -129,7 +129,7 @@ type MessageGenerationRequest struct {
 	Dependency GenerationDependency `json:"-"`
 
 	// 反查模块查询到的结果
-	QueryResults map[string]*iquery.LookupResult `json:"-"`
+	QueryResults map[string]*iquery.RangeResult `json:"-"`
 
 	// 生成策略配置
 	GenerationStrategy *GenerationStrategy `json:"generation_strategy"`
@@ -143,7 +143,7 @@ func NewDependencyRequest(config DependencyConfig, strategy *GenerationStrategy)
 	}
 }
 
-func NewMessageGenerationRequest(dep GenerationDependency, queryResults map[string]*iquery.LookupResult, strategy *GenerationStrategy) *MessageGenerationRequest {
+func NewMessageGenerationRequest(dep GenerationDependency, queryResults map[string]*iquery.RangeResult, strategy *GenerationStrategy) *MessageGenerationRequest {
 	return &MessageGenerationRequest{
 		Dependency:         dep,
 		QueryResults:       queryResults,
@@ -165,7 +165,7 @@ type MockParam struct {
 	GenerationStrategy *GenerationStrategy `json:"generation_strategy"`
 
 	// 反查结果（在Generator第二阶段接收）
-	QueryResults map[string]*iquery.LookupResult `json:"-"`
+	QueryResults map[string]*iquery.RangeResult `json:"-"`
 
 	// 【向后兼容】旧的参数字段，逐步迁移
 	Operation   string

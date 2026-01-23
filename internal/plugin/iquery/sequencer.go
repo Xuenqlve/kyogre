@@ -3,8 +3,6 @@ package iquery
 import (
 	"context"
 	"fmt"
-	"math"
-	"strings"
 	"sync"
 
 	"github.com/xuenqlve/common/schema_store"
@@ -19,7 +17,7 @@ type SequenceSpec struct {
 	// Prefer Fields for multi-column unique constraints.
 	Field string
 	// Fields are the columns participating in the unique constraint (ordered).
-	Fields []BoundParam
+	Fields []ColumnParam
 }
 
 func (spec SequenceSpec) Key() string {
@@ -41,9 +39,10 @@ func (spec SequenceSpec) Key() string {
 // Sequencer allocates id ranges for unique constraints.
 // It guarantees per-key serialized allocation inside a single process.
 type Sequencer struct {
-	pipeline string
-	lookup   Lookup
-	cfg      *SequencerConfig
+	pipeline   string
+	freeLookup Lookup
+	liveLookup Lookup
+	cfg        *SequencerConfig
 
 	stateMu sync.RWMutex
 	states  map[string]*sequenceState
@@ -58,8 +57,18 @@ type sequenceState struct {
 	mu   sync.Mutex
 	pool *range_pool.RangePool
 
-	wrapAt int64
-	alive  *aliveSet
+	aliveFree *aliveSet
+	aliveLive *aliveSet
+}
+
+func (st *sequenceState) specField() string {
+	if st.spec.Field != "" {
+		return st.spec.Field
+	}
+	if len(st.spec.Fields) > 0 {
+		return st.spec.Fields[0].Column
+	}
+	return ""
 }
 
 func NewSequencer() (*Sequencer, error) {
@@ -78,13 +87,23 @@ func (s *Sequencer) Configure(pipeline string, opts ...SequencerOptions) error {
 	if err := s.cfg.ValidateAndSetDefault(); err != nil {
 		return err
 	}
-	if s.lookup == nil {
-		return fmt.Errorf("sequencer lookup is nil")
+	if s.freeLookup == nil {
+		lookup, err := GetIQueryModule(Memory)
+		if err != nil {
+			return err
+		}
+		s.freeLookup = lookup
+	}
+	if err := s.freeLookup.Configure(pipeline, s.cfg.FreeLookupConfig); err != nil {
+		return err
+	}
+	if s.liveLookup == nil {
+		s.liveLookup = s.freeLookup
 	}
 	return nil
 }
 
-func (s *Sequencer) BindLookup(lookup Lookup) { s.lookup = lookup }
+func (s *Sequencer) BindLookup(lookup Lookup) { s.liveLookup = lookup }
 
 func (s *Sequencer) keyLock(key string) *sync.Mutex {
 	s.keyMuMu.Lock()
@@ -110,6 +129,16 @@ func (s *Sequencer) setState(key string, st *sequenceState) {
 	s.states[key] = st
 }
 
+func (s *Sequencer) lookupForPartition(partition string) Lookup {
+	if partition == range_pool.RangePoolFreeName {
+		return s.freeLookup
+	}
+	if s.liveLookup != nil {
+		return s.liveLookup
+	}
+	return s.freeLookup
+}
+
 // initState loads initial bounds from lookup for this spec.
 func (s *Sequencer) initState(ctx context.Context, spec SequenceSpec) (*sequenceState, error) {
 	key := spec.Key()
@@ -122,7 +151,7 @@ func (s *Sequencer) initState(ctx context.Context, spec SequenceSpec) (*sequence
 
 	params := spec.Fields
 	if len(params) == 0 && spec.Field != "" {
-		params = []BoundParam{{Column: spec.Field}}
+		params = []ColumnParam{{Column: spec.Field}}
 	}
 	if len(params) == 0 {
 		return nil, fmt.Errorf("invalid spec: empty fields")
@@ -133,8 +162,9 @@ func (s *Sequencer) initState(ctx context.Context, spec SequenceSpec) (*sequence
 	// - Otherwise: use AliveSet (ScanValues)
 	if len(params) != 1 || !isNumericType(params[0].Type) {
 		st := &sequenceState{
-			spec:  spec,
-			alive: newAliveSet(params, s.cfg.AliveSetCapacity, s.cfg.AliveSetBatchSize),
+			spec:      spec,
+			aliveFree: newAliveSet(params, s.cfg.AliveSetCapacity, s.cfg.AliveSetBatchSize),
+			aliveLive: newAliveSet(params, s.cfg.AliveSetCapacity, s.cfg.AliveSetBatchSize),
 		}
 		s.setState(key, st)
 		return st, nil
@@ -143,9 +173,8 @@ func (s *Sequencer) initState(ctx context.Context, spec SequenceSpec) (*sequence
 	st := &sequenceState{
 		spec: spec,
 	}
-	st.wrapAt = minInt64(s.cfg.WrapAt, hardMaxInt64(params[0].Type))
-	pool, err := range_pool.NewRangePool(range_pool.WithRefill(func(partition string, need int64) (bool, range_pool.IntRange, error) {
-		return s.lookupWindow(st, params, partition, need)
+	pool, err := range_pool.NewRangePool(range_pool.WithRefill(func(partition string, req range_pool.RefillRequest) (bool, range_pool.IntRange, error) {
+		return s.lookupWindow(st, params, partition, req.Need, req.WindowEnd)
 	}))
 	if err != nil {
 		return nil, err
@@ -155,8 +184,9 @@ func (s *Sequencer) initState(ctx context.Context, spec SequenceSpec) (*sequence
 	return st, nil
 }
 
-func (s *Sequencer) lookupWindow(st *sequenceState, params []BoundParam, partition string, need int64) (bool, range_pool.IntRange, error) {
-	if s.lookup == nil {
+func (s *Sequencer) lookupWindow(st *sequenceState, params []ColumnParam, partition string, need int64, windowEnd int64) (bool, range_pool.IntRange, error) {
+	lookup := s.lookupForPartition(partition)
+	if lookup == nil {
 		return false, range_pool.IntRange{}, fmt.Errorf("sequencer lookup is nil")
 	}
 	if need <= 0 {
@@ -165,20 +195,15 @@ func (s *Sequencer) lookupWindow(st *sequenceState, params []BoundParam, partiti
 	if partition == range_pool.RangePoolFreeName && s.cfg.InsertWindowSize > 0 && need < s.cfg.InsertWindowSize {
 		need = s.cfg.InsertWindowSize
 	}
-	res, err := s.lookup.LookupBounds(context.Background(), LookupRequest{
-		Schema:    st.spec.Schema,
-		Params:    params,
-		Partition: partition,
-		Need:      need,
-		WrapAt:    st.wrapAt,
+	res, err := lookup.LookupRange(context.Background(), Request{
+		Schema:  st.spec.Schema,
+		Columns: params,
+		Need:    need,
+		Cursor:  windowEnd,
 	})
 	if err != nil {
 		return false, range_pool.IntRange{}, err
 	}
-	if !res.Window.Valid() {
-		return false, range_pool.IntRange{}, fmt.Errorf("lookup returned invalid window for %s", st.spec.Key())
-	}
-
 	if !res.Window.Valid() {
 		return false, range_pool.IntRange{}, fmt.Errorf("lookup returned invalid window for %s", st.spec.Key())
 	}
@@ -202,7 +227,7 @@ func (s *Sequencer) ReserveInsert(ctx context.Context, spec SequenceSpec, need i
 	st.mu.Lock()
 	defer st.mu.Unlock()
 
-	if st.alive != nil {
+	if st.aliveFree != nil {
 		return nil, fmt.Errorf("ReserveInsert not supported for AliveSet strategy (use ReserveInsertProvider)")
 	}
 
@@ -267,12 +292,12 @@ func (s *Sequencer) ReserveInsertProvider(ctx context.Context, spec SequenceSpec
 	}
 
 	// AliveSet: tuple provider -> map[column]any for IN batch usage
-	rows, err := st.alive.take(ctx, s.lookup, spec.Schema, int(need))
+	rows, err := st.aliveFree.take(ctx, s.freeLookup, spec.Schema, int(need))
 	if err != nil {
 		return nil, nil, err
 	}
-	cols := make([]string, 0, len(st.alive.columns))
-	for _, c := range st.alive.columns {
+	cols := make([]string, 0, len(st.aliveFree.columns))
+	for _, c := range st.aliveFree.columns {
 		cols = append(cols, c.Column)
 	}
 	tp, err := newTupleProvider(cols, rows)
@@ -299,7 +324,7 @@ func (s *Sequencer) ReserveUpdate(ctx context.Context, spec SequenceSpec, need i
 	st.mu.Lock()
 	defer st.mu.Unlock()
 
-	if st.alive != nil {
+	if st.aliveLive != nil {
 		return nil, fmt.Errorf("ReserveUpdate not supported for AliveSet strategy (use ReserveUpdateProvider)")
 	}
 
@@ -361,12 +386,12 @@ func (s *Sequencer) ReserveUpdateProvider(ctx context.Context, spec SequenceSpec
 		return newRangeProvider(cfg.Field, cfg.StartValue, cfg.EndValue, cfg.Step), cfg, nil
 	}
 
-	rows, err := st.alive.take(ctx, s.lookup, spec.Schema, int(need))
+	rows, err := st.aliveLive.take(ctx, s.liveLookup, spec.Schema, int(need))
 	if err != nil {
 		return nil, nil, err
 	}
-	cols := make([]string, 0, len(st.alive.columns))
-	for _, c := range st.alive.columns {
+	cols := make([]string, 0, len(st.aliveLive.columns))
+	for _, c := range st.aliveLive.columns {
 		cols = append(cols, c.Column)
 	}
 	tp, err := newTupleProvider(cols, rows)
@@ -394,7 +419,7 @@ func (s *Sequencer) ReserveDelete(ctx context.Context, spec SequenceSpec, need i
 	st.mu.Lock()
 	defer st.mu.Unlock()
 
-	if st.alive != nil {
+	if st.aliveLive != nil {
 		return nil, fmt.Errorf("ReserveDelete not supported for AliveSet strategy (use ReserveDeleteProvider)")
 	}
 
@@ -456,12 +481,12 @@ func (s *Sequencer) ReserveDeleteProvider(ctx context.Context, spec SequenceSpec
 		return newRangeProvider(cfg.Field, cfg.StartValue, cfg.EndValue, cfg.Step), cfg, nil
 	}
 
-	rows, err := st.alive.take(ctx, s.lookup, spec.Schema, int(need))
+	rows, err := st.aliveLive.take(ctx, s.liveLookup, spec.Schema, int(need))
 	if err != nil {
 		return nil, nil, err
 	}
-	cols := make([]string, 0, len(st.alive.columns))
-	for _, c := range st.alive.columns {
+	cols := make([]string, 0, len(st.aliveLive.columns))
+	for _, c := range st.aliveLive.columns {
 		cols = append(cols, c.Column)
 	}
 	tp, err := newTupleProvider(cols, rows)
@@ -471,76 +496,16 @@ func (s *Sequencer) ReserveDeleteProvider(ctx context.Context, spec SequenceSpec
 	return tp, nil, nil
 }
 
-func (st *sequenceState) specField() string {
-	if st.spec.Field != "" {
-		return st.spec.Field
-	}
-	if len(st.spec.Fields) > 0 {
-		return st.spec.Fields[0].Column
-	}
-	return ""
-}
-
-func hardMaxInt64(typ string) int64 {
-	if typ == "" {
-		return math.MaxInt64
-	}
-	t := strings.ToLower(strings.TrimSpace(typ))
-	switch {
-	case strings.Contains(t, "bigint unsigned"):
-		return math.MaxInt64 // cannot represent full uint64 in int64, cap for safety
-	case strings.Contains(t, "bigint"):
-		return math.MaxInt64
-	case strings.Contains(t, "int unsigned"):
-		return math.MaxInt32
-	case strings.Contains(t, "int"):
-		return math.MaxInt32
-	case strings.Contains(t, "smallint unsigned"):
-		return math.MaxInt16
-	case strings.Contains(t, "smallint"):
-		return math.MaxInt16
-	case strings.Contains(t, "tinyint unsigned"):
-		return math.MaxInt8
-	case strings.Contains(t, "tinyint"):
-		return math.MaxInt8
-	default:
-		return math.MaxInt64
-	}
-}
-
-func isNumericType(typ string) bool {
-	if typ == "" {
-		return true
-	}
-	t := strings.ToLower(strings.TrimSpace(typ))
-	switch {
-	case strings.Contains(t, "int"),
-		strings.Contains(t, "decimal"),
-		strings.Contains(t, "numeric"),
-		strings.Contains(t, "float"),
-		strings.Contains(t, "double"):
-		return true
-	default:
-		return false
-	}
-}
-
-func minInt64(a, b int64) int64 {
-	if a <= 0 {
-		return b
-	}
-	if b <= 0 {
-		return a
-	}
-	if a < b {
-		return a
-	}
-	return b
-}
-
 func (s *Sequencer) Close() error {
-	if s.lookup == nil {
-		return nil
+	if s.liveLookup != nil {
+		if err := s.liveLookup.Close(); err != nil {
+			return err
+		}
 	}
-	return s.lookup.Close()
+	if s.freeLookup != nil && s.freeLookup != s.liveLookup {
+		if err := s.freeLookup.Close(); err != nil {
+			return err
+		}
+	}
+	return nil
 }

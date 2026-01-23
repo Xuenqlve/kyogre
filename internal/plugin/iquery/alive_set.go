@@ -11,7 +11,7 @@ type aliveSet struct {
 	capacity int
 	batch    int
 
-	columns []BoundParam
+	columns []ColumnParam
 	cursor  any
 
 	// rows with a moving offset to avoid O(n) shifts.
@@ -19,14 +19,14 @@ type aliveSet struct {
 	offset int
 }
 
-func newAliveSet(columns []BoundParam, capacity, batch int) *aliveSet {
+func newAliveSet(columns []ColumnParam, capacity, batch int) *aliveSet {
 	if capacity <= 0 {
 		capacity = 10000
 	}
 	if batch <= 0 {
 		batch = 1000
 	}
-	cols := make([]BoundParam, 0, len(columns))
+	cols := make([]ColumnParam, 0, len(columns))
 	for _, c := range columns {
 		if c.Column != "" {
 			cols = append(cols, c)
@@ -89,16 +89,16 @@ func (s *aliveSet) appendRows(rows [][]any) error {
 
 func (s *aliveSet) refill(ctx context.Context, lookup Lookup, schema schema_store.SchemaKey, minNeed int) error {
 	for s.available() < minNeed {
-		res, err := lookup.ScanValues(ctx, ValuesRequest{
+		res, err := lookup.ScanValues(ctx, Request{
 			Schema:  schema,
 			Columns: s.columns,
 			Cursor:  s.cursor,
-			Limit:   s.batch,
+			Need:    int64(s.batch),
 		})
 		if err != nil {
 			return err
 		}
-		if err := s.appendRows(res.Rows); err != nil {
+		if err = s.appendRows(res.Rows); err != nil {
 			return err
 		}
 		s.cursor = res.NextCursor

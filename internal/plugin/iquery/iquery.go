@@ -10,30 +10,19 @@ import (
 	"github.com/xuenqlve/kyogre/pkg/tool/range_pool"
 )
 
-// LookupRequest 描述一次反查任务需要查询的表及字段及分配窗口需求。
-//type LookupRequest struct {
-//	Items []LookupRequestItem
-//}
-
-type LookupRequest struct {
-	Schema    schema_store.SchemaKey
-	Params    []BoundParam
-	Partition string
-	Need      int64
-	WrapAt    int64
+// Request 描述一次反查任务需要查询的表及字段及分配窗口需求。
+// LookupRange/ScanValues 复用该结构，按需读取相关字段即可。
+type Request struct {
+	Schema  schema_store.SchemaKey
+	Columns []ColumnParam
+	Need    int64
+	Cursor  any
 }
 
-// LookupResult 承载反查模块返回的分配窗口信息
-type LookupResult struct {
+// RangeResult 承载反查模块返回的分配窗口信息
+type RangeResult struct {
 	EnableLoop bool
 	Window     range_pool.IntRange
-}
-
-type ValuesRequest struct {
-	Schema  schema_store.SchemaKey
-	Columns []BoundParam
-	Cursor  any
-	Limit   int
 }
 
 type ValuesResult struct {
@@ -42,13 +31,16 @@ type ValuesResult struct {
 	HasMore    bool
 }
 
-type BoundParam struct {
+type ColumnParam struct {
 	Column string
 	Type   string
 }
 
+// BoundParam 为历史兼容别名。
+type BoundParam = ColumnParam
+
 type Bound struct {
-	BoundParam
+	ColumnParam
 	MinValue any
 	MaxValue any
 	Count    int
@@ -57,10 +49,10 @@ type Bound struct {
 type Lookup interface {
 	// Configure 根据配置初始化反查插件
 	Configure(pipeline string, cfg map[string]any) error
-	// LookupBounds 返回分配窗口信息，用于 range_pool 的 refill 回调。
-	LookupBounds(ctx context.Context, req LookupRequest) (LookupResult, error)
+	// LookupRange 返回分配窗口信息，用于 range_pool 的 refill 回调。
+	LookupRange(ctx context.Context, req Request) (RangeResult, error)
 	// ScanValues 按游标分页扫描值集合，用于 AliveSet 等“非 int/联合唯一”场景。
-	ScanValues(ctx context.Context, req ValuesRequest) (ValuesResult, error)
+	ScanValues(ctx context.Context, req Request) (ValuesResult, error)
 	// Close 释放资源
 	Close() error
 }

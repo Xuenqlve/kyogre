@@ -36,6 +36,12 @@ type RangePool struct {
 	free *tierPartition
 }
 
+// RefillRequest conveys the needed expansion and current window end for a partition.
+type RefillRequest struct {
+	Need      int64
+	WindowEnd int64
+}
+
 // RangePoolRefillFunc is invoked when a partition needs additional allocation capacity.
 //
 // enableLoop indicates the partition's allocation domain has entered looping mode.
@@ -44,7 +50,7 @@ type RangePool struct {
 //
 // refillWindow describes the allocation domain window (inclusive) for the partition.
 // The window may be expanded over time; holes inside the window are allowed by design.
-type RangePoolRefillFunc func(partition string, need int64) (enableLoop bool, refillWindow IntRange, err error)
+type RangePoolRefillFunc func(partition string, req RefillRequest) (enableLoop bool, refillWindow IntRange, err error)
 
 // TierConfig defines one tier's sizing and threshold behavior.
 type TierConfig struct {

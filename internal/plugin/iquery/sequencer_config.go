@@ -1,9 +1,6 @@
 package iquery
 
-import (
-	"fmt"
-	"math"
-)
+import "fmt"
 
 type SequencerOptions func(*SequencerConfig)
 
@@ -22,9 +19,8 @@ type SequencerConfig struct {
 	// When StrictSizes is false, it is used to round up to the nearest size.
 	AllowedSizes []int64
 
-	// WrapAt, when >0, enables cyclic reuse for inserts. The free window may wrap
-	// around when it reaches the upper bound, allowing reuse per lookup strategy.
-	WrapAt int64
+	// FreeLookupConfig configures the default memory lookup for free(insert) partition.
+	FreeLookupConfig map[string]any
 
 	// AliveSetCapacity controls in-memory tuple cache size for non-int / composite unique constraints.
 	AliveSetCapacity int
@@ -48,23 +44,22 @@ func WithStrictSizes(strict bool) SequencerOptions {
 	return func(cfg *SequencerConfig) { cfg.StrictSizes = strict }
 }
 
-func WithWrapAt(max int64) SequencerOptions {
-	return func(cfg *SequencerConfig) { cfg.WrapAt = max }
-}
-
 func (cfg *SequencerConfig) ValidateAndSetDefault() error {
 	if cfg.InsertWindowSize <= 0 {
 		cfg.InsertWindowSize = 10000
-	}
-	if cfg.WrapAt == 0 {
-		// Default to hard upper bound (will be further capped by column type if needed).
-		cfg.WrapAt = math.MaxInt64
 	}
 	if cfg.AliveSetCapacity <= 0 {
 		cfg.AliveSetCapacity = 10000
 	}
 	if cfg.AliveSetBatchSize <= 0 {
 		cfg.AliveSetBatchSize = 1000
+	}
+	if cfg.FreeLookupConfig == nil {
+		cfg.FreeLookupConfig = map[string]any{
+			"wrap":          true,
+			"string-length": 8,
+			"int-digits":    8,
+		}
 	}
 	for _, s := range cfg.AllowedSizes {
 		if s <= 0 {

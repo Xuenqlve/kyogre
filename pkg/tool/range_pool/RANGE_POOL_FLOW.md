@@ -65,7 +65,7 @@ tierPartition/windowManager
   v
 refillScheduler.schedule(wait=true)
   |
-  | 调用 RangePoolRefillFunc(partition, need)
+  | 调用 RangePoolRefillFunc(partition, RefillRequest{Need, WindowEnd})
   v
 refill 回调返回 (enableLoop, window)
   |
