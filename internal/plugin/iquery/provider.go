@@ -2,11 +2,16 @@ package iquery
 
 import "fmt"
 
-// RowProvider yields rows in the form of map[column]value, typically used to build
-// WHERE ... IN (...) predicates for update/delete, or fixed key columns for insert.
-type RowProvider interface {
+type Provider interface {
 	Columns() []string
-	NextBatch(n int) ([]map[string]any, bool)
+	Rows() []map[string]any
+}
+
+// Provider yields rows in the form of map[column]value, typically used to build
+// WHERE ... IN (...) predicates for update/delete, or fixed key columns for insert.
+type Provider interface {
+	Columns() []string
+	Rows() []map[string]any
 }
 
 type rangeProvider struct {
@@ -30,26 +35,29 @@ func newRangeProvider(column string, start, end, step int64) *rangeProvider {
 
 func (p *rangeProvider) Columns() []string { return append([]string(nil), p.columns...) }
 
-func (p *rangeProvider) NextBatch(n int) ([]map[string]any, bool) {
-	if n <= 0 {
-		n = 1
-	}
+func (p *rangeProvider) Rows() []map[string]any {
 	if p.current > p.end {
-		return nil, false
+		return nil
 	}
-	out := make([]map[string]any, 0, n)
-	for i := 0; i < n && p.current <= p.end; i++ {
-		row := map[string]any{p.columns[0]: p.current}
-		out = append(out, row)
-		p.current += p.step
+	step := p.step
+	if step <= 0 {
+		step = 1
 	}
-	return out, len(out) > 0
+	total := int((p.end-p.current)/step) + 1
+	if total < 0 {
+		total = 0
+	}
+	out := make([]map[string]any, 0, total)
+	for p.current <= p.end {
+		out = append(out, map[string]any{p.columns[0]: p.current})
+		p.current += step
+	}
+	return out
 }
 
 type tupleProvider struct {
 	columns []string
 	rows    [][]any
-	idx     int
 }
 
 func newTupleProvider(columns []string, rows [][]any) (*tupleProvider, error) {
@@ -69,25 +77,17 @@ func newTupleProvider(columns []string, rows [][]any) (*tupleProvider, error) {
 
 func (p *tupleProvider) Columns() []string { return append([]string(nil), p.columns...) }
 
-func (p *tupleProvider) NextBatch(n int) ([]map[string]any, bool) {
-	if n <= 0 {
-		n = 1
+func (p *tupleProvider) Rows() []map[string]any {
+	if len(p.rows) == 0 {
+		return nil
 	}
-	if p.idx >= len(p.rows) {
-		return nil, false
-	}
-	end := p.idx + n
-	if end > len(p.rows) {
-		end = len(p.rows)
-	}
-	out := make([]map[string]any, 0, end-p.idx)
-	for ; p.idx < end; p.idx++ {
+	out := make([]map[string]any, 0, len(p.rows))
+	for i := range p.rows {
 		rowMap := make(map[string]any, len(p.columns))
 		for j, col := range p.columns {
-			rowMap[col] = p.rows[p.idx][j]
+			rowMap[col] = p.rows[i][j]
 		}
 		out = append(out, rowMap)
 	}
-	return out, len(out) > 0
+	return out
 }
-
