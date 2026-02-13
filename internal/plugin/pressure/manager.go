@@ -10,25 +10,26 @@ import (
 
 func NewManager() *Manager {
 	return &Manager{
-		storage: make(map[string]config.ConfigureMold),
+		storage: make(map[string]Pressure),
 	}
 }
 
 type Manager struct {
 	pipeline string
 	mux      sync.RWMutex
-	storage  map[string]config.ConfigureMold
+	storage  map[string]Pressure
 }
 
-func (m *Manager) Configure(pipeline string, data map[string]config.ConfigureMold) (err error) {
+func (m *Manager) Configure(pipeline string, data map[string]config.ConfigureMold) error {
 	m.mux.Lock()
 	defer m.mux.Unlock()
 	m.pipeline = pipeline
 	for key, cfg := range data {
-		if _, err = m.newPressure(cfg); err != nil {
+		pressure, err := m.newPressure(cfg)
+		if err != nil {
 			return errors.Trace(err)
 		}
-		m.storage[key] = cfg
+		m.storage[key] = pressure
 	}
 	return nil
 }
@@ -38,15 +39,11 @@ func (m *Manager) GetPressureController(keys []string) (*Controller, error) {
 	defer m.mux.RUnlock()
 	pressures := make([]Pressure, 0, len(keys))
 	for _, key := range keys {
-		cfg, ok := m.storage[key]
+		pressure, ok := m.storage[key]
 		if !ok {
 			return nil, fmt.Errorf("pressure '%s' not found", key)
 		}
-		p, err := m.newPressure(cfg)
-		if err != nil {
-			return nil, err
-		}
-		pressures = append(pressures, p)
+		pressures = append(pressures, pressure)
 	}
 	return NewController(pressures), nil
 }

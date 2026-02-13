@@ -1,0 +1,234 @@
+
+  ## 一、generator 侧改动总结
+
+  接口层
+
+  - Generator 改为单阶段：
+      - Generate(ctx GenerationContext)
+  - GenerationContext 引入：
+      - Kind() string
+      - Provider() iquery.Provider
+      - Strategy() *GenerationStrategyRules
+      - Validate() error
+      - Extras() map[string]any
+
+  策略规则体系
+
+  - GenerationStrategy 已废弃，改为 GenerationStrategyRules []StrategyRule
+  - StrategyRule 为 interface（在 internal）
+  - 标准规则实现放在 pkg/generator/strategy
+
+  mock generator
+
+  - 已改为 Generate(ctx)
+  - 新增 mock.Context
+  - Kind() 返回 mock.Mock
+
+  ———
+
+  ## 二、scenario 侧改动总结
+
+  架构变化
+
+  - BaseScenario 更名/替换为 Supervisor
+  - Supervisor 负责：
+      - 解析基础配置 worker-count
+      - 维护 generatorByKind
+      - 启动/管理通用 worker
+      - 统一 Preparation/Start/Close/Done/Summary
+
+  Manager 变化
+
+  - scenario.Manager 现在管理 *Supervisor
+  - buildScenario：
+      - 创建 Supervisor
+      - bind 具体 Scenario
+      - 注册 generator（kind == generatorKey）
+      - 注入 Sequencer
+
+  Scenario 接口
+
+  - 简化为：
+      - Configure(...)
+      - Start(ctxChan chan<- GenerationContext)
+  - Scenario 不再直接生成消息
+
+  通用 worker
+
+  - internal/plugin/scenario/worker.go 新增
+  - 消费 GenerationContext：
+      - Validate()
+      - ctx.Kind() → generator
+      - Generate(ctx)
+      - 输出到 msgChan
+
+  mock scenario
+
+  - 已改为产出 GenerationContext
+  - 使用 mock.Context + Sequencer
+  - 生成 ctx 后由 worker 统一生成消息
+
+  mysql scenario
+
+  - 签名已改为 Start(ctxChan)
+  - 目前是占位（未生成 context）
+
+  ———
+
+  ## 三、当前待完成事项（规划）
+
+  1. mysql scenario 输出 GenerationContext
+      - 设计 mysql context（类似 mock）
+      - 从下面是我们目前在 scenario / generator 上的改动总结（作为后续任务规划的基础）。
+
+  ———
+
+  一、Generator 侧改动总结
+
+  - 接口简化为单阶段
+    Generator.Generate(ctx GenerationContext)
+    已移除 CollectDependencies / MockMessage 两阶段接口。
+  - GenerationContext 统一协议
+      - Kind() 用于路由
+      - Provider() 提供主键/唯一键
+      - Strategy() 返回 *GenerationStrategyRules
+      - Validate() 由上层校验
+      - Extras() 扩展字段
+  - 策略体系重构
+      - GenerationStrategyRules 作为规则集合
+      - StrategyRule 接口定义在 internal
+      - 标准规则在 pkg/generator/strategy 下实现（Count/Template/Field/Value/Custom）
+      - Append/AppendAll/Sort 支持规则管理
+  - mock generator 已改
+      - 新增 mock.Context
+      - Generate 单阶段
+      - Kind = mock
+      - Provider 支持取值，fallback 递增
+
+  ———
+
+  二、Scenario 侧改动总结
+
+  - BaseScenario 替换为 Supervisor
+      - Supervisor 负责通用管理
+      - 保存 generatorByKind
+      - 管理 worker 生命周期
+      - 支持 Sequencer / SequenceSpecs
+      - Preparation/Start/Close 统一驱动
+  - Manager 改为管理 Supervisor
+      - GetScenario 返回 *Supervisor
+      - buildScenario 生成 Supervisor，绑定 Scenario
+      - 根据 generatorKey 注册 kind
+      - Sequencer wiring 改为注入 Supervisor
+      - 支持 SetSupervisor 注入
+  - Worker 已实现
+      - 读取 GenerationContext
+      - Validate -> kind 路由 -> Generate -> 输出 message
+      - 出错直接退出（无重试）
+  - mock scenario 已适配
+      - 只负责产出 GenerationContext
+      - Kind = generatorKey（mock）
+      - Sequencer 取 provider
+      - 不直接调用 generator
+  - mysql scenario 仅完成接口适配，占位实现
+      - Start(ctxChan) 目前是 log + close
+      - 还未输出 GenerationContext
+
+  ———
+
+  三、依赖关系变化
+
+  - kind = scenario.generators 中的 generatorKey
+      - 无需额外配置映射
+      - Scenario 生成 context 时必须保证 Kind 返回 generatorKey
+  - 上层负责校验
+      - GenerationContext.Validate() 应由 scenario 在构造时下面是目前 scenario 与 generator 的改动总结，以及后续任务规划建议（按优先级）。
+
+  ———
+
+  一、已完成的核心改动总结
+
+  1) Generator 体系
+
+  - Generator 接口已改为 单阶段：
+      - Generate(ctx GenerationContext)
+  - 引入 GenerationContext 接口（含 Kind/Provider/Strategy/Validate/Extras）
+  - GenerationStrategy 被替换为 GenerationStrategyRules（[]StrategyRule），并新增工具方法：
+      - Append/AppendAll/Sort
+      - FilterMatch/FilterMatchInPlace/FilterMatchByKind
+  - StrategyRule 采用 interface 方案，支持 Scope/Target/Match
+  - 标准规则集落在 pkg/generator/strategy/*（Count/Template/Field/Value/Custom）
+  - mock generator 已迁移到新接口，并新增 mock.Context
+
+  2) Scenario 体系
+
+  - BaseScenario 已替换为 Supervisor
+  - Manager 现在管理 Supervisor
+  - Scenario 接口已精简为 Configure/Start(ctxChan)
+  - Supervisor 负责：
+      - Preparation(ctx)
+      - StartWorkers
+      - Start（启动 worker + 调用 Scenario.Start）
+      - Close
+  - Scenario 与 Supervisor 通过 SetSupervisor 关联（Manager 注入）
+  - scenario.generators 中的 generatorKey 作为 Kind 一对一映射
+
+  3) mock 场景
+
+  - mock scenario 已改为产出 GenerationContext，由 worker 生成消息
+  - sequencer/provider 逻辑复用，直接包装成 mock.Context
+
+  4) mysql 场景
+
+  - 已改接口签名，但目前 Start(ctxChan) 仍是占位（未生成 context）
+
+  ———
+
+  二、未完成/待规划任务
+
+  高优先
+
+  1. mysql scenario 输出 GenerationContext
+      - 重新设计 MySQL 的 context 结构（Row/Transaction）
+      - 让 mysql generator 实现 Generate(ctx)（现仍是旧逻辑）
+  2. pipeline 使用 Supervisor
+      - 已在 pipeline 结构里换成 *Supervisor，需要编译验证
+
+  中优先
+  3) GenerationContext 统一 validate 规则
+
+  - Scenario 生成 context 时执行校验
+
+  4. 策略规则应用规范
+      - 规则匹配/优先级在 generator 中如何使用的标准
+
+  低优先
+  5) 删除旧接口遗留
+
+  - 清理 CollectDependencies/MockMessage 相关残留
+  - 清理未使用字段与旧依赖
+
+  ———
+
+  三、下一步建议规划
+
+  阶段 1（打通 MySQL）
+
+  - 定义 mysql.Context（Row/Transaction）
+  - 修改 mysql generator 为 Generate(ctx)
+  - mysql scenario 只产出 context
+  - pipeline 全链路跑通
+
+  阶段 2（规则体系落地）
+
+  - 在 generator 中使用 StrategyRules
+  - 统一规则匹配方式与优先级
+
+  阶段 3（清理遗留）
+
+  - 移除旧接口与旧配置逻辑
+  - 清理测试与文档
+
+  ———
+
+

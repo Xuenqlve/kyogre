@@ -2,7 +2,6 @@ package iquery
 
 import (
 	"context"
-	"fmt"
 	"testing"
 
 	"github.com/xuenqlve/kyogre/internal/plugin/iquery"
@@ -12,21 +11,17 @@ import (
 type liveLookupStub struct {
 	rangeCalls int
 	scanCalls  int
-	lastCursor any
-	scanRows   [][]any
+	lastCursor int64
+	cursorSeen bool
+	scanRows   []map[string]any
 }
 
 func (l *liveLookupStub) Configure(_ string, _ map[string]any) error { return nil }
 
-func (l *liveLookupStub) LookupRange(_ context.Context, req iquery.Request) (iquery.RangeResult, error) {
+func (l *liveLookupStub) LookupRange(_ context.Context, req iquery.RangeRequest) (iquery.RangeResult, error) {
 	l.rangeCalls++
 	l.lastCursor = req.Cursor
-	if req.Cursor == nil {
-		return iquery.RangeResult{}, fmt.Errorf("cursor is nil")
-	}
-	if _, ok := req.Cursor.(int64); !ok {
-		return iquery.RangeResult{}, fmt.Errorf("cursor type %T", req.Cursor)
-	}
+	l.cursorSeen = true
 	need := req.Need
 	if need <= 0 {
 		need = 1
@@ -36,7 +31,7 @@ func (l *liveLookupStub) LookupRange(_ context.Context, req iquery.Request) (iqu
 	}, nil
 }
 
-func (l *liveLookupStub) ScanValues(_ context.Context, _ iquery.Request) (iquery.ValuesResult, error) {
+func (l *liveLookupStub) ScanValues(_ context.Context, _ iquery.ValueRequest) (iquery.ValuesResult, error) {
 	l.scanCalls++
 	return iquery.ValuesResult{
 		Rows:    l.scanRows,
@@ -51,7 +46,7 @@ func TestSequencerRoutesLiveLookupForScanValues(t *testing.T) {
 	if err != nil {
 		t.Fatalf("new sequencer err: %v", err)
 	}
-	live := &liveLookupStub{scanRows: [][]any{{"live-1"}}}
+	live := &liveLookupStub{scanRows: []map[string]any{{"code": "live-1"}}}
 	seq.BindLookup(live)
 	if err = seq.Configure("test", iquery.WithLookUpKey("live")); err != nil {
 		t.Fatalf("configure err: %v", err)
@@ -62,7 +57,7 @@ func TestSequencerRoutesLiveLookupForScanValues(t *testing.T) {
 		Fields: []iquery.ColumnParam{{Column: "code", Type: "varchar"}},
 	}
 
-	provider, _, err := seq.ReserveInsertProvider(context.Background(), spec, 1)
+	provider, err := seq.ReserveInsert(context.Background(), spec, 1)
 	if err != nil {
 		t.Fatalf("reserve insert err: %v", err)
 	}
@@ -71,7 +66,7 @@ func TestSequencerRoutesLiveLookupForScanValues(t *testing.T) {
 		t.Fatalf("live lookup should not be used for insert scan, got %d", live.scanCalls)
 	}
 
-	provider, _, err = seq.ReserveUpdateProvider(context.Background(), spec, 1)
+	provider, err = seq.ReserveUpdate(context.Background(), spec, 1)
 	if err != nil {
 		t.Fatalf("reserve update err: %v", err)
 	}
@@ -105,7 +100,7 @@ func TestSequencerPassesCursorToLookupRange(t *testing.T) {
 	if live.rangeCalls == 0 {
 		t.Fatalf("expected live lookup LookupRange to be called")
 	}
-	if live.lastCursor == nil {
+	if !live.cursorSeen {
 		t.Fatalf("expected cursor to be set")
 	}
 	if err = seq.Close(); err != nil {

@@ -7,10 +7,9 @@ import (
 
 	"github.com/mitchellh/mapstructure"
 	"github.com/xuenqlve/common/errors"
-	"github.com/xuenqlve/common/schema_store"
 	"github.com/xuenqlve/kyogre/internal/message"
 	"github.com/xuenqlve/kyogre/internal/plugin/generator"
-	"github.com/xuenqlve/kyogre/internal/plugin/metadata"
+	genctx "github.com/xuenqlve/kyogre/pkg/generator_context"
 )
 
 const Mock generator.Type = "mock"
@@ -19,20 +18,10 @@ type Config struct {
 	Prefix string `mapstructure:"prefix"`
 }
 
-// MockDependencyConfig 允许外部（如 Scenario）直接指定一次性值，用于对接 lookup 生成有序数据
-type MockDependencyConfig struct {
-	ForceValue string `mapstructure:"force-value" json:"force-value"`
-}
-
-type mockDependency struct {
-	value string
-}
-
 type Generator struct {
 	pipeline string
 	cfg      Config
 	seq      atomic.Int64
-	md       metadata.Metadata
 }
 
 func init() {
@@ -50,38 +39,97 @@ func (g *Generator) Configure(pipeline string, data map[string]any) error {
 	return nil
 }
 
-func (g *Generator) RegisterMetadata(md metadata.Metadata) {
-	g.md = md
-}
-
-func (g *Generator) CollectDependencies(req *generator.DependencyRequest) (generator.GenerationDependency, error) {
-	if cfg, ok := req.Config.(*MockDependencyConfig); ok && cfg.ForceValue != "" {
-		return &mockDependency{value: cfg.ForceValue}, nil
+func (g *Generator) Generate(ctx generator.GenerationContext) (message.Message, error) {
+	if ctx == nil {
+		return nil, fmt.Errorf("context is nil")
 	}
-	next := g.seq.Add(1)
-	return &mockDependency{value: fmt.Sprintf("%s-%d", g.cfg.Prefix, next)}, nil
-}
-
-func (g *Generator) MockMessage(req *generator.MessageGenerationRequest) (message.Message, error) {
-	dep, ok := req.Dependency.(*mockDependency)
-	if !ok {
-		return nil, fmt.Errorf("unexpected dependency type %T", req.Dependency)
+	if err := ctx.Validate(); err != nil {
+		return nil, err
 	}
-	return &message.MockMessage{Value: dep.value, CreatedAt: time.Now()}, nil
+	snap := ctx.Strategy()
+	rows := g.buildRows(ctx, snap)
+	return &message.MockMessage{Rows: rows, CreatedAt: time.Now()}, nil
 }
 
 func (g *Generator) Close() {}
 
-// implement interfaces for completeness
-func (d *mockDependency) GetSchemas() []schema_store.SchemaKey { return nil }
-func (d *mockDependency) GetMode() generator.GenerationMode    { return "mock" }
-func (d *mockDependency) Validate() error                      { return nil }
-func (d *mockDependency) DependencyType() string               { return "mock" }
+func (g *Generator) buildRows(ctx generator.GenerationContext, snap *generator.StrategySnapshot) []message.MockRow {
+	count := 1
+	if snap != nil {
+		count = snap.ResolveCount()
+	}
+	if count <= 0 {
+		return nil
+	}
+	rows := make([]message.MockRow, 0, count)
+	for i := 0; i < count; i++ {
+		row := cloneRow(baseRow(ctx, g.seq.Add(1)))
+		applyFieldSpec(row, snap)
+		snap.ApplyAll(row)
+		if snap != nil {
+			if name := snap.TemplateName(); name != "" {
+				row["_template_name"] = name
+			}
+			if data := snap.TemplateData(); len(data) > 0 {
+				row["_template_data_copy"] = data
+			}
+			if v, ok := snap.CustomValue("suffix"); ok {
+				row["_suffix"] = v
+			}
+		}
+		rows = append(rows, message.MockRow{Value: row})
+	}
+	return rows
+}
 
-// ensure interface implementation for custom dependency config
-func (c *MockDependencyConfig) Validate() error { return nil }
-func (c *MockDependencyConfig) Type() string    { return "mock" }
+func baseRow(ctx generator.GenerationContext, seed int64) map[string]any {
+	if typed, ok := ctx.(*genctx.MockContext); ok {
+		if len(typed.Value) > 0 {
+			return typed.Value
+		}
+	}
+	return map[string]any{
+		"   ": seed,
+	}
+}
 
-// ensure schema_store imported
-var _ generator.GenerationDependency = (*mockDependency)(nil)
-var _ generator.DependencyConfig = (*MockDependencyConfig)(nil)
+func cloneRow(src map[string]any) map[string]any {
+	out := make(map[string]any, len(src))
+	for k, v := range src {
+		out[k] = v
+	}
+	return out
+}
+
+func applyFieldSpec(row map[string]any, snap *generator.StrategySnapshot) {
+	if snap == nil {
+		return
+	}
+	filtered := snap.FilterFields(mapKeys(row))
+	if len(filtered) == 0 && len(row) > 0 {
+		for key := range row {
+			delete(row, key)
+		}
+		return
+	}
+	keep := make(map[string]struct{}, len(filtered))
+	for _, key := range filtered {
+		keep[key] = struct{}{}
+	}
+	for key := range row {
+		if _, ok := keep[key]; !ok {
+			delete(row, key)
+		}
+	}
+}
+
+func mapKeys(row map[string]any) []string {
+	if len(row) == 0 {
+		return nil
+	}
+	keys := make([]string, 0, len(row))
+	for key := range row {
+		keys = append(keys, key)
+	}
+	return keys
+}

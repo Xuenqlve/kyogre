@@ -39,7 +39,7 @@ type GeneratorConfigureMold struct {
 type ScenarioConfigureMold struct {
 	Type       string         `mapstructure:"type" json:"type,omitempty" yaml:"type,omitempty" toml:"type,omitempty"`
 	IQuery     string         `mapstructure:"lookup,omitempty" json:"lookup,omitempty" yaml:"lookup,omitempty" toml:"lookup,omitempty"`
-	Metadata   []string       `mapstructure:"metadata" json:"metadata,omitempty" yaml:"metadata,omitempty" toml:"metadata,omitempty"`
+	Metadata   string         `mapstructure:"metadata" json:"metadata,omitempty" yaml:"metadata,omitempty" toml:"metadata,omitempty"`
 	Generators []string       `mapstructure:"generators,omitempty" json:"generators,omitempty" yaml:"generators,omitempty" toml:"generators,omitempty"`
 	Config     map[string]any `mapstructure:"config" json:"config,omitempty" yaml:"config,omitempty" toml:"config,omitempty"`
 }

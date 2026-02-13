@@ -3,6 +3,7 @@ package iquery
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/xuenqlve/common/data_source/mysql"
@@ -43,7 +44,8 @@ func TestMain(t *testing.M) {
 	if err != nil {
 		panic(fmt.Sprintf("get work dir fail err:%v", err))
 	}
-	log.Init(log.DebugLevel, dir)
+	parentDir := filepath.Dir(dir)
+	log.Init(log.DebugLevel, parentDir)
 	if err = mysqlDataSourcePrepare(); err != nil {
 		panic(fmt.Sprintf("mysqlDataSourcePrepare err:%v", err))
 	}

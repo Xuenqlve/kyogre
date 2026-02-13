@@ -4,11 +4,14 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"math"
 	"strings"
+	"sync"
 
 	"github.com/mitchellh/mapstructure"
 	mysql_schema "github.com/xuenqlve/common/relational_database/mysql"
 	"github.com/xuenqlve/common/schema_store"
+	sql_tool "github.com/xuenqlve/common/sql"
 	"github.com/xuenqlve/common/transform"
 	"github.com/xuenqlve/kyogre/internal/plugin/iquery"
 	ds "github.com/xuenqlve/kyogre/pkg/data_source/mysql"
@@ -33,6 +36,9 @@ type MySQLLookup struct {
 	db       *sql.DB
 	cfg      *MySQLIQueryConfig
 	schema   schema_store.SchemaStore
+	mu       sync.Mutex
+	// maxBySchemaColumn caches observed max values to avoid repeated max queries.
+	maxBySchemaColumn map[string]map[string]int64
 }
 
 func (q *MySQLLookup) Configure(pipeline string, data map[string]any) (err error) {
@@ -48,10 +54,11 @@ func (q *MySQLLookup) Configure(pipeline string, data map[string]any) (err error
 		return
 	}
 	q.schema = schema_store.NewBaseSchemaStore(mysql_schema.NewSchema(q.db))
+	q.maxBySchemaColumn = make(map[string]map[string]int64)
 	return nil
 }
 
-func (q *MySQLLookup) LookupRange(ctx context.Context, req iquery.Request) (iquery.RangeResult, error) {
+func (q *MySQLLookup) LookupRange(ctx context.Context, req iquery.RangeRequest) (iquery.RangeResult, error) {
 	tableDef, err := q.queryTableDef(req.Schema)
 	if err != nil {
 		return iquery.RangeResult{}, err
@@ -60,15 +67,66 @@ func (q *MySQLLookup) LookupRange(ctx context.Context, req iquery.Request) (ique
 		return iquery.RangeResult{}, fmt.Errorf("lookup params empty")
 	}
 
-	minV, maxV, cnt, err := q.queryMinMaxCount(ctx, tableDef, req.Columns[0].Column)
+	need := req.Need
+	if need <= 0 {
+		need = 1
+	}
+	field := req.Columns[0].Column
+	wrapAt := q.columnMaxID(tableDef, req.Columns[0])
+	maxCached := q.getCachedMax(req.Schema.UniqueID(), field)
+	if maxCached > 0 && req.Cursor+need-1 <= maxCached {
+		start := req.Cursor + 1
+		end := start + need - 1
+		if end > maxCached {
+			end = maxCached
+		}
+		if end < start {
+			return iquery.RangeResult{}, fmt.Errorf("lookup returned invalid window for %s", req.Schema.UniqueID())
+		}
+		return iquery.RangeResult{Window: range_pool.IntRange{Start: start, End: end}}, nil
+	}
+
+	if wrapAt > 0 && req.Cursor >= wrapAt {
+		minV, maxV, cnt, err := q.queryMinMaxCount(ctx, tableDef, field)
+		if err != nil {
+			return iquery.RangeResult{}, err
+		}
+		if cnt == 0 || maxV == nil {
+			return iquery.RangeResult{}, fmt.Errorf("empty live range for %s", req.Schema.UniqueID())
+		}
+		minID, err := transform.ToInt(minV)
+		if err != nil {
+			return iquery.RangeResult{}, err
+		}
+		maxID, err := transform.ToInt(maxV)
+		if err != nil {
+			return iquery.RangeResult{}, err
+		}
+		if maxID < wrapAt {
+			return iquery.RangeResult{}, fmt.Errorf("lookup range exhausted for %s: start=%d wrapAt=%d", req.Schema.UniqueID(), req.Cursor+1, wrapAt)
+		}
+		q.setCachedMax(req.Schema.UniqueID(), field, maxID)
+		start := minID
+		end := start + need - 1
+		if end > maxID {
+			end = maxID
+		}
+		if end < start {
+			return iquery.RangeResult{}, fmt.Errorf("lookup returned invalid window for %s", req.Schema.UniqueID())
+		}
+		return iquery.RangeResult{
+			EnableLoop: true,
+			Window:     range_pool.IntRange{Start: start, End: end},
+		}, nil
+	}
+
+	minV, maxV, cnt, err := q.queryMinMaxCountAfter(ctx, tableDef, field, req.Cursor)
 	if err != nil {
 		return iquery.RangeResult{}, err
 	}
-
 	if cnt == 0 || maxV == nil {
 		return iquery.RangeResult{}, fmt.Errorf("empty live range for %s", req.Schema.UniqueID())
 	}
-
 	minID, err := transform.ToInt(minV)
 	if err != nil {
 		return iquery.RangeResult{}, err
@@ -77,14 +135,22 @@ func (q *MySQLLookup) LookupRange(ctx context.Context, req iquery.Request) (ique
 	if err != nil {
 		return iquery.RangeResult{}, err
 	}
-
+	q.setCachedMax(req.Schema.UniqueID(), field, maxID)
 	if minID > maxID {
 		return iquery.RangeResult{}, fmt.Errorf("lookup returned invalid window for %s", req.Schema.UniqueID())
 	}
-	return iquery.RangeResult{Window: range_pool.IntRange{Start: minID, End: maxID}}, nil
+	start := minID
+	end := start + need - 1
+	if end > maxID {
+		end = maxID
+	}
+	if end < start {
+		return iquery.RangeResult{}, fmt.Errorf("lookup returned invalid window for %s", req.Schema.UniqueID())
+	}
+	return iquery.RangeResult{Window: range_pool.IntRange{Start: start, End: end}}, nil
 }
 
-func (q *MySQLLookup) ScanValues(ctx context.Context, req iquery.Request) (iquery.ValuesResult, error) {
+func (q *MySQLLookup) ScanValues(ctx context.Context, req iquery.ValueRequest) (iquery.ValuesResult, error) {
 	tableDef, err := q.queryTableDef(req.Schema)
 	if err != nil {
 		return iquery.ValuesResult{}, err
@@ -98,10 +164,12 @@ func (q *MySQLLookup) ScanValues(ctx context.Context, req iquery.Request) (iquer
 	}
 
 	cols := make([]string, 0, len(req.Columns))
+	rawCols := make([]string, 0, len(req.Columns))
 	for _, c := range req.Columns {
 		if c.Column == "" {
 			continue
 		}
+		rawCols = append(rawCols, c.Column)
 		cols = append(cols, quoteIdentifier(c.Column))
 	}
 	if len(cols) == 0 {
@@ -115,36 +183,47 @@ func (q *MySQLLookup) ScanValues(ctx context.Context, req iquery.Request) (iquer
 	)
 	args := make([]any, 0, 2)
 	if req.Cursor != nil {
-		base += fmt.Sprintf(" WHERE %s > ?", cols[0])
-		args = append(args, req.Cursor)
+		cursorMap := req.Cursor
+		if len(rawCols) == 1 {
+			base += fmt.Sprintf(" WHERE %s > ?", cols[0])
+			val, ok := cursorMap[rawCols[0]]
+			if !ok {
+				return iquery.ValuesResult{}, fmt.Errorf("cursor missing column %q", rawCols[0])
+			}
+			args = append(args, val)
+		} else {
+			cursorVals := make([]any, 0, len(rawCols))
+			for _, col := range rawCols {
+				val, ok := cursorMap[col]
+				if !ok {
+					return iquery.ValuesResult{}, fmt.Errorf("cursor missing column %q", col)
+				}
+				cursorVals = append(cursorVals, val)
+			}
+			parts := make([]string, 0, len(rawCols))
+			for i := range rawCols {
+				sub := make([]string, 0, i+1)
+				for j := 0; j < i; j++ {
+					sub = append(sub, fmt.Sprintf("%s = ?", cols[j]))
+					args = append(args, cursorVals[j])
+				}
+				sub = append(sub, fmt.Sprintf("%s > ?", cols[i]))
+				args = append(args, cursorVals[i])
+				parts = append(parts, fmt.Sprintf("(%s)", strings.Join(sub, " AND ")))
+			}
+			base += fmt.Sprintf(" WHERE %s", strings.Join(parts, " OR "))
+		}
 	}
-	base += fmt.Sprintf(" ORDER BY %s LIMIT ?", cols[0])
+	base += fmt.Sprintf(" ORDER BY %s LIMIT ?", strings.Join(cols, ","))
 	args = append(args, limit)
-
-	rows, err := q.db.QueryContext(ctx, base, args...)
+	result := iquery.ValuesResult{Rows: make([]map[string]any, 0, limit)}
+	data, err := sql_tool.Query(ctx, q.db, base, args...)
 	if err != nil {
 		return iquery.ValuesResult{}, err
 	}
-	defer rows.Close()
-
-	result := iquery.ValuesResult{Rows: make([][]any, 0, limit)}
-	for rows.Next() {
-		values := make([]any, len(cols))
-		dests := make([]any, len(cols))
-		for i := range dests {
-			dests[i] = &values[i]
-		}
-		if err = rows.Scan(dests...); err != nil {
-			return iquery.ValuesResult{}, err
-		}
-		result.Rows = append(result.Rows, values)
-	}
-	if err = rows.Err(); err != nil {
-		return iquery.ValuesResult{}, err
-	}
-
-	if len(result.Rows) > 0 {
-		result.NextCursor = result.Rows[len(result.Rows)-1][0]
+	result.Rows = data
+	if len(data) > 0 {
+		result.NextCursor = data[len(data)-1]
 	}
 	result.HasMore = len(result.Rows) == limit
 	return result, nil
@@ -169,6 +248,24 @@ func (q *MySQLLookup) queryTableDef(key schema_store.SchemaKey) (*mysql_schema.T
 	return tableDef, nil
 }
 
+func (q *MySQLLookup) queryMinMaxCountAfter(ctx context.Context, table *mysql_schema.Table, field string, cursor int64) (any, any, int64, error) {
+	query := fmt.Sprintf("SELECT MIN(%s), MAX(%s), COUNT(%s) FROM %s.%s WHERE %s > ?",
+		quoteIdentifier(field),
+		quoteIdentifier(field),
+		quoteIdentifier(field),
+		quoteIdentifier(table.Database),
+		quoteIdentifier(table.Table),
+		quoteIdentifier(field),
+	)
+	var minV any
+	var maxV any
+	var count int64
+	if err := q.db.QueryRowContext(ctx, query, cursor).Scan(&minV, &maxV, &count); err != nil {
+		return nil, nil, 0, err
+	}
+	return minV, maxV, count, nil
+}
+
 func (q *MySQLLookup) queryMinMaxCount(ctx context.Context, table *mysql_schema.Table, field string) (any, any, int64, error) {
 	query := fmt.Sprintf("SELECT MIN(%s), MAX(%s), COUNT(%s) FROM %s.%s",
 		quoteIdentifier(field),
@@ -188,4 +285,84 @@ func (q *MySQLLookup) queryMinMaxCount(ctx context.Context, table *mysql_schema.
 
 func quoteIdentifier(name string) string {
 	return fmt.Sprintf("`%s`", strings.ReplaceAll(name, "`", "``"))
+}
+
+func (q *MySQLLookup) getCachedMax(schemaID, field string) int64 {
+	q.mu.Lock()
+	defer q.mu.Unlock()
+	if q.maxBySchemaColumn == nil {
+		return 0
+	}
+	cols := q.maxBySchemaColumn[schemaID]
+	if cols == nil {
+		return 0
+	}
+	return cols[field]
+}
+
+func (q *MySQLLookup) setCachedMax(schemaID, field string, maxID int64) {
+	if maxID <= 0 {
+		return
+	}
+	q.mu.Lock()
+	defer q.mu.Unlock()
+	if q.maxBySchemaColumn == nil {
+		q.maxBySchemaColumn = make(map[string]map[string]int64)
+	}
+	cols := q.maxBySchemaColumn[schemaID]
+	if cols == nil {
+		cols = make(map[string]int64)
+		q.maxBySchemaColumn[schemaID] = cols
+	}
+	if maxID > cols[field] {
+		cols[field] = maxID
+	}
+}
+
+func (q *MySQLLookup) columnMaxID(table *mysql_schema.Table, param iquery.ColumnParam) int64 {
+	if table == nil || param.Column == "" {
+		return hardMaxInt64ByType(param.Type)
+	}
+	col, ok := table.Column(param.Column)
+	if !ok {
+		return hardMaxInt64ByType(param.Type)
+	}
+	typ := strings.TrimSpace(col.RawType)
+	if typ == "" {
+		typ = strings.TrimSpace(col.DataType)
+	}
+	if col.IsUnsigned && typ != "" {
+		lower := strings.ToLower(typ)
+		if !strings.Contains(lower, "unsigned") {
+			typ = typ + " unsigned"
+		}
+	}
+	return hardMaxInt64ByType(typ)
+}
+
+func hardMaxInt64ByType(typ string) int64 {
+	if typ == "" {
+		return math.MaxInt64
+	}
+	t := strings.ToLower(strings.TrimSpace(typ))
+	switch {
+	case strings.Contains(t, "bigint unsigned"):
+		return math.MaxInt64 // cannot represent full uint64 in int64, cap for safety
+	case strings.Contains(t, "bigint"):
+		return math.MaxInt64
+	case strings.Contains(t, "int unsigned"):
+		return int64(^uint32(0))
+	case strings.Contains(t, "int"):
+		return math.MaxInt32
+	case strings.Contains(t, "smallint unsigned"):
+		return int64(^uint16(0))
+	case strings.Contains(t, "smallint"):
+		return math.MaxInt16
+	case strings.Contains(t, "tinyint unsigned"):
+		return int64(^uint8(0))
+	case strings.Contains(t, "tinyint"):
+		return math.MaxInt8
+	default:
+		return math.MaxInt64
+	}
 }

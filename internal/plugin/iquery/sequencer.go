@@ -3,11 +3,26 @@ package iquery
 import (
 	"context"
 	"fmt"
+	"strings"
 	"sync"
 
 	"github.com/xuenqlve/common/schema_store"
 	"github.com/xuenqlve/kyogre/pkg/tool/range_pool"
 )
+
+func MakeSequenceSpec(schema schema_store.SchemaKey, columns []ColumnParam) SequenceSpec {
+	spec := SequenceSpec{
+		Schema: schema,
+		Fields: columns,
+	}
+	if len(columns) == 1 {
+		column := columns[0]
+		if isNumericType(strings.ToLower(strings.TrimSpace(column.Type))) {
+			spec.Field = column.Column
+		}
+	}
+	return spec
+}
 
 // SequenceSpec defines a unique constraint dimension to manage.
 // For the "90% case", it is a single int primary key column.
@@ -85,6 +100,58 @@ func (s *Sequencer) Configure(pipeline string, opts ...SequencerOptions) error {
 
 func (s *Sequencer) BindLookup(lookup Lookup) { s.liveLookup = lookup }
 
+// ReserveInsert reserves a continuous range for INSERT operations from the free partition.
+func (s *Sequencer) ReserveInsert(ctx context.Context, spec SequenceSpec, need int64) (Provider, error) {
+	key := spec.Key()
+	if key == "" {
+		return nil, fmt.Errorf("invalid spec")
+	}
+	mu := s.keyLock(key)
+	mu.Lock()
+	defer mu.Unlock()
+
+	st, err := s.initState(ctx, spec)
+	if err != nil {
+		return nil, err
+	}
+	return st.reserveInsertProvider(ctx, need)
+}
+
+// ReserveUpdate picks an existing live range for UPDATE.
+func (s *Sequencer) ReserveUpdate(ctx context.Context, spec SequenceSpec, need int64) (Provider, error) {
+	key := spec.Key()
+	if key == "" {
+		return nil, fmt.Errorf("invalid spec")
+	}
+	mu := s.keyLock(key)
+	mu.Lock()
+	defer mu.Unlock()
+
+	st, err := s.initState(ctx, spec)
+	if err != nil {
+		return nil, err
+	}
+	return st.reserveUpdateProvider(ctx, need)
+}
+
+// ReserveDelete reserves an existing live range for DELETE by consuming from the live partition.
+// It does not return the range to the free partition; reuse depends on the lookup refill strategy.
+func (s *Sequencer) ReserveDelete(ctx context.Context, spec SequenceSpec, need int64) (Provider, error) {
+	key := spec.Key()
+	if key == "" {
+		return nil, fmt.Errorf("invalid spec")
+	}
+	mu := s.keyLock(key)
+	mu.Lock()
+	defer mu.Unlock()
+
+	st, err := s.initState(ctx, spec)
+	if err != nil {
+		return nil, err
+	}
+	return st.reserveDeleteProvider(ctx, need)
+}
+
 func (s *Sequencer) keyLock(key string) *sync.Mutex {
 	s.keyMuMu.Lock()
 	defer s.keyMuMu.Unlock()
@@ -149,9 +216,13 @@ func (s *Sequencer) initState(ctx context.Context, spec SequenceSpec) (sequenceS
 		return st, nil
 	}
 
-	pool, err := range_pool.NewRangePool(range_pool.WithRefill(func(partition string, req range_pool.RefillRequest) (bool, range_pool.IntRange, error) {
-		return s.lookupWindow(spec, params, partition, req.Need, req.WindowEnd)
-	}))
+	pool, err := range_pool.NewRangePool(
+		range_pool.WithRefill(
+			func(partition string, req range_pool.RefillRequest) (bool, range_pool.IntRange, error) {
+				return s.lookupWindow(spec, params, partition, req.Need, req.WindowEnd)
+			},
+		),
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -171,7 +242,7 @@ func (s *Sequencer) lookupWindow(spec SequenceSpec, params []ColumnParam, partit
 	if partition == range_pool.RangePoolFreeName && s.cfg.InsertWindowSize > 0 && need < s.cfg.InsertWindowSize {
 		need = s.cfg.InsertWindowSize
 	}
-	res, err := lookup.LookupRange(context.Background(), Request{
+	res, err := lookup.LookupRange(context.Background(), RangeRequest{
 		Schema:  spec.Schema,
 		Columns: params,
 		Need:    need,
@@ -184,58 +255,6 @@ func (s *Sequencer) lookupWindow(spec SequenceSpec, params []ColumnParam, partit
 		return false, range_pool.IntRange{}, fmt.Errorf("lookup returned invalid window for %s", spec.Key())
 	}
 	return res.EnableLoop, res.Window, nil
-}
-
-// ReserveInsert reserves a continuous range for INSERT operations from the free partition.
-func (s *Sequencer) ReserveInsert(ctx context.Context, spec SequenceSpec, need int64) (Provider, error) {
-	key := spec.Key()
-	if key == "" {
-		return nil, fmt.Errorf("invalid spec")
-	}
-	mu := s.keyLock(key)
-	mu.Lock()
-	defer mu.Unlock()
-
-	st, err := s.initState(ctx, spec)
-	if err != nil {
-		return nil, err
-	}
-	return st.reserveInsertProvider(ctx, need)
-}
-
-// ReserveUpdate picks an existing live range for UPDATE.
-func (s *Sequencer) ReserveUpdate(ctx context.Context, spec SequenceSpec, need int64) (Provider, error) {
-	key := spec.Key()
-	if key == "" {
-		return nil, fmt.Errorf("invalid spec")
-	}
-	mu := s.keyLock(key)
-	mu.Lock()
-	defer mu.Unlock()
-
-	st, err := s.initState(ctx, spec)
-	if err != nil {
-		return nil, err
-	}
-	return st.reserveUpdateProvider(ctx, need)
-}
-
-// ReserveDelete reserves an existing live range for DELETE by consuming from the live partition.
-// It does not return the range to the free partition; reuse depends on the lookup refill strategy.
-func (s *Sequencer) ReserveDelete(ctx context.Context, spec SequenceSpec, need int64) (Provider, error) {
-	key := spec.Key()
-	if key == "" {
-		return nil, fmt.Errorf("invalid spec")
-	}
-	mu := s.keyLock(key)
-	mu.Lock()
-	defer mu.Unlock()
-
-	st, err := s.initState(ctx, spec)
-	if err != nil {
-		return nil, err
-	}
-	return st.reserveDeleteProvider(ctx, need)
 }
 
 func (s *Sequencer) Close() error {

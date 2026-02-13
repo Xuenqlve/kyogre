@@ -20,7 +20,7 @@ func TestMemoryLookupLookupRangeWrap(t *testing.T) {
 	schema := testSchemaKey{id: "t1"}
 	params := []iquery.BoundParam{{Column: "id", Type: "tinyint"}}
 
-	req := iquery.Request{
+	req := iquery.RangeRequest{
 		Schema:  schema,
 		Columns: params,
 		Need:    3,
@@ -32,19 +32,21 @@ func TestMemoryLookupLookupRangeWrap(t *testing.T) {
 	}
 	t.Logf("lookup result: %+v", res)
 
+	req.Cursor = res.Window.End
 	res, err = lk.LookupRange(ctx, req)
 	if err != nil {
 		t.Fatalf("lookup err: %v", err)
 	}
 	t.Logf("lookup result: %+v", res)
 
+	req.Cursor = res.Window.End
 	res, err = lk.LookupRange(ctx, req)
 	if err != nil {
 		t.Fatalf("lookup err: %v", err)
 	}
 	t.Logf("lookup result: %+v", res)
 
-	res, err = lk.LookupRange(ctx, iquery.Request{
+	res, err = lk.LookupRange(ctx, iquery.RangeRequest{
 		Schema:  schema,
 		Columns: params,
 		Need:    4,
@@ -66,9 +68,9 @@ func TestMemoryLookupScanValuesComposite(t *testing.T) {
 	//cols := []iquery.BoundParam{{Column: "code", Type: "varchar"}, {Column: "seq", Type: "int"}, {Column: "size", Type: "int"}}
 	cols := []iquery.BoundParam{{Column: "seq", Type: "int"}}
 
-	var nextCursor any
+	var nextCursor map[string]any
 	for i := 0; i < 10; i++ {
-		res, err := lk.ScanValues(ctx, iquery.Request{Schema: schema, Columns: cols, Need: 6, Cursor: nextCursor})
+		res, err := lk.ScanValues(ctx, iquery.ValueRequest{Schema: schema, Columns: cols, Need: 6, Cursor: nextCursor})
 		if err != nil {
 			t.Fatalf("scan err: %v", err)
 		}
@@ -89,12 +91,12 @@ func TestMemoryLookupScanValuesCursorComposite(t *testing.T) {
 	schema := testSchemaKey{id: "t3"}
 	cols := []iquery.BoundParam{{Column: "code", Type: "varchar"}, {Column: "seq", Type: "int"}}
 
-	cursor := []any{"aa", int64(5)}
-	res, err := lk.ScanValues(nil, iquery.Request{Schema: schema, Columns: cols, Cursor: cursor, Need: 7})
+	cursor := map[string]any{"code": "aa", "seq": int64(5)}
+	res, err := lk.ScanValues(nil, iquery.ValueRequest{Schema: schema, Columns: cols, Cursor: cursor, Need: 7})
 	if err != nil {
 		t.Fatalf("scan err: %v", err)
 	}
-	//expected := [][]any{{"aa", int64(3)}, {"aa", int64(4)}}
+	//expected := []map[string]any{{"code": "aa", "seq": int64(3)}, {"code": "aa", "seq": int64(4)}}
 	for i, row := range res.Rows {
 		t.Logf("index:%d row: %+v", i, row)
 	}

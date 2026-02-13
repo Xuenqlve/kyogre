@@ -27,15 +27,15 @@ func hardMaxInt64(typ string) int64 {
 	case strings.Contains(t, "bigint"):
 		return math.MaxInt64
 	case strings.Contains(t, "int unsigned"):
-		return math.MaxInt32
+		return int64(^uint32(0))
 	case strings.Contains(t, "int"):
 		return math.MaxInt32
 	case strings.Contains(t, "smallint unsigned"):
-		return math.MaxInt16
+		return int64(^uint16(0))
 	case strings.Contains(t, "smallint"):
 		return math.MaxInt16
 	case strings.Contains(t, "tinyint unsigned"):
-		return math.MaxInt8
+		return int64(^uint8(0))
 	case strings.Contains(t, "tinyint"):
 		return math.MaxInt8
 	default:
@@ -144,9 +144,12 @@ func buildSequenceColumns(cols []ColumnParam, cursor any, cfg MemoryLookupConfig
 	var cursorValue int64
 	cursorOK := false
 	if cursor != nil && isNumericType(cols[0].Type) {
-		if v, err := transform.ToInt(cursor); err == nil {
-			cursorValue = v
-			cursorOK = true
+		cursorMap, ok := cursor.(map[string]any)
+		if ok {
+			if v, err := transform.ToInt(cursorMap[cols[0].Column]); err == nil {
+				cursorValue = v
+				cursorOK = true
+			}
 		}
 	}
 	for i, c := range cols {
@@ -175,17 +178,23 @@ func newRowSequenceWithCursor(columns []mock.SequenceColumn, cursor any, cfg Mem
 	if cursor == nil {
 		return mock.NewRowSequence(columns, mock.WithWrap(cfg.Wrap))
 	}
-	row, ok := cursor.([]any)
-	if !ok || len(row) != len(columns) {
+	cursorMap, ok := cursor.(map[string]any)
+	if !ok || len(cursorMap) == 0 {
 		return mock.NewRowSequence(columns, mock.WithWrap(cfg.Wrap))
 	}
 	colNames := make([]string, 0, len(columns))
 	gens := make([]mock.ValueGenerator, 0, len(columns))
-	for i, col := range columns {
+	row := make([]any, 0, len(columns))
+	for _, col := range columns {
 		colNames = append(colNames, col.Name)
+		val, ok := cursorMap[col.Name]
+		if !ok {
+			return mock.NewRowSequence(columns, mock.WithWrap(cfg.Wrap))
+		}
+		row = append(row, val)
 		switch col.Type {
 		case mock.SequenceTypeString:
-			val, ok := row[i].(string)
+			strVal, ok := val.(string)
 			if !ok {
 				return mock.NewRowSequence(columns, mock.WithWrap(cfg.Wrap))
 			}
@@ -193,13 +202,13 @@ func newRowSequenceWithCursor(columns []mock.SequenceColumn, cursor any, cfg Mem
 			if length <= 0 {
 				length = cfg.StringLength
 			}
-			gen, err := mock.NewStringValueGeneratorWithCursor(length, val)
+			gen, err := mock.NewStringValueGeneratorWithCursor(length, strVal)
 			if err != nil {
 				return mock.NewRowSequence(columns, mock.WithWrap(cfg.Wrap))
 			}
 			gens = append(gens, gen)
 		case mock.SequenceTypeInt:
-			val, err := transform.ToInt(row[i])
+			numVal, err := transform.ToInt(val)
 			if err != nil {
 				return mock.NewRowSequence(columns, mock.WithWrap(cfg.Wrap))
 			}
@@ -207,7 +216,7 @@ func newRowSequenceWithCursor(columns []mock.SequenceColumn, cursor any, cfg Mem
 			if digits <= 0 {
 				digits = cfg.IntDigits
 			}
-			gens = append(gens, mock.NewInt64DigitsGeneratorWithCursor(col.Start, digits, cfg.Wrap, val))
+			gens = append(gens, mock.NewInt64DigitsGeneratorWithCursor(col.Start, digits, cfg.Wrap, numVal))
 		default:
 			return mock.NewRowSequence(columns, mock.WithWrap(cfg.Wrap))
 		}

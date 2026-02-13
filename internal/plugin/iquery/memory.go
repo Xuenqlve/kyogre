@@ -23,11 +23,8 @@ type MemoryLookup struct {
 	pipeline string
 	cfg      MemoryLookupConfig
 
-	mu sync.Mutex
-	// maxBySchemaColumn tracks "existing" max value for bounds.
-	maxBySchemaColumn map[string]map[string]int64
+	mu                sync.Mutex
 	rowSeqBySchemaKey map[string]mock.RowSequence
-	loopSeqByKey      map[string]mock.RangeSequence
 }
 
 type MemoryLookupConfig struct {
@@ -50,21 +47,13 @@ func (q *MemoryLookup) Configure(pipeline string, data map[string]any) error {
 	if q.cfg.IntDigits <= 0 {
 		q.cfg.IntDigits = 8
 	}
-	q.maxBySchemaColumn = make(map[string]map[string]int64)
 	q.rowSeqBySchemaKey = make(map[string]mock.RowSequence)
-	q.loopSeqByKey = make(map[string]mock.RangeSequence)
 	return nil
 }
 
-func (q *MemoryLookup) LookupRange(ctx context.Context, req Request) (RangeResult, error) {
+func (q *MemoryLookup) LookupRange(ctx context.Context, req RangeRequest) (RangeResult, error) {
 	_ = ctx
-	q.mu.Lock()
-	defer q.mu.Unlock()
 
-	sid := req.Schema.UniqueID()
-	if _, ok := q.maxBySchemaColumn[sid]; !ok {
-		q.maxBySchemaColumn[sid] = make(map[string]int64)
-	}
 	if len(req.Columns) == 0 || req.Columns[0].Column == "" {
 		return RangeResult{}, fmt.Errorf("lookup params empty")
 	}
@@ -74,51 +63,26 @@ func (q *MemoryLookup) LookupRange(ctx context.Context, req Request) (RangeResul
 		need = 1
 	}
 
-	col := req.Columns[0].Column
-	maxV := q.maxBySchemaColumn[sid][col]
-	if req.Cursor != nil {
-		if v, err := toInt64(req.Cursor); err == nil {
-			if v > maxV {
-				maxV = v
-			}
-		} else {
-			return RangeResult{}, err
-		}
-	}
-	if maxV > q.maxBySchemaColumn[sid][col] {
-		q.maxBySchemaColumn[sid][col] = maxV
-	}
 	wrapAt := hardMaxInt64(req.Columns[0].Type)
-	start := maxV + 1
-	if wrapAt > 0 && start > wrapAt {
+	if wrapAt > 0 && req.Cursor >= wrapAt {
 		if !q.cfg.Wrap {
-			return RangeResult{}, fmt.Errorf("lookup range exhausted for %s: start=%d wrapAt=%d", req.Schema.UniqueID(), start, wrapAt)
+			return RangeResult{}, fmt.Errorf("lookup range exhausted for %s: start=%d wrapAt=%d", req.Schema.UniqueID(), req.Cursor+1, wrapAt)
 		}
-		seqKey := sid + ":" + col
-		seq := q.loopSeqByKey[seqKey]
-		if seq == nil {
-			seq, _ = mock.NewRangeSequence(mock.SequenceColumn{
-				Name:   col,
-				Type:   mock.SequenceTypeInt,
-				Start:  1,
-				Max:    wrapAt,
-				Digits: q.cfg.IntDigits,
-			}, mock.WithWrap(true))
-			q.loopSeqByKey[seqKey] = seq
+		start := int64(1)
+		end := start + need - 1
+		if end > wrapAt {
+			end = wrapAt
 		}
-		win, _ := seq.NextRange(int(need))
-		if !win.Valid() {
+		if end < start {
 			return RangeResult{}, fmt.Errorf("lookup returned invalid window for %s", req.Schema.UniqueID())
-		}
-		if win.End > maxV {
-			q.maxBySchemaColumn[sid][col] = win.End
 		}
 		return RangeResult{
 			EnableLoop: true,
-			Window:     range_pool.IntRange{Start: win.Start, End: win.End},
+			Window:     range_pool.IntRange{Start: start, End: end},
 		}, nil
 	}
 
+	start := req.Cursor + 1
 	end := start + need - 1
 	if wrapAt > 0 && end > wrapAt {
 		end = wrapAt
@@ -126,13 +90,10 @@ func (q *MemoryLookup) LookupRange(ctx context.Context, req Request) (RangeResul
 	if end < start {
 		return RangeResult{}, fmt.Errorf("lookup returned invalid window for %s", req.Schema.UniqueID())
 	}
-	if end > maxV {
-		q.maxBySchemaColumn[sid][col] = end
-	}
 	return RangeResult{Window: range_pool.IntRange{Start: start, End: end}}, nil
 }
 
-func (q *MemoryLookup) ScanValues(ctx context.Context, req Request) (ValuesResult, error) {
+func (q *MemoryLookup) ScanValues(ctx context.Context, req ValueRequest) (ValuesResult, error) {
 	if len(req.Columns) == 0 {
 		return ValuesResult{}, nil
 	}
@@ -165,26 +126,13 @@ func (q *MemoryLookup) ScanValues(ctx context.Context, req Request) (ValuesResul
 		return ValuesResult{HasMore: !done}, nil
 	}
 
-	cols := make([]string, 0, len(req.Columns))
-	for _, c := range req.Columns {
-		cols = append(cols, c.Column)
-	}
-	out := make([][]any, 0, len(rows))
+	out := make([]map[string]any, 0, len(rows))
 	for _, row := range rows {
-		vals := make([]any, len(cols))
-		for i, col := range cols {
-			vals[i] = row[col]
-		}
-		out = append(out, vals)
+		out = append(out, row)
 	}
 	result := ValuesResult{Rows: out, HasMore: !done}
 	if len(out) > 0 {
-		last := out[len(out)-1]
-		if len(last) == 1 {
-			result.NextCursor = last[0]
-		} else {
-			result.NextCursor = last
-		}
+		result.NextCursor = out[len(out)-1]
 	}
 	return result, nil
 }

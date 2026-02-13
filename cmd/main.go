@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/xuenqlve/common/log"
 	"github.com/xuenqlve/kyogre/internal/app"
 	"github.com/xuenqlve/kyogre/internal/config"
 	_ "github.com/xuenqlve/kyogre/pkg/config"
@@ -9,16 +10,15 @@ import (
 func main() {
 	cfg, err := config.NewConfig()
 	if err != nil {
-		panic(err)
 		return
 	}
 	server, err := app.NewServer(cfg)
 	if err != nil {
-		panic(err)
+		log.Errorf("app new server err:%v", err)
 		return
 	}
 	if err = server.Run(); err != nil {
-		panic(err)
+		log.Errorf("server run err:%v", err)
 		return
 	}
 }

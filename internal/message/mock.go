@@ -6,8 +6,12 @@ const MockType = "mock"
 
 // MockMessage 是调试链路的简易消息体
 type MockMessage struct {
-	Value     string
+	Rows      []MockRow
 	CreatedAt time.Time
+}
+
+type MockRow struct {
+	Value map[string]any
 }
 
 func (m *MockMessage) Type() string {

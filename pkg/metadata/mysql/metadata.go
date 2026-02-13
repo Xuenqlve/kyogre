@@ -26,8 +26,8 @@ type Config struct {
 	DataSource string   `mapstructure:"data-source" json:"data-source"`
 	Template   string   `mapstructure:"template" json:"template"`
 	Databases  Database `mapstructure:"databases" json:"databases"`
-	// IQueryEnabled 控制该 metadata 是否参与 lookup（默认 true）。
-	IQueryEnabled bool `mapstructure:"lookup-enabled" json:"lookup-enabled"`
+	// CloseIQuery 控制该 metadata 是否参与 lookup（默认 false）。
+	CloseIQuery bool `mapstructure:"close-lookup" json:"close-lookup"`
 }
 
 func (c *Config) Validate() error {
@@ -75,7 +75,7 @@ type Metadata struct {
 
 func (m *Metadata) Configure(pipeline string, data map[string]any) (err error) {
 	m.pipeline = pipeline
-	m.cfg = &Config{IQueryEnabled: true}
+	m.cfg = &Config{CloseIQuery: false}
 	if err = mapstructure.Decode(data, m.cfg); err != nil {
 		return errors.Trace(err)
 	}
@@ -159,10 +159,7 @@ func (m *Metadata) SchemaPrimaryField(key schema_store.SchemaKey) ([]iquery.Boun
 }
 
 func (m *Metadata) IQueryEnabled() bool {
-	if m.cfg == nil {
-		return true
-	}
-	return m.cfg.IQueryEnabled
+	return !m.cfg.CloseIQuery
 }
 
 func (m *Metadata) SchemaStore() schema_store.SchemaStore {

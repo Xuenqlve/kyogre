@@ -7,9 +7,11 @@ import (
 
 	"github.com/xuenqlve/common/log"
 	"github.com/xuenqlve/kyogre/internal/config"
+	"github.com/xuenqlve/kyogre/internal/event"
 	"github.com/xuenqlve/kyogre/internal/message"
 	"github.com/xuenqlve/kyogre/internal/plugin/pressure"
 	"github.com/xuenqlve/kyogre/internal/plugin/scenario"
+	"runtime/debug"
 )
 
 // PipelineState 描述当前管线状态
@@ -39,23 +41,6 @@ func NewEngine(pipelineName string) *PipelineEngine {
 	return &PipelineEngine{pipelineName: pipelineName, pipelines: make(map[string]*Pipeline)}
 }
 
-// Build 根据配置创建所有 Pipeline 模板
-//
-//	func (e *PipelineEngine) Build(cfg []config.PipelineSpec) error {
-//		e.mu.Lock()
-//		defer e.mu.Unlock()
-//		if len(cfg) == 0 {
-//			return fmt.Errorf("no pipelines configured")
-//		}
-//		for _, spec := range cfg {
-//			if spec.Name == "" {
-//				return fmt.Errorf("pipeline name is required")
-//			}
-//
-//			//e.pipelines[spec.Name] = newPipeline(e.pipelineName, spec)
-//		}
-//		return nil
-//	}
 func (e *PipelineEngine) RegisterPipeline(name string, pipeline *Pipeline) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -164,7 +149,7 @@ type Pipeline struct {
 	lastErr     error
 	cancel      context.CancelFunc
 	done        chan struct{}
-	scenario    scenario.Scenario
+	director    *scenario.Director
 	pressure    *pressure.Controller
 	point       message.Point
 }
@@ -251,16 +236,17 @@ func (p *Pipeline) Done() <-chan struct{} {
 }
 
 func (p *Pipeline) ensureModulesLocked() error {
-	if p.scenario == nil {
+	if p.director == nil {
 		if p.scenarioMgr == nil {
 			return fmt.Errorf("scenario manager not configured for pipeline %s", p.name)
 		}
-		sc, err := p.scenarioMgr.GetScenario(p.spec.Scenario)
+		director, err := p.scenarioMgr.GetDirector(p.spec.Scenario)
 		if err != nil {
 			return err
 		}
-		p.scenario = sc
+		p.director = director
 	}
+
 	if p.pressure == nil {
 		if p.pressureMgr == nil {
 			return fmt.Errorf("pressure manager not configured for pipeline %s", p.name)
@@ -275,6 +261,19 @@ func (p *Pipeline) ensureModulesLocked() error {
 }
 
 func (p *Pipeline) runLoop(ctx context.Context, ready chan<- error) {
+	defer func() {
+		if r := recover(); r != nil {
+			event.EventAdmin.Upload(event.Event{
+				Type: event.GoroutinePanic,
+				Key:  p.name,
+				Value: map[string]any{
+					"component": "pipeline",
+					"panic":     r,
+					"stack":     string(debug.Stack()),
+				},
+			})
+		}
+	}()
 	err := p.execute(ctx, &ready)
 	signalReady(&ready, err)
 	p.mu.Lock()
@@ -293,10 +292,12 @@ func (p *Pipeline) execute(ctx context.Context, ready *chan<- error) error {
 	defer p.shutdown()
 	p.point = make(message.Point, 1024)
 	if err := p.pressure.Start(ctx, p.point.OutPoint()); err != nil {
+		p.uploadError("pressure", err)
 		signalReady(ready, err)
 		return err
 	}
-	if err := p.scenario.Preparation(ctx); err != nil {
+	if err := p.director.Preparation(ctx); err != nil {
+		p.uploadError("scenario-director", err)
 		signalReady(ready, err)
 		return err
 	}
@@ -309,7 +310,8 @@ func (p *Pipeline) execute(ctx context.Context, ready *chan<- error) error {
 			p.point.Close()
 		}
 	}()
-	if err := p.scenario.Start(p.point.InPoint()); err != nil {
+	if err := p.director.Start(ctx, p.point.InPoint()); err != nil {
+		p.uploadError("scenario-director", err)
 		signalReady(ready, err)
 		return err
 	}
@@ -320,8 +322,8 @@ func (p *Pipeline) execute(ctx context.Context, ready *chan<- error) error {
 }
 
 func (p *Pipeline) shutdown() {
-	if p.scenario != nil {
-		_ = p.scenario.Close()
+	if p.director != nil {
+		_ = p.director.Close(true)
 	}
 	if p.pressure != nil {
 		_ = p.pressure.Close()
@@ -331,7 +333,7 @@ func (p *Pipeline) shutdown() {
 func (p *Pipeline) cleanupModules() {
 	p.point = nil
 	p.pressure = nil
-	p.scenario = nil
+	p.director = nil
 }
 
 func (p *Pipeline) waitUntilStopped() {
@@ -353,22 +355,37 @@ func signalReady(ch *chan<- error, err error) {
 }
 
 func (p *Pipeline) monitorScenarioCompletion(ctx context.Context) {
-	done := p.scenario.Done()
+	done := p.director.Done()
 	if done == nil {
 		return
 	}
 	go func() {
 		select {
 		case <-done:
-			if summary := p.scenario.Summary(); summary != nil {
+			if summary := p.director.Summary(); summary != nil {
 				log.Infof("[%s] scenario completed summary=%v", p.name, summary)
 			} else {
 				log.Infof("[%s] scenario completed", p.name)
 			}
 			if err := p.Stop(); err != nil {
 				log.Warnf("pipeline %s failed to stop on completion: %v", p.name, err)
+				p.uploadError("pipeline-stop", err)
 			}
 		case <-ctx.Done():
 		}
 	}()
+}
+
+func (p *Pipeline) uploadError(component string, err error) {
+	if err == nil {
+		return
+	}
+	event.EventAdmin.Upload(event.Event{
+		Type: event.PipelineError,
+		Key:  p.name,
+		Value: map[string]any{
+			"component": component,
+			"err":       err.Error(),
+		},
+	})
 }

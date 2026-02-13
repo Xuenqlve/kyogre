@@ -1,21 +1,26 @@
 name: mock-pipeline
 log-level: debug
 log-file: /Users/admin/log/kyogre
-data-source: {}
+data-source: { }
 metadata:
   mock-meta:
     type: mock
     config:
       name: mock-meta
+      lookup-enabled: true
 generator:
   mock-generator:
     type: mock
-    metadata: mock-meta
     config:
       prefix: demo
+lookup:
+  mock-lookup:
+    type: memory
 scenario:
   mock-scenario:
     type: mock
+    lookup: mock-lookup
+    metadata: mock-meta
     generators:
       - mock-generator
     config:

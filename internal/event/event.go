@@ -7,6 +7,10 @@ var (
 	PipelineRunning       Type = 2000
 	PipelineStop          Type = 3000
 	PipelineCompleteExist Type = 3000
+	PipelineError         Type = 4000
+	WorkerError           Type = 4100
+	GoroutinePanic        Type = 4200
+	ServerShutdown        Type = 4300
 )
 
 type Event struct {

@@ -2,11 +2,6 @@ package iquery
 
 import "fmt"
 
-type Provider interface {
-	Columns() []string
-	Rows() []map[string]any
-}
-
 // Provider yields rows in the form of map[column]value, typically used to build
 // WHERE ... IN (...) predicates for update/delete, or fixed key columns for insert.
 type Provider interface {
@@ -57,10 +52,10 @@ func (p *rangeProvider) Rows() []map[string]any {
 
 type tupleProvider struct {
 	columns []string
-	rows    [][]any
+	rows    []map[string]any
 }
 
-func newTupleProvider(columns []string, rows [][]any) (*tupleProvider, error) {
+func newTupleProvider(columns []string, rows []map[string]any) (*tupleProvider, error) {
 	cols := make([]string, 0, len(columns))
 	for _, c := range columns {
 		if c != "" {
@@ -68,8 +63,10 @@ func newTupleProvider(columns []string, rows [][]any) (*tupleProvider, error) {
 		}
 	}
 	for i := range rows {
-		if len(rows[i]) != len(cols) {
-			return nil, fmt.Errorf("tuple width mismatch: got %d want %d", len(rows[i]), len(cols))
+		for _, col := range cols {
+			if _, ok := rows[i][col]; !ok {
+				return nil, fmt.Errorf("tuple missing column %q in row", col)
+			}
 		}
 	}
 	return &tupleProvider{columns: cols, rows: rows}, nil
@@ -83,9 +80,9 @@ func (p *tupleProvider) Rows() []map[string]any {
 	}
 	out := make([]map[string]any, 0, len(p.rows))
 	for i := range p.rows {
-		rowMap := make(map[string]any, len(p.columns))
-		for j, col := range p.columns {
-			rowMap[col] = p.rows[i][j]
+		rowMap := make(map[string]any, len(p.rows[i]))
+		for k, v := range p.rows[i] {
+			rowMap[k] = v
 		}
 		out = append(out, rowMap)
 	}
