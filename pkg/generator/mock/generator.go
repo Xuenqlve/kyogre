@@ -39,6 +39,10 @@ func (g *Generator) Configure(pipeline string, data map[string]any) error {
 	return nil
 }
 
+func (g *Generator) Kinds() []string {
+	return []string{genctx.Mock}
+}
+
 func (g *Generator) Generate(ctx generator.GenerationContext) (message.Message, error) {
 	if ctx == nil {
 		return nil, fmt.Errorf("context is nil")

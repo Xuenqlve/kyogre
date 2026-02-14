@@ -30,6 +30,8 @@ type GenerationContext interface {
 // Generator 生成器接口（两阶段设计）
 type Generator interface {
 	Configure(pipeline string, data map[string]any) error
+	// Kinds 返回该生成器支持的上下文类型（静态声明，不依赖配置）。
+	Kinds() []string
 	// 单阶段：基于上下文生成消息
 	Generate(ctx GenerationContext) (message.Message, error)
 

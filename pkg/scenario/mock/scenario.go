@@ -39,6 +39,7 @@ type Scenario struct {
 	sentCount    atomic.Int64
 	completeOnce sync.Once
 	specCursor   atomic.Uint64
+	summary      map[string]any
 }
 
 func init() {
@@ -49,6 +50,7 @@ func (s *Scenario) Configure(pipeline string, data map[string]any) error {
 	s.pipeline = pipeline
 	s.sentCount.Store(0)
 	s.completeOnce = sync.Once{}
+	s.summary = nil
 
 	if err := mapstructure.Decode(data, &s.cfg); err != nil {
 		return errors.Trace(err)
@@ -79,10 +81,26 @@ func (s *Scenario) Start(ctx context.Context, metadata metadata.Metadata, sequen
 		}
 		s.sentCount.Add(1)
 		if interval > 0 {
-			time.Sleep(interval)
+			select {
+			case <-ctx.Done():
+				s.notifyComplete()
+				return
+			case <-time.After(interval):
+			}
 		}
 	}
 	s.notifyComplete()
+}
+
+func (s *Scenario) Summary() map[string]any {
+	if s.summary == nil {
+		return nil
+	}
+	out := make(map[string]any, len(s.summary))
+	for k, v := range s.summary {
+		out[k] = v
+	}
+	return out
 }
 
 func (s *Scenario) Close() error {
@@ -224,13 +242,13 @@ func (s *Scenario) notifyComplete() {
 	s.completeOnce.Do(func() {
 		total := s.sentCount.Load()
 		duration := time.Since(s.startAt)
-		summary := map[string]any{
+		s.summary = map[string]any{
 			"pipeline":     s.pipeline,
 			"messages":     total,
 			"duration":     duration.String(),
 			"interval_ms":  s.cfg.IntervalMS,
 			"message_type": message.MockType,
 		}
-		log.Infof("[%s] mock scenario completed summary=%v", s.pipeline, summary)
+		log.Infof("[%s] mock scenario completed summary=%v", s.pipeline, s.summary)
 	})
 }

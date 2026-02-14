@@ -11,7 +11,7 @@ import (
 )
 
 // Worker 消费 GenerationContext 并生成消息。
-// kind 与 generatorKey 一一对应。
+// kind 与 generatorKey 由 director 路由绑定。
 type Worker struct {
 	ctx    context.Context
 	cancel context.CancelFunc
@@ -21,11 +21,12 @@ type Worker struct {
 	in       <-chan generator.GenerationContext
 	out      message.InPoint
 	gens     map[string]generator.Generator
+	kindMap  map[string]string
 	pipeline string
 	onError  func(error)
 }
 
-func NewWorker(ctx context.Context, pipeline string, gens map[string]generator.Generator, in <-chan generator.GenerationContext, out message.InPoint, onError func(error)) *Worker {
+func NewWorker(ctx context.Context, pipeline string, gens map[string]generator.Generator, kindMap map[string]string, in <-chan generator.GenerationContext, out message.InPoint, onError func(error)) *Worker {
 	lctx, cancel := context.WithCancel(ctx)
 	return &Worker{
 		ctx:      lctx,
@@ -33,6 +34,7 @@ func NewWorker(ctx context.Context, pipeline string, gens map[string]generator.G
 		in:       in,
 		out:      out,
 		gens:     gens,
+		kindMap:  kindMap,
 		pipeline: pipeline,
 		onError:  onError,
 	}
@@ -76,9 +78,14 @@ func (w *Worker) run() (err error) {
 				err = fmt.Errorf("scenario worker: context kind is empty")
 				return
 			}
-			gen, exist := w.gens[kind]
+			genKey, ok := w.kindMap[kind]
+			if !ok || genKey == "" {
+				err = fmt.Errorf("scenario worker: generator key not found for kind=%s", kind)
+				return
+			}
+			gen, exist := w.gens[genKey]
 			if gen == nil || !exist {
-				err = fmt.Errorf("scenario worker: generator not found kind=%s", kind)
+				err = fmt.Errorf("scenario worker: generator not found kind=%s key=%s", kind, genKey)
 				return
 			}
 			var msg message.Message

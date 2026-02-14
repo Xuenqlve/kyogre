@@ -20,18 +20,17 @@ type Director struct {
 	cancel       context.CancelFunc
 	scenario     Scenario
 	ctxChan      chan generator.GenerationContext
-	scenarioChan chan generator.GenerationContext
 	generators   map[string]generator.Generator
+	kindRouting  map[string]string
 	metadata     metadata.Metadata
 	finite       *FiniteHelper
 	sequencer    *iquery.Sequencer
 	sequenceSpec []iquery.SequenceSpec
 
-	workers []*Worker
-	pumpOnce sync.Once
-	errOnce sync.Once
-	errMu   sync.Mutex
-	err     error
+	workers  []*Worker
+	errOnce  sync.Once
+	errMu    sync.Mutex
+	err      error
 }
 
 type DirectorConfig struct {
@@ -47,8 +46,10 @@ func (c *DirectorConfig) Normalize() {
 
 func NewDirector() *Director {
 	return &Director{
-		cfg:        DirectorConfig{WorkerCount: 1},
-		generators: make(map[string]generator.Generator),
+		cfg:         DirectorConfig{WorkerCount: 1},
+		generators:  make(map[string]generator.Generator),
+		kindRouting: make(map[string]string),
+		finite:      NewFiniteHelper(),
 	}
 }
 
@@ -78,6 +79,7 @@ func (s *Director) Configure(pipeline string, key string, data map[string]any) e
 	}
 	s.workers = make([]*Worker, 0, s.cfg.WorkerCount)
 	s.scenario = scenario
+	s.ctxChan = make(chan generator.GenerationContext, s.cfg.ContextLength)
 	return nil
 }
 
@@ -88,8 +90,28 @@ func (s *Director) RegisterSequencer(seq *iquery.Sequencer, specs []iquery.Seque
 	s.sequenceSpec = specs
 }
 
-func (s *Director) RegisterGenerator(kind string, gen generator.Generator) {
-	s.generators[kind] = gen
+func (s *Director) RegisterGenerator(key string, gen generator.Generator) error {
+	if key == "" {
+		return fmt.Errorf("generator key is empty")
+	}
+	if gen == nil {
+		return fmt.Errorf("generator %s is nil", key)
+	}
+	kinds := gen.Kinds()
+	if len(kinds) == 0 {
+		return fmt.Errorf("generator %s has no kinds", key)
+	}
+	for _, kind := range kinds {
+		if kind == "" {
+			return fmt.Errorf("generator %s has empty kind", key)
+		}
+		if existing, ok := s.kindRouting[kind]; ok && existing != key {
+			return fmt.Errorf("kind %s already bound to generator %s", kind, existing)
+		}
+		s.kindRouting[kind] = key
+	}
+	s.generators[key] = gen
+	return nil
 }
 
 func (s *Director) RegisterMetadata(meta metadata.Metadata) {
@@ -108,7 +130,6 @@ func (s *Director) EnableFinite() *FiniteHelper {
 
 func (s *Director) Start(ctx context.Context, out message.InPoint) error {
 	s.errOnce = sync.Once{}
-	s.pumpOnce = sync.Once{}
 	s.errMu.Lock()
 	s.err = nil
 	s.errMu.Unlock()
@@ -117,22 +138,27 @@ func (s *Director) Start(ctx context.Context, out message.InPoint) error {
 		runCtx = context.Background()
 	}
 	runCtx, s.cancel = context.WithCancel(runCtx)
-	if s.scenario == nil {
-		return fmt.Errorf("scenario not configured")
-	}
-	if s.ctxChan == nil {
-		s.ctxChan = make(chan generator.GenerationContext, s.cfg.ContextLength)
-	}
-	if s.scenarioChan == nil {
-		s.scenarioChan = make(chan generator.GenerationContext, s.cfg.ContextLength)
-	}
-	s.startPump(runCtx)
 	for i := 0; i < s.cfg.WorkerCount; i++ {
-		w := NewWorker(runCtx, s.pipeline, s.generators, s.ctxChan, out, s.reportError)
+		w := NewWorker(runCtx, s.pipeline, s.generators, s.kindRouting, s.ctxChan, out, s.reportError)
 		w.Start()
 		s.workers = append(s.workers, w)
 	}
-	s.scenario.Start(runCtx, s.metadata, s.sequencer, s.scenarioChan)
+	go func() {
+		s.scenario.Start(runCtx, s.metadata, s.sequencer, s.ctxChan)
+		if s.ctxChan != nil {
+			close(s.ctxChan)
+		}
+		if s.finite != nil {
+			summary := s.scenario.Summary()
+			if summary == nil {
+				summary = map[string]any{
+					"pipeline": s.pipeline,
+					"reason":   "scenario finished",
+				}
+			}
+			s.finite.NotifyDone(summary)
+		}
+	}()
 	s.errMu.Lock()
 	defer s.errMu.Unlock()
 	return s.err
@@ -151,37 +177,6 @@ func (s *Director) Close(forceExit bool) error {
 		s.workers[index].Close()
 	}
 	return nil
-}
-
-func (s *Director) startPump(ctx context.Context) {
-	s.pumpOnce.Do(func() {
-		go func() {
-			canceled := false
-			for {
-				if canceled {
-					gctx, ok := <-s.scenarioChan
-					if !ok {
-						return
-					}
-					_ = gctx
-					continue
-				}
-				select {
-				case <-ctx.Done():
-					canceled = true
-				case gctx, ok := <-s.scenarioChan:
-					if !ok {
-						return
-					}
-					select {
-					case <-ctx.Done():
-						canceled = true
-					case s.ctxChan <- gctx:
-					}
-				}
-			}
-		}()
-	})
 }
 
 func (s *Director) reportError(err error) {

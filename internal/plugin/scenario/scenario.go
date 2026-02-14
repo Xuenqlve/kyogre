@@ -13,7 +13,17 @@ import (
 
 type Scenario interface {
 	Configure(pipeline string, data map[string]any) (err error)
+	// Start 将生成的上下文写入 ctxChan。
+	// 约束：写入必须可被 ctx.Done() 中断，避免取消或背压导致阻塞。
+	// 推荐写法：
+	//   select {
+	//   case ctxChan <- gctx:
+	//   case <-ctx.Done():
+	//       return
+	//   }
 	Start(ctx context.Context, metadata metadata.Metadata, sequencer *iquery.Sequencer, ctxChan chan<- generator.GenerationContext)
+	// Summary 返回场景完成摘要；没有摘要可返回 nil。
+	Summary() map[string]any
 }
 
 type (

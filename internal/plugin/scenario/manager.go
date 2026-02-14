@@ -66,7 +66,9 @@ func (m *Manager) buildScenario(cfg config.ScenarioConfigureMold) (*Director, er
 		if g, err = m.generators.GetGenerator(generatorKey); err != nil {
 			return nil, err
 		}
-		director.RegisterGenerator(generatorKey, g)
+		if err = director.RegisterGenerator(generatorKey, g); err != nil {
+			return nil, err
+		}
 	}
 	meta, err := m.metadata.GetMetadata(cfg.Metadata)
 	if err != nil {
