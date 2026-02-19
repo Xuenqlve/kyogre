@@ -12,6 +12,7 @@ import (
 	mysql_schema "github.com/xuenqlve/common/relational_database/mysql"
 	"github.com/xuenqlve/common/schema_store"
 	"github.com/xuenqlve/kyogre/internal/message"
+	message2 "github.com/xuenqlve/kyogre/pkg/message"
 )
 
 type Worker struct {
@@ -21,8 +22,8 @@ type Worker struct {
 	index            int
 	schemaStore      schema_store.SchemaStore
 	conn             *sql.DB
-	rowQueue         chan *message.MySQLRowMessage
-	transactionQueue chan *message.MySQLTransactionMessage
+	rowQueue         chan *message2.MySQLRowMessage
+	transactionQueue chan *message2.MySQLTransactionMessage
 }
 
 func NewWorker(ctx context.Context, pipeline string, index, workQueueLength int, conn *sql.DB, schemaStore schema_store.SchemaStore) *Worker {
@@ -32,8 +33,8 @@ func NewWorker(ctx context.Context, pipeline string, index, workQueueLength int,
 		index:            index,
 		schemaStore:      schemaStore,
 		conn:             conn,
-		rowQueue:         make(chan *message.MySQLRowMessage, workQueueLength),
-		transactionQueue: make(chan *message.MySQLTransactionMessage, workQueueLength),
+		rowQueue:         make(chan *message2.MySQLRowMessage, workQueueLength),
+		transactionQueue: make(chan *message2.MySQLTransactionMessage, workQueueLength),
 	}
 }
 
@@ -77,17 +78,17 @@ func (w *Worker) Start() {
 
 func (w *Worker) SendMessage(msg message.Message) {
 	switch msg.Type() {
-	case message.MySQLRow:
-		w.rowQueue <- msg.(*message.MySQLRowMessage)
-	case message.MySQLTransaction:
-		w.transactionQueue <- msg.(*message.MySQLTransactionMessage)
+	case message2.MySQLRow:
+		w.rowQueue <- msg.(*message2.MySQLRowMessage)
+	case message2.MySQLTransaction:
+		w.transactionQueue <- msg.(*message2.MySQLTransactionMessage)
 	default:
 		log.Errorf("not supported message type: %v", msg.Type())
 
 	}
 }
 
-func (w *Worker) ExecRowMessage(row message.SQLRows) error {
+func (w *Worker) ExecRowMessage(row message2.SQLRows) error {
 	tableDef, err := w.tableDef(row.Database, row.Table)
 	if err != nil {
 		return err
@@ -102,7 +103,7 @@ func (w *Worker) ExecRowMessage(row message.SQLRows) error {
 	return w.write(query, args...)
 }
 
-func (w *Worker) ExecTransactionMessage(transaction []message.SQLRows) (err error) {
+func (w *Worker) ExecTransactionMessage(transaction []message2.SQLRows) (err error) {
 	sqlSets, err := w.generateTransactionSQL(transaction)
 	if err != nil {
 		return err
@@ -126,16 +127,16 @@ func (w *Worker) tableDef(database, table string) (tableDef *mysql_schema.Table,
 	return tableDef, nil
 }
 
-func (w *Worker) generateSQL(row message.SQLRows, tableDef *mysql_schema.Table) (query string, args []any, err error) {
+func (w *Worker) generateSQL(row message2.SQLRows, tableDef *mysql_schema.Table) (query string, args []any, err error) {
 	if row.Operation == schema_store.Delete.String() {
 		return generate_sql.GenerateDeleteSQL(row.Contents, tableDef)
 	}
 	switch row.WriteType {
-	case message.InsertIgnore:
+	case message2.InsertIgnore:
 		return generate_sql.GenerateInsertIgnoreSQL(row.Contents, tableDef)
-	case message.InsertOnDuplicateKey:
+	case message2.InsertOnDuplicateKey:
 		return generate_sql.GenerateInsertOnDuplicateKeyUpdateSQL(row.Contents, tableDef)
-	case message.Replace:
+	case message2.Replace:
 		return generate_sql.GenerateReplaceSQL(row.Contents, tableDef)
 	default:
 		if row.Operation == schema_store.Insert.String() {
@@ -159,7 +160,7 @@ type Transaction struct {
 	args []any
 }
 
-func (w *Worker) generateTransactionSQL(transaction []message.SQLRows) (sqlSets []Transaction, err error) {
+func (w *Worker) generateTransactionSQL(transaction []message2.SQLRows) (sqlSets []Transaction, err error) {
 	tableDefs := make(map[string]*mysql_schema.Table)
 	sqlSets = make([]Transaction, 0, len(transaction))
 	for _, row := range transaction {

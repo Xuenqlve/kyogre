@@ -10,12 +10,12 @@ import (
 	"github.com/xuenqlve/common/errors"
 	"github.com/xuenqlve/common/log"
 	mysql_schema "github.com/xuenqlve/common/relational_database/mysql"
-	"github.com/xuenqlve/kyogre/internal/message"
 	"github.com/xuenqlve/kyogre/internal/plugin/generator"
 	"github.com/xuenqlve/kyogre/internal/plugin/iquery"
 	"github.com/xuenqlve/kyogre/internal/plugin/metadata"
 	"github.com/xuenqlve/kyogre/internal/plugin/scenario"
 	"github.com/xuenqlve/kyogre/pkg/generator_context"
+	"github.com/xuenqlve/kyogre/pkg/message"
 )
 
 const ScenarioType scenario.Type = "mock"

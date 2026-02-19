@@ -17,8 +17,8 @@ func NewBaseContext(kind string, opts ...ContextOption) *baseContext {
 
 type ContextOption func(*baseContext)
 
-func WithIQueryProvider(provider iquery.Provider) ContextOption {
-	return func(ctx *baseContext) { ctx.provider = provider }
+func WithIQueryProvider(key string, provider iquery.Provider) ContextOption {
+	return func(ctx *baseContext) { ctx.provider[key] = provider }
 }
 
 func WithStrategy(snapshot *generator.StrategySnapshot) ContextOption {
@@ -31,7 +31,7 @@ func WithExtras(extras map[string]any) ContextOption {
 
 type baseContext struct {
 	kind     string
-	provider iquery.Provider
+	provider map[string]iquery.Provider
 	strategy *generator.StrategySnapshot
 	extras   map[string]any
 }
@@ -40,8 +40,8 @@ func (b *baseContext) Kind() string {
 	return b.kind
 }
 
-func (b *baseContext) Provider() iquery.Provider {
-	return b.provider
+func (b *baseContext) Provider(key string) iquery.Provider {
+	return b.provider[key]
 }
 
 func (b *baseContext) Strategy() *generator.StrategySnapshot {

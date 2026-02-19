@@ -10,6 +10,7 @@ import (
 	"github.com/xuenqlve/kyogre/internal/message"
 	"github.com/xuenqlve/kyogre/internal/plugin/generator"
 	genctx "github.com/xuenqlve/kyogre/pkg/generator_context"
+	message2 "github.com/xuenqlve/kyogre/pkg/message"
 )
 
 const Mock generator.Type = "mock"
@@ -52,12 +53,12 @@ func (g *Generator) Generate(ctx generator.GenerationContext) (message.Message, 
 	}
 	snap := ctx.Strategy()
 	rows := g.buildRows(ctx, snap)
-	return &message.MockMessage{Rows: rows, CreatedAt: time.Now()}, nil
+	return &message2.MockMessage{Rows: rows, CreatedAt: time.Now()}, nil
 }
 
 func (g *Generator) Close() {}
 
-func (g *Generator) buildRows(ctx generator.GenerationContext, snap *generator.StrategySnapshot) []message.MockRow {
+func (g *Generator) buildRows(ctx generator.GenerationContext, snap *generator.StrategySnapshot) []message2.MockRow {
 	count := 1
 	if snap != nil {
 		count = snap.ResolveCount()
@@ -65,7 +66,7 @@ func (g *Generator) buildRows(ctx generator.GenerationContext, snap *generator.S
 	if count <= 0 {
 		return nil
 	}
-	rows := make([]message.MockRow, 0, count)
+	rows := make([]message2.MockRow, 0, count)
 	for i := 0; i < count; i++ {
 		row := cloneRow(baseRow(ctx, g.seq.Add(1)))
 		applyFieldSpec(row, snap)
@@ -81,7 +82,7 @@ func (g *Generator) buildRows(ctx generator.GenerationContext, snap *generator.S
 				row["_suffix"] = v
 			}
 		}
-		rows = append(rows, message.MockRow{Value: row})
+		rows = append(rows, message2.MockRow{Value: row})
 	}
 	return rows
 }
