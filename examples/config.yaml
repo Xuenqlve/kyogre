@@ -1,0 +1,47 @@
+name: example-mock-pipeline
+log-level: debug
+log-file: /tmp
+api-config:
+  http-addr: ":18080"
+
+data-source: {}
+
+metadata:
+  mock-meta:
+    type: mock
+    config:
+      name: mock-meta
+      lookup-enabled: true
+
+generator:
+  mock-generator:
+    type: mock
+    config:
+      prefix: demo
+
+lookup:
+  mock-lookup:
+    type: memory
+
+scenario:
+  mock-scenario:
+    type: mock
+    lookup: mock-lookup
+    metadata: mock-meta
+    generators:
+      - mock-generator
+    config:
+      message-count: 20
+      interval-ms: 100
+
+pressure:
+  mock-pressure:
+    type: mock
+    config:
+      name: mock-pressure
+
+pipelines:
+  - name: mock-demo
+    scenario: mock-scenario
+    pressure:
+      - mock-pressure

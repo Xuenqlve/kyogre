@@ -1,0 +1,49 @@
+# This file is a reference snippet for mysql metadata config.
+# It is not a standalone main config file for `-config`.
+
+metadata:
+  mysql-meta:
+    type: mysql
+    config:
+      data-source: source
+      template: customize
+      databases:
+        kyogre_demo:
+          - table: users
+            columns:
+              - column: id
+                type: primary
+              - column: name
+                type: string
+              - column: email
+                type: varchar
+              - column: created_at
+                type: timestamp
+            indexes:
+              - name: ""
+                columns: ["id"]
+                is_primary: true
+                is_unique: false
+              - name: uk_email
+                columns: ["email"]
+                is_primary: false
+                is_unique: true
+          - table: orders
+            columns:
+              - column: id
+                type: primary
+              - column: user_id
+                type: bigint_unsigned
+              - column: amount
+                type: decimal
+              - column: status
+                type: enum
+            indexes:
+              - name: ""
+                columns: ["id"]
+                is_primary: true
+                is_unique: false
+              - name: idx_user_id
+                columns: ["user_id"]
+                is_primary: false
+                is_unique: false
