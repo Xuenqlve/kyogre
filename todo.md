@@ -2,8 +2,8 @@
 
 ## P0
 
-- [ ] 实现 `mysql` 场景插件，产出 `MySQLRowContext` / `MySQLTransactionContext`
-  说明：当前只有 `mock` 场景，端到端 MySQL 压测主链路还未真正接通。
+- [x] 实现 `mysql` 场景插件，产出 `MySQLRowContext` / `MySQLTransactionContext`
+  说明：已补齐 `pkg/scenario/mysql`，当前支持 `insert` 的 row / transaction 两种 context 产出；`update/delete` 与 lookup 联动继续放在后续任务。
 
 - [ ] 补一份可直接运行的 MySQL 主配置示例
   说明：需要包含 `data-source`、`metadata.type=mysql`、`generator.type=mysql`、`pressure.type=mysql-dml`、`scenario.type=mysql`。
