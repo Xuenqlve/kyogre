@@ -130,7 +130,7 @@ func (s *Scenario) buildContext(seq *iquery.Sequencer, specs []specInfo, snapsho
 
 	return generator_context.NewMockContext(
 		value,
-		generator_context.WithIQueryProvider(provider),
+		generator_context.WithIQueryProvider(info.spec.Schema.UniqueID(), provider),
 		generator_context.WithStrategy(snapshot),
 	)
 }

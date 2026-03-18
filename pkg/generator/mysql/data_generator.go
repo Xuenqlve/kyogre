@@ -4,7 +4,7 @@ import (
 	"strings"
 
 	mysql_schema "github.com/xuenqlve/common/relational_database/mysql"
-	"github.com/xuenqlve/kyogre/pkg/generator/mock"
+	"github.com/xuenqlve/kyogre/pkg/tool/mock"
 )
 
 // DataGenerator 根据 MySQL 列类型生成对应的随机数据。
@@ -35,15 +35,15 @@ func (dg *DataGenerator) generateByType(col mysql_schema.Column) any {
 	dataType := strings.ToLower(col.DataType)
 	switch dataType {
 	case "tinyint":
-		return dg.GenerateTinyInt(col.IsUnsigned)
+		return dg.GenerateTinyInt(false)
 	case "smallint":
-		return dg.GenerateSmallInt(col.IsUnsigned)
+		return dg.GenerateSmallInt(false)
 	case "int", "integer":
 		return dg.GenerateInt(col.IsGenerated)
 	case "bigint", "mediumint", "serial":
-		return dg.GenerateInteger(col.IsUnsigned)
+		return dg.GenerateInteger(false)
 	case "decimal", "numeric", "fixed", "float", "double", "real":
-		return dg.GenerateFloat(col.IsUnsigned)
+		return dg.GenerateFloat(false)
 	case "bool", "boolean":
 		return dg.GenerateBool()
 	case "timestamp", "datetime", "date", "time", "year":

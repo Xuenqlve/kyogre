@@ -71,12 +71,6 @@ func buildDDLSQL(spec genctx.MySQLDDLSpec, ddlType schema_store.DDL) (string, er
 			return "", err
 		}
 		return fmt.Sprintf("CREATE INDEX `%s` ON `%s`.`%s` (%s)", indexName, db, table, strings.Join(columns, ",")), nil
-	case schema_store.DROP_INDEX:
-		indexName, _, err := ddlIndexSpec(spec)
-		if err != nil {
-			return "", err
-		}
-		return fmt.Sprintf("DROP INDEX `%s` ON `%s`.`%s`", indexName, db, table), nil
 	default:
 		return "", fmt.Errorf("unsupported ddl type: %s", spec.DDLType)
 	}

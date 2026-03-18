@@ -7,7 +7,8 @@ import (
 
 func NewBaseContext(kind string, opts ...ContextOption) *baseContext {
 	ctx := &baseContext{
-		kind: kind,
+		kind:     kind,
+		provider: map[string]iquery.Provider{},
 	}
 	for _, opt := range opts {
 		opt(ctx)
@@ -18,7 +19,12 @@ func NewBaseContext(kind string, opts ...ContextOption) *baseContext {
 type ContextOption func(*baseContext)
 
 func WithIQueryProvider(key string, provider iquery.Provider) ContextOption {
-	return func(ctx *baseContext) { ctx.provider[key] = provider }
+	return func(ctx *baseContext) {
+		if ctx.provider == nil {
+			ctx.provider = map[string]iquery.Provider{}
+		}
+		ctx.provider[key] = provider
+	}
 }
 
 func WithStrategy(snapshot *generator.StrategySnapshot) ContextOption {
@@ -42,6 +48,10 @@ func (b *baseContext) Kind() string {
 
 func (b *baseContext) Provider(key string) iquery.Provider {
 	return b.provider[key]
+}
+
+func (b *baseContext) Providers() map[string]iquery.Provider {
+	return b.provider
 }
 
 func (b *baseContext) Strategy() *generator.StrategySnapshot {

@@ -19,6 +19,8 @@ type GenerationContext interface {
 	Kind() string
 	// Provider 返回主键/唯一键值的提供者，由 scenario 提供
 	Provider(key string) iquery.Provider
+	// Providers 返回所有主键/唯一键值的提供者，由 scenario 提供
+	Providers() map[string]iquery.Provider
 	// Strategy 返回生成策略（可选）
 	Strategy() *StrategySnapshot
 	// Validate 校验上下文内容是否合理（由上层构造时完成）

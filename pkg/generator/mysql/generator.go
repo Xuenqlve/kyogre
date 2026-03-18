@@ -73,7 +73,11 @@ func (g *Generator) buildRowMessage(ctx *genctx.MySQLRowContext) (message.Messag
 	if count <= 0 {
 		return nil, nil
 	}
-	rows := NewRowBuilder().BuildRows(spec.Schema, spec.Operation, count, spec.Columns)
+	rowBuilder := NewRowBuilder(ctx.Strategy(), ctx.Providers())
+	rows, err := rowBuilder.BuildRows(spec.Schema, spec.Operation, count, spec.Columns)
+	if err != nil {
+		return nil, err
+	}
 	if len(rows) == 0 {
 		return nil, nil
 	}
@@ -99,6 +103,7 @@ func (g *Generator) buildTransactionMessage(ctx *genctx.MySQLTransactionContext)
 	if len(ctx.Rows) == 0 {
 		return nil, nil
 	}
+	rowBuilder := NewRowBuilder(ctx.Strategy(), ctx.Providers())
 	sqlRows := make([]message2.SQLRows, 0, len(ctx.Rows))
 	for i := range ctx.Rows {
 		spec := ctx.Rows[i]
@@ -112,7 +117,10 @@ func (g *Generator) buildTransactionMessage(ctx *genctx.MySQLTransactionContext)
 		if count <= 0 {
 			continue
 		}
-		rows := NewRowBuilder().BuildRows(spec.Schema, spec.Operation, count, spec.Columns)
+		rows, err := rowBuilder.BuildRows(spec.Schema, spec.Operation, count, spec.Columns)
+		if err != nil {
+			return nil, err
+		}
 		if len(rows) == 0 {
 			continue
 		}
