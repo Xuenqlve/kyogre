@@ -107,10 +107,11 @@ func (m *Metadata) initializeByMock() {
 
 func (m *Metadata) initializeByDb(ctx context.Context) error {
 	conn, err := mysql.Connection(m.cfg.DataSource)
-	m.schema = schema_store.NewBaseSchemaStore(mysql_schema.NewSchema(conn))
 	if err != nil {
 		return errors.Trace(err)
 	}
+	m.conn = conn
+	m.schema = schema_store.NewBaseSchemaStore(mysql_schema.NewSchema(conn))
 	sqlSets := CreateTableSQLs(m.cfg.Databases)
 	for _, query := range sqlSets {
 		log.Infof("Initialize SQL: %s", query)
