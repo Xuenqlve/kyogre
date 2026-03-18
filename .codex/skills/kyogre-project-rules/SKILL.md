@@ -24,17 +24,20 @@ description: 面向 Kyogre 的项目级开发规范与 AI 行为约束。用于�
 - 可复用实现主要位于 `pkg/`
 - 测试主要位于 `test/`
 - 当前已有 `README.md`、`CLAUDE.md`、`AGENTS.md` 可作为仓库说明输入
+- 当前已有 `examples/` 目录，可作为最小运行示例入口
+- 当前消息流通过 `internal/message/message.go` 中的 `message.Point` channel 接通 scenario 与 pressure
 
 ### 基于轻量阅读的推断
 
 - 关键主流程是：配置加载 -> Server 初始化 -> DataSource 配置 -> Metadata 初始化 -> Generator / IQuery / Scenario / Pressure 配置 -> Pipeline 执行
 - 当前项目优先保障 MySQL 主链路，其它数据库支持仍偏框架化
+- 当前一期目标应聚焦 MySQL DML 压测主链路闭环，不以 DDL、metrics、报告能力作为阻塞项
 - 该项目不适合在单次任务中做大规模架构重排，应采用渐进式收敛
 
 ### 待补充信息
 
 - 生产级运行方式与发布流程
-- 配置样例与环境约束的统一位置
+- 真实 MySQL 环境下的标准验证方式与前置依赖
 - 非 MySQL 数据库的实现完成度基线
 
 ## 仓库内 Skill 使用约束
@@ -107,6 +110,9 @@ description: 面向 Kyogre 的项目级开发规范与 AI 行为约束。用于�
 
 ## Todo List 管理规则
 
+- 当前项目所有开发 TODO 的唯一落点是仓库根目录 `todo.md`。
+- 不得在 skill、状态文档、临时说明中并行维护第二份任务清单；如需说明任务，只能引用或更新 `todo.md`。
+- 新增、调整、完成、阻塞的任务都必须同步更新 `todo.md`，保持其与当前开发进展一致。
 - Todo 必须按“主流程 / 模块 / 测试 / 文档与配置”组织，而不是只按时间顺序堆积。
 - 每个任务必须包含：`id`、`title`、`type`、`priority`、`status`；必要时补 `depends_on`、`blocked_by`、`next_action`。
 - 任务类型统一使用：`feature`、`bugfix`、`refactor`、`test`、`docs`、`chore`。
@@ -125,7 +131,7 @@ description: 面向 Kyogre 的项目级开发规范与 AI 行为约束。用于�
 ## 待补充项
 
 - 非 MySQL 数据库的模块级约束
-- 配置样例与 schema 样例规范
+- `todo.md` 的结构化字段模板与维护示例
 - CI / 发布 / 回滚流程
 - benchmark 与性能基线规则
 
