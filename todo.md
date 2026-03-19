@@ -8,8 +8,8 @@
 - [ ] 设计并实现 `base scenario` 主流程
   说明：一期目标调整为通用 `base scenario`，负责策略编排、selector 驱动和 `Sequencer` 接入，不再把主能力绑定到 `mysql scenario`。
 
-- [ ] `pkg/scenario/base/plan.go`
-  说明：定义 `Plan`、`Target` 等通用模型，承载目标、操作、行数、事务大小、provider 等计划信息。
+- [x] `pkg/scenario/base/plan.go`
+  说明：已定义 `Plan`、`Target`、mode 常量、校验与浅拷贝能力，作为后续 builder 和 base scenario 的通用契约。
 
 - [ ] `pkg/scenario/base/builder.go`
   说明：定义数据库适配用的 `ContextBuilder` 注册接口，支持后续按 builder 名称加载 MySQL、MongoDB 等上下文构造器。
