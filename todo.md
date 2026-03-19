@@ -11,8 +11,8 @@
 - [x] `pkg/scenario/base/plan.go`
   说明：已定义 `Plan`、`Target`、mode 常量、校验与浅拷贝能力，作为后续 builder 和 base scenario 的通用契约。
 
-- [ ] `pkg/scenario/base/builder.go`
-  说明：定义数据库适配用的 `ContextBuilder` 注册接口，支持后续按 builder 名称加载 MySQL、MongoDB 等上下文构造器。
+- [x] `pkg/scenario/base/builder.go`
+  说明：已定义 `ContextBuilder` 接口与 registry，支持按 builder 名称注册和获取数据库适配器实例。
 
 - [ ] `pkg/scenario/base/config.go`
   说明：定义 `base scenario` 配置结构，覆盖 `builder`、`mode`、`message-count`、`interval-ms` 以及 target / operation / row-count / transaction-size selector 配置。
