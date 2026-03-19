@@ -14,8 +14,8 @@
 - [x] `pkg/scenario/base/builder.go`
   说明：已定义 `ContextBuilder` 接口与 registry，支持按 builder 名称注册和获取数据库适配器实例。
 
-- [ ] `pkg/scenario/base/config.go`
-  说明：定义 `base scenario` 配置结构，覆盖 `builder`、`mode`、`message-count`、`interval-ms` 以及 target / operation / row-count / transaction-size selector 配置。
+- [x] `pkg/scenario/base/config.go`
+  说明：已定义 `base scenario` 配置结构、默认值和校验逻辑，覆盖 builder、mode、selector 配置和 lookup 配置。
 
 - [ ] `pkg/scenario/base/selector_factory.go`
   说明：把配置转换成 `pkg/tool/selector` 选择器实例，统一创建 target、operation、row-count、transaction-size 四类 selector。
