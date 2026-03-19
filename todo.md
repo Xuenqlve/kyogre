@@ -2,6 +2,9 @@
 
 ## P0
 
+- [x] 实现通用 selector 工具，支持顺序、随机、权重三种选择策略
+  说明：已新增 `pkg/tool/selector`，作为后续 `base scenario` 的选择能力基础组件。
+
 - [x] 实现 `mysql` 场景插件，产出 `MySQLRowContext` / `MySQLTransactionContext`
   说明：已补齐 `pkg/scenario/mysql`，当前支持 `insert` 的 row / transaction 两种 context 产出；`update/delete` 与 lookup 联动继续放在后续任务。
 
