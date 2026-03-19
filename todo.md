@@ -17,8 +17,8 @@
 - [x] `pkg/scenario/base/config.go`
   说明：已定义 `base scenario` 配置结构、默认值和校验逻辑，覆盖 builder、mode、selector 配置和 lookup 配置。
 
-- [ ] `pkg/scenario/base/selector_factory.go`
-  说明：把配置转换成 `pkg/tool/selector` 选择器实例，统一创建 target、operation、row-count、transaction-size 四类 selector。
+- [x] `pkg/scenario/base/selector_factory.go`
+  说明：已实现 selector factory，可把 target、operation、row-count、transaction-size 配置转换成运行时选择器实例。
 
 - [ ] `pkg/scenario/base/lookup.go`
   说明：封装 `Sequencer` 接入逻辑，根据 `insert/update/delete` 分别调用 `ReserveInsert`、`ReserveUpdate`、`ReserveDelete`。

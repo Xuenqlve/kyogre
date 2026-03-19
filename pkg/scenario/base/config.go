@@ -22,8 +22,10 @@ type Config struct {
 }
 
 type TargetSelectorConfig struct {
-	Strategy string   `mapstructure:"strategy"`
-	Schemas  []string `mapstructure:"schemas"`
+	Strategy string          `mapstructure:"strategy"`
+	Schemas  []string        `mapstructure:"schemas"`
+	Items    []WeightedValue `mapstructure:"items"`
+	Weights  map[string]int  `mapstructure:"weights"`
 }
 
 type ValueSelectorConfig struct {
@@ -103,6 +105,25 @@ func (c *TargetSelectorConfig) Normalize() error {
 	case selector.RoundRobin, selector.Random, selector.Weighted:
 	default:
 		return fmt.Errorf("unsupported target selector strategy: %s", c.Strategy)
+	}
+	if selector.Strategy(c.Strategy) == selector.Weighted && len(c.Items) == 0 && len(c.Weights) == 0 {
+		return fmt.Errorf("weighted target selector requires items or weights")
+	}
+	for i := range c.Items {
+		if c.Items[i].Value == "" {
+			return fmt.Errorf("target selector item[%d] value is empty", i)
+		}
+		if selector.Strategy(c.Strategy) == selector.Weighted && c.Items[i].Weight <= 0 {
+			return fmt.Errorf("target selector item[%d] weight must be greater than zero", i)
+		}
+	}
+	for key, weight := range c.Weights {
+		if key == "" {
+			return fmt.Errorf("target selector weights contains empty key")
+		}
+		if weight <= 0 {
+			return fmt.Errorf("target selector weight for %s must be greater than zero", key)
+		}
 	}
 	return nil
 }
