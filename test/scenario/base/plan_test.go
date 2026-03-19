@@ -3,6 +3,7 @@ package base_test
 import (
 	"testing"
 
+	"github.com/xuenqlve/kyogre/internal/plugin/iquery"
 	base "github.com/xuenqlve/kyogre/pkg/scenario/base"
 )
 
@@ -88,7 +89,7 @@ func TestPlanClone(t *testing.T) {
 		Builder:         "mysql",
 		Mode:            base.ModeTransaction,
 		Operation:       "insert",
-		Target:          base.Target{Key: "db.orders", Schema: struct{}{}, Extras: map[string]any{"kind": "table"}},
+		Target:          base.Target{Key: "db.orders", Schema: struct{}{}, SequenceSpec: &iquery.SequenceSpec{Field: "id", Fields: []iquery.BoundParam{{Column: "id", Type: "bigint"}}}, Extras: map[string]any{"kind": "table"}},
 		RowsPerMessage:  2,
 		TransactionSize: 3,
 		Columns:         []string{"id", "name"},
@@ -98,6 +99,7 @@ func TestPlanClone(t *testing.T) {
 	cloned := plan.Clone()
 	cloned.Columns[0] = "changed"
 	cloned.Target.Extras["kind"] = "changed"
+	cloned.Target.SequenceSpec.Field = "other_id"
 	cloned.Extras["mode"] = "changed"
 
 	if plan.Columns[0] != "id" {
@@ -105,6 +107,9 @@ func TestPlanClone(t *testing.T) {
 	}
 	if plan.Target.Extras["kind"] != "table" {
 		t.Fatalf("expected original target extras unchanged, got %v", plan.Target.Extras["kind"])
+	}
+	if plan.Target.SequenceSpec.Field != "id" {
+		t.Fatalf("expected original sequence spec unchanged, got %v", plan.Target.SequenceSpec.Field)
 	}
 	if plan.Extras["mode"] != "stress" {
 		t.Fatalf("expected original extras unchanged, got %v", plan.Extras["mode"])

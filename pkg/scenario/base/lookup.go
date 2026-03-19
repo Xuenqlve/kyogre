@@ -8,20 +8,12 @@ import (
 	"github.com/xuenqlve/kyogre/pkg/message"
 )
 
-const TargetExtraSequenceSpec = "sequence_spec"
-
-type ReserveSequencer interface {
-	ReserveInsert(ctx context.Context, spec iquery.SequenceSpec, need int64) (iquery.Provider, error)
-	ReserveUpdate(ctx context.Context, spec iquery.SequenceSpec, need int64) (iquery.Provider, error)
-	ReserveDelete(ctx context.Context, spec iquery.SequenceSpec, need int64) (iquery.Provider, error)
-}
-
 type LookupBinder struct {
 	cfg LookupConfig
-	seq ReserveSequencer
+	seq *iquery.Sequencer
 }
 
-func NewLookupBinder(cfg LookupConfig, seq ReserveSequencer) *LookupBinder {
+func NewLookupBinder(cfg LookupConfig, seq *iquery.Sequencer) *LookupBinder {
 	return &LookupBinder{cfg: cfg, seq: seq}
 }
 
@@ -71,17 +63,10 @@ func providerNeed(plan Plan) int64 {
 }
 
 func sequenceSpecFromTarget(target Target) (iquery.SequenceSpec, error) {
-	if len(target.Extras) == 0 {
+	if target.SequenceSpec == nil {
 		return iquery.SequenceSpec{}, fmt.Errorf("target %s missing sequence spec", target.Key)
 	}
-	value, ok := target.Extras[TargetExtraSequenceSpec]
-	if !ok {
-		return iquery.SequenceSpec{}, fmt.Errorf("target %s missing sequence spec", target.Key)
-	}
-	spec, ok := value.(iquery.SequenceSpec)
-	if !ok {
-		return iquery.SequenceSpec{}, fmt.Errorf("target %s sequence spec type mismatch: %T", target.Key, value)
-	}
+	spec := *target.SequenceSpec
 	if spec.Schema == nil {
 		return iquery.SequenceSpec{}, fmt.Errorf("target %s sequence spec schema is nil", target.Key)
 	}

@@ -14,9 +14,10 @@ const (
 // Target 描述一次计划对应的目标对象。
 // Key 是统一的逻辑标识，Schema 由具体 builder 解析为数据库专属结构。
 type Target struct {
-	Key    string
-	Schema any
-	Extras map[string]any
+	Key          string
+	Schema       any
+	SequenceSpec *iquery.SequenceSpec
+	Extras       map[string]any
 }
 
 func (t Target) Validate() error {
@@ -33,6 +34,13 @@ func (t Target) Clone() Target {
 	out := Target{
 		Key:    t.Key,
 		Schema: t.Schema,
+	}
+	if t.SequenceSpec != nil {
+		spec := *t.SequenceSpec
+		if len(spec.Fields) > 0 {
+			spec.Fields = append([]iquery.ColumnParam(nil), spec.Fields...)
+		}
+		out.SequenceSpec = &spec
 	}
 	if len(t.Extras) > 0 {
 		out.Extras = make(map[string]any, len(t.Extras))
