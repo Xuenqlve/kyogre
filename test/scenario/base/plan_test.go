@@ -1,13 +1,17 @@
-package base
+package base_test
 
-import "testing"
+import (
+	"testing"
+
+	base "github.com/xuenqlve/kyogre/pkg/scenario/base"
+)
 
 func TestPlanValidate(t *testing.T) {
-	plan := Plan{
+	plan := base.Plan{
 		Builder:        "mysql",
-		Mode:           ModeRow,
+		Mode:           base.ModeRow,
 		Operation:      "insert",
-		Target:         Target{Key: "db.users", Schema: struct{}{}},
+		Target:         base.Target{Key: "db.users", Schema: struct{}{}},
 		RowsPerMessage: 3,
 	}
 	if err := plan.Validate(); err != nil {
@@ -16,11 +20,11 @@ func TestPlanValidate(t *testing.T) {
 }
 
 func TestPlanValidateTransaction(t *testing.T) {
-	plan := Plan{
+	plan := base.Plan{
 		Builder:         "mysql",
-		Mode:            ModeTransaction,
+		Mode:            base.ModeTransaction,
 		Operation:       "insert",
-		Target:          Target{Key: "db.orders", Schema: struct{}{}},
+		Target:          base.Target{Key: "db.orders", Schema: struct{}{}},
 		RowsPerMessage:  1,
 		TransactionSize: 2,
 	}
@@ -30,45 +34,45 @@ func TestPlanValidateTransaction(t *testing.T) {
 }
 
 func TestPlanValidateRejectsInvalidInput(t *testing.T) {
-	tests := []Plan{
+	tests := []base.Plan{
 		{
-			Mode:           ModeRow,
+			Mode:           base.ModeRow,
 			Operation:      "insert",
-			Target:         Target{Key: "db.users", Schema: struct{}{}},
+			Target:         base.Target{Key: "db.users", Schema: struct{}{}},
 			RowsPerMessage: 1,
 		},
 		{
 			Builder:        "mysql",
 			Mode:           "invalid",
 			Operation:      "insert",
-			Target:         Target{Key: "db.users", Schema: struct{}{}},
+			Target:         base.Target{Key: "db.users", Schema: struct{}{}},
 			RowsPerMessage: 1,
 		},
 		{
 			Builder:        "mysql",
-			Mode:           ModeRow,
-			Target:         Target{Key: "db.users", Schema: struct{}{}},
+			Mode:           base.ModeRow,
+			Target:         base.Target{Key: "db.users", Schema: struct{}{}},
 			RowsPerMessage: 1,
 		},
 		{
 			Builder:        "mysql",
-			Mode:           ModeRow,
+			Mode:           base.ModeRow,
 			Operation:      "insert",
-			Target:         Target{Schema: struct{}{}},
+			Target:         base.Target{Schema: struct{}{}},
 			RowsPerMessage: 1,
 		},
 		{
 			Builder:        "mysql",
-			Mode:           ModeRow,
+			Mode:           base.ModeRow,
 			Operation:      "insert",
-			Target:         Target{Key: "db.users", Schema: struct{}{}},
+			Target:         base.Target{Key: "db.users", Schema: struct{}{}},
 			RowsPerMessage: 0,
 		},
 		{
 			Builder:        "mysql",
-			Mode:           ModeTransaction,
+			Mode:           base.ModeTransaction,
 			Operation:      "insert",
-			Target:         Target{Key: "db.orders", Schema: struct{}{}},
+			Target:         base.Target{Key: "db.orders", Schema: struct{}{}},
 			RowsPerMessage: 1,
 		},
 	}
@@ -80,11 +84,11 @@ func TestPlanValidateRejectsInvalidInput(t *testing.T) {
 }
 
 func TestPlanClone(t *testing.T) {
-	plan := Plan{
+	plan := base.Plan{
 		Builder:         "mysql",
-		Mode:            ModeTransaction,
+		Mode:            base.ModeTransaction,
 		Operation:       "insert",
-		Target:          Target{Key: "db.orders", Schema: struct{}{}, Extras: map[string]any{"kind": "table"}},
+		Target:          base.Target{Key: "db.orders", Schema: struct{}{}, Extras: map[string]any{"kind": "table"}},
 		RowsPerMessage:  2,
 		TransactionSize: 3,
 		Columns:         []string{"id", "name"},

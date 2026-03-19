@@ -1,15 +1,19 @@
-package base
+package base_test
 
-import "testing"
+import (
+	"testing"
+
+	base "github.com/xuenqlve/kyogre/pkg/scenario/base"
+)
 
 func TestConfigNormalizeDefaults(t *testing.T) {
-	cfg := Config{
+	cfg := base.Config{
 		Builder: "mysql",
 	}
 	if err := cfg.Normalize(); err != nil {
 		t.Fatalf("normalize config: %v", err)
 	}
-	if cfg.Mode != ModeRow {
+	if cfg.Mode != base.ModeRow {
 		t.Fatalf("unexpected mode: %s", cfg.Mode)
 	}
 	if cfg.MessageCount != 1 {
@@ -27,9 +31,9 @@ func TestConfigNormalizeDefaults(t *testing.T) {
 }
 
 func TestConfigNormalizeTransactionDefaults(t *testing.T) {
-	cfg := Config{
+	cfg := base.Config{
 		Builder: "mysql",
-		Mode:    ModeTransaction,
+		Mode:    base.ModeTransaction,
 	}
 	if err := cfg.Normalize(); err != nil {
 		t.Fatalf("normalize transaction config: %v", err)
@@ -40,9 +44,9 @@ func TestConfigNormalizeTransactionDefaults(t *testing.T) {
 }
 
 func TestConfigNormalizeRangeValues(t *testing.T) {
-	cfg := Config{
+	cfg := base.Config{
 		Builder: "mysql",
-		RowCountSelector: IntSelectorConfig{
+		RowCountSelector: base.IntSelectorConfig{
 			Min: 1,
 			Max: 3,
 		},
@@ -56,7 +60,7 @@ func TestConfigNormalizeRangeValues(t *testing.T) {
 }
 
 func TestConfigNormalizeRejectsInvalidInput(t *testing.T) {
-	tests := []Config{
+	tests := []base.Config{
 		{},
 		{
 			Builder: "mysql",
@@ -64,26 +68,26 @@ func TestConfigNormalizeRejectsInvalidInput(t *testing.T) {
 		},
 		{
 			Builder: "mysql",
-			OperationSelector: ValueSelectorConfig{
+			OperationSelector: base.ValueSelectorConfig{
 				Strategy: "weighted",
 			},
 		},
 		{
 			Builder: "mysql",
-			RowCountSelector: IntSelectorConfig{
+			RowCountSelector: base.IntSelectorConfig{
 				Strategy: "weighted",
 			},
 		},
 		{
 			Builder: "mysql",
-			RowCountSelector: IntSelectorConfig{
+			RowCountSelector: base.IntSelectorConfig{
 				Min: 3,
 				Max: 1,
 			},
 		},
 		{
 			Builder: "mysql",
-			Lookup: LookupConfig{
+			Lookup: base.LookupConfig{
 				Enabled:    true,
 				Operations: []string{""},
 			},

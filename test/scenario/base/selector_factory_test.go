@@ -1,6 +1,10 @@
-package base
+package base_test
 
-import "testing"
+import (
+	"testing"
+
+	base "github.com/xuenqlve/kyogre/pkg/scenario/base"
+)
 
 type stubRand struct {
 	values []int
@@ -20,11 +24,11 @@ func (s *stubRand) Intn(n int) int {
 }
 
 func TestSelectorFactoryTarget(t *testing.T) {
-	factory := NewSelectorFactory(&stubRand{values: []int{1}})
-	sel, err := factory.Target(TargetSelectorConfig{
+	factory := base.NewSelectorFactory(&stubRand{values: []int{1}})
+	sel, err := factory.Target(base.TargetSelectorConfig{
 		Strategy: "random",
 		Schemas:  []string{"db.users", "db.orders"},
-	}, []Target{
+	}, []base.Target{
 		{Key: "db.users", Schema: struct{}{}},
 		{Key: "db.orders", Schema: struct{}{}},
 		{Key: "db.logs", Schema: struct{}{}},
@@ -42,14 +46,14 @@ func TestSelectorFactoryTarget(t *testing.T) {
 }
 
 func TestSelectorFactoryWeightedTarget(t *testing.T) {
-	factory := NewSelectorFactory(&stubRand{values: []int{3}})
-	sel, err := factory.Target(TargetSelectorConfig{
+	factory := base.NewSelectorFactory(&stubRand{values: []int{3}})
+	sel, err := factory.Target(base.TargetSelectorConfig{
 		Strategy: "weighted",
 		Weights: map[string]int{
 			"db.users":  3,
 			"db.orders": 1,
 		},
-	}, []Target{
+	}, []base.Target{
 		{Key: "db.users", Schema: struct{}{}},
 		{Key: "db.orders", Schema: struct{}{}},
 	})
@@ -66,8 +70,8 @@ func TestSelectorFactoryWeightedTarget(t *testing.T) {
 }
 
 func TestSelectorFactoryOperation(t *testing.T) {
-	factory := NewSelectorFactory(&stubRand{values: []int{2}})
-	sel, err := factory.Operation(ValueSelectorConfig{
+	factory := base.NewSelectorFactory(&stubRand{values: []int{2}})
+	sel, err := factory.Operation(base.ValueSelectorConfig{
 		Strategy: "random",
 		Values:   []string{"insert", "update", "delete"},
 	})
@@ -84,8 +88,8 @@ func TestSelectorFactoryOperation(t *testing.T) {
 }
 
 func TestSelectorFactoryInt(t *testing.T) {
-	factory := NewSelectorFactory(&stubRand{values: []int{2}})
-	sel, err := factory.Int(IntSelectorConfig{
+	factory := base.NewSelectorFactory(&stubRand{values: []int{2}})
+	sel, err := factory.Int(base.IntSelectorConfig{
 		Strategy: "random",
 		Values:   []int{1, 3, 5},
 	})
@@ -102,8 +106,8 @@ func TestSelectorFactoryInt(t *testing.T) {
 }
 
 func TestSelectorFactoryRejectsEmptyTargets(t *testing.T) {
-	factory := NewSelectorFactory(nil)
-	_, err := factory.Target(TargetSelectorConfig{Strategy: "round-robin"}, nil)
+	factory := base.NewSelectorFactory(nil)
+	_, err := factory.Target(base.TargetSelectorConfig{Strategy: "round-robin"}, nil)
 	if err == nil {
 		t.Fatalf("expected empty targets error")
 	}

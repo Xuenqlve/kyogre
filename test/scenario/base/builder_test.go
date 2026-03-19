@@ -1,4 +1,4 @@
-package base
+package base_test
 
 import (
 	"context"
@@ -8,6 +8,7 @@ import (
 	"github.com/xuenqlve/kyogre/internal/plugin/generator"
 	"github.com/xuenqlve/kyogre/internal/plugin/iquery"
 	"github.com/xuenqlve/kyogre/internal/plugin/metadata"
+	base "github.com/xuenqlve/kyogre/pkg/scenario/base"
 )
 
 type stubBuilder struct {
@@ -19,11 +20,11 @@ func (s *stubBuilder) Configure(_ string, _ map[string]any) error {
 	return nil
 }
 
-func (s *stubBuilder) LoadTargets(_ metadata.Metadata, _ []string) ([]Target, error) {
-	return []Target{{Key: "db.users", Schema: struct{}{}}}, nil
+func (s *stubBuilder) LoadTargets(_ metadata.Metadata, _ []string) ([]base.Target, error) {
+	return []base.Target{{Key: "db.users", Schema: struct{}{}}}, nil
 }
 
-func (s *stubBuilder) Build(_ Plan) (generator.GenerationContext, error) {
+func (s *stubBuilder) Build(_ base.Plan) (generator.GenerationContext, error) {
 	return &stubContext{}, nil
 }
 
@@ -39,10 +40,10 @@ func (s *stubContext) Validate() error                       { return nil }
 func (s *stubContext) Extras() map[string]any                { return nil }
 
 func TestRegisterAndGetBuilder(t *testing.T) {
-	builderType := BuilderType("test-builder-register")
-	RegisterBuilder(builderType, &stubBuilder{}, false)
+	builderType := base.BuilderType("test-builder-register")
+	base.RegisterBuilder(builderType, &stubBuilder{}, false)
 
-	builder, err := GetBuilder(builderType)
+	builder, err := base.GetBuilder(builderType)
 	if err != nil {
 		t.Fatalf("get builder: %v", err)
 	}
@@ -60,14 +61,14 @@ func TestRegisterAndGetBuilder(t *testing.T) {
 }
 
 func TestGetBuilderReturnsFreshInstanceForNonSingleton(t *testing.T) {
-	builderType := BuilderType("test-builder-factory")
-	RegisterBuilder(builderType, &stubBuilder{}, false)
+	builderType := base.BuilderType("test-builder-factory")
+	base.RegisterBuilder(builderType, &stubBuilder{}, false)
 
-	builder1, err := GetBuilder(builderType)
+	builder1, err := base.GetBuilder(builderType)
 	if err != nil {
 		t.Fatalf("get builder1: %v", err)
 	}
-	builder2, err := GetBuilder(builderType)
+	builder2, err := base.GetBuilder(builderType)
 	if err != nil {
 		t.Fatalf("get builder2: %v", err)
 	}
@@ -77,7 +78,7 @@ func TestGetBuilderReturnsFreshInstanceForNonSingleton(t *testing.T) {
 }
 
 func TestGetBuilderReturnsErrorWhenMissing(t *testing.T) {
-	if _, err := GetBuilder("missing-builder"); err == nil {
+	if _, err := base.GetBuilder("missing-builder"); err == nil {
 		t.Fatalf("expected missing builder error")
 	}
 }
