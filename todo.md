@@ -20,8 +20,8 @@
 - [x] `pkg/scenario/base/selector_factory.go`
   说明：已实现 selector factory，可把 target、operation、row-count、transaction-size 配置转换成运行时选择器实例。
 
-- [ ] `pkg/scenario/base/lookup.go`
-  说明：封装 `Sequencer` 接入逻辑，根据 `insert/update/delete` 分别调用 `ReserveInsert`、`ReserveUpdate`、`ReserveDelete`。
+- [x] `pkg/scenario/base/lookup.go`
+  说明：已封装 `Sequencer` 接入 binder，可按操作类型分发 reserve 调用并回填 provider。
 
 - [ ] `pkg/scenario/base/scenario.go`
   说明：实现 `Scenario` 插件注册、`Configure`、`Start`、`Summary`，串起 selector、lookup 和 builder，最终产出 `generator.GenerationContext`。
