@@ -41,8 +41,8 @@
 - [x] 收敛现有 `pkg/scenario/mysql/scenario.go`
   说明：已将旧 `scenario.type=mysql` 收敛为兼容入口，内部转发到 `base scenario + builder=mysql`，避免继续维护两套 MySQL 主链路。
 
-- [ ] 补一份可直接运行的 MySQL 主配置示例
-  说明：需要切到 `base scenario + builder=mysql` 的配置方式，包含 `data-source`、`metadata.type=mysql`、`generator.type=mysql`、`pressure.type=mysql-dml`、`scenario.type=base`。
+- [x] 补一份可直接运行的 MySQL 主配置示例
+  说明：已补 `examples/mysql-config.yaml`，采用 `base scenario + builder=mysql` 组合，并在 `examples/README.md` 中补充了使用说明。
 
 - [ ] 跑通 metadata 在真实 MySQL 下的建库建表验证
   说明：重点确认 `pkg/metadata/mysql/metadata.go` 的真实 DB 初始化、建库、建表和 schema 加载行为。
