@@ -23,8 +23,8 @@
 - [x] `pkg/scenario/base/lookup.go`
   说明：已封装 `Sequencer` 接入 binder，可按操作类型分发 reserve 调用并回填 provider。
 
-- [ ] `pkg/scenario/base/scenario.go`
-  说明：实现 `Scenario` 插件注册、`Configure`、`Start`、`Summary`，串起 selector、lookup 和 builder，最终产出 `generator.GenerationContext`。
+- [x] `pkg/scenario/base/scenario.go`
+  说明：已实现 `Scenario` 插件注册、`Configure`、`Start`、`Summary`，可以串起 selector、lookup 和 builder 产出 `generator.GenerationContext`。
 
 - [ ] `pkg/scenario/mysql/builder.go`
   说明：实现 MySQL builder，把 `Plan` 转为 `MySQLRowContext` / `MySQLTransactionContext`，作为 `base scenario` 的第一个数据库适配器。

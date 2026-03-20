@@ -8,6 +8,7 @@ import (
 
 type Config struct {
 	Builder                 string               `mapstructure:"builder"`
+	BuilderConfig           map[string]any       `mapstructure:"builder-config"`
 	Mode                    string               `mapstructure:"mode"`
 	MessageCount            int                  `mapstructure:"message-count"`
 	IntervalMS              int                  `mapstructure:"interval-ms"`
