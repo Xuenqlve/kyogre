@@ -5,8 +5,8 @@
 - [x] 实现通用 selector 工具，支持顺序、随机、权重三种选择策略
   说明：已新增 `pkg/tool/selector`，作为后续 `base scenario` 的选择能力基础组件。
 
-- [ ] 设计并实现 `base scenario` 主流程
-  说明：一期目标调整为通用 `base scenario`，负责策略编排、selector 驱动和 `Sequencer` 接入，不再把主能力绑定到 `mysql scenario`。
+- [x] 设计并实现 `base scenario` 主流程
+  说明：已完成通用 `base scenario`，负责策略编排、selector 驱动、`Sequencer` 接入和运行期错误回收，不再把主能力绑定到旧 `mysql scenario`。
 
 - [x] `pkg/scenario/base/plan.go`
   说明：已定义 `Plan`、`Target`、mode 常量、校验与浅拷贝能力，作为后续 builder 和 base scenario 的通用契约。
@@ -32,8 +32,8 @@
 - [x] `pkg/scenario/mysql/registry.go`
   说明：已注册 MySQL builder 到 `base scenario` 的 builder registry，可通过 `builder=mysql` 获取适配器实例。
 
-- [ ] `test/scenario/base_scenario_test.go`
-  说明：补 base scenario 主流程测试，覆盖 selector 驱动、context 产出、空目标和非法配置等关键路径。
+- [x] `test/scenario/base/`
+  说明：已补 `test/scenario/base/` 下的主流程测试，覆盖 selector 驱动、context 产出、空目标、配置重置和运行期错误等关键路径。
 
 - [x] `test/scenario/mysql_builder_test.go`
   说明：已补 MySQL builder 测试，覆盖 target 加载、SequenceSpec 绑定、row/transaction context 构造和注册校验。
@@ -50,8 +50,8 @@
 - [ ] 增加一条 MySQL 数据压测端到端集成测试
   说明：覆盖配置加载 -> metadata -> scenario -> generator -> pressure -> MySQL 写入全链路。
 
-- [ ] 明确一期只做 MySQL DML 压测，暂不把 DDL 作为必交付项
-  说明：避免目标漂移，先把“数据压测”闭环做稳。
+- [x] 明确一期只做 MySQL DML 压测，暂不把 DDL 作为必交付项
+  说明：当前实现和示例都已收敛到 `base scenario + mysql builder + mysql-dml pressure` 的 DML 主链路，DDL 不再作为一期阻塞项。
 
 ## P1
 
