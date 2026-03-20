@@ -16,10 +16,11 @@ import (
 const ScenarioType pluginScenario.Type = "base"
 
 type Scenario struct {
-	pipeline string
-	cfg      Config
-	builder  ContextBuilder
-	summary  map[string]any
+	pipeline   string
+	cfg        Config
+	builder    ContextBuilder
+	summary    map[string]any
+	runtimeErr error
 }
 
 func init() {
@@ -28,7 +29,10 @@ func init() {
 
 func (s *Scenario) Configure(pipeline string, data map[string]any) error {
 	s.pipeline = pipeline
+	s.cfg = Config{}
 	s.summary = nil
+	s.runtimeErr = nil
+	s.builder = nil
 
 	if err := mapstructure.Decode(data, &s.cfg); err != nil {
 		return errors.Trace(err)
@@ -50,68 +54,70 @@ func (s *Scenario) Configure(pipeline string, data map[string]any) error {
 func (s *Scenario) Start(ctx context.Context, md metadata.Metadata, seq *iquery.Sequencer, ctxChan chan<- pluginGenerator.GenerationContext) {
 	startAt := time.Now()
 	sentCount := 0
+	s.runtimeErr = nil
+	s.summary = nil
 	if ctxChan == nil {
-		s.summary = s.buildSummary(sentCount, startAt)
+		s.summary = s.buildSummary(sentCount, startAt, nil)
 		return
 	}
 	if s.builder == nil {
-		log.Errorf("[%s] base scenario builder is nil", s.pipeline)
-		s.summary = s.buildSummary(sentCount, startAt)
+		s.fail(sentCount, startAt, errors.New("base scenario builder is nil"))
 		return
 	}
 	factory := NewSelectorFactory(nil)
 	targets, err := s.builder.LoadTargets(md, s.cfg.TargetSelector.Schemas)
 	if err != nil {
-		log.Errorf("[%s] base scenario load targets failed: %v", s.pipeline, err)
-		s.summary = s.buildSummary(sentCount, startAt)
+		s.fail(sentCount, startAt, errors.Trace(err))
 		return
 	}
 	targetSelector, err := factory.Target(s.cfg.TargetSelector, targets)
 	if err != nil {
-		log.Errorf("[%s] base scenario target selector failed: %v", s.pipeline, err)
-		s.summary = s.buildSummary(sentCount, startAt)
+		s.fail(sentCount, startAt, errors.Trace(err))
 		return
 	}
 	operationSelector, err := factory.Operation(s.cfg.OperationSelector)
 	if err != nil {
-		log.Errorf("[%s] base scenario operation selector failed: %v", s.pipeline, err)
-		s.summary = s.buildSummary(sentCount, startAt)
+		s.fail(sentCount, startAt, errors.Trace(err))
 		return
 	}
 	rowCountSelector, err := factory.Int(s.cfg.RowCountSelector)
 	if err != nil {
-		log.Errorf("[%s] base scenario row count selector failed: %v", s.pipeline, err)
-		s.summary = s.buildSummary(sentCount, startAt)
+		s.fail(sentCount, startAt, errors.Trace(err))
 		return
 	}
 	var txSelector selectorPick[int]
 	if s.cfg.Mode == ModeTransaction {
 		txSelector, err = factory.Int(s.cfg.TransactionSizeSelector)
 		if err != nil {
-			log.Errorf("[%s] base scenario transaction selector failed: %v", s.pipeline, err)
-			s.summary = s.buildSummary(sentCount, startAt)
+			s.fail(sentCount, startAt, errors.Trace(err))
 			return
 		}
 	}
 	binder := NewLookupBinder(s.cfg.Lookup, seq)
 	interval := time.Duration(s.cfg.IntervalMS) * time.Millisecond
+	var timer *time.Timer
+	if interval > 0 {
+		timer = time.NewTimer(interval)
+		if !timer.Stop() {
+			<-timer.C
+		}
+		defer timer.Stop()
+	}
 	for i := 0; i < s.cfg.MessageCount; i++ {
 		select {
 		case <-ctx.Done():
-			s.summary = s.buildSummary(sentCount, startAt)
+			s.summary = s.buildSummary(sentCount, startAt, nil)
 			return
 		default:
 		}
 		plan, err := s.nextPlan(ctx, targetSelector, operationSelector, rowCountSelector, txSelector, binder)
 		if err != nil {
-			log.Errorf("[%s] base scenario build plan failed: %v", s.pipeline, err)
-			s.summary = s.buildSummary(sentCount, startAt)
+			s.fail(sentCount, startAt, errors.Trace(err))
 			return
 		}
 		genCtx, err := s.builder.Build(plan)
 		if err != nil {
-			log.Errorf("[%s] base scenario build generation context failed: %v", s.pipeline, err)
-			s.summary = s.buildSummary(sentCount, startAt)
+			s.fail(sentCount, startAt, errors.Trace(err))
 			return
 		}
 		if genCtx == nil {
@@ -119,7 +125,7 @@ func (s *Scenario) Start(ctx context.Context, md metadata.Metadata, seq *iquery.
 		}
 		select {
 		case <-ctx.Done():
-			s.summary = s.buildSummary(sentCount, startAt)
+			s.summary = s.buildSummary(sentCount, startAt, nil)
 			return
 		case ctxChan <- genCtx:
 		}
@@ -127,14 +133,21 @@ func (s *Scenario) Start(ctx context.Context, md metadata.Metadata, seq *iquery.
 		if interval <= 0 {
 			continue
 		}
+		timer.Reset(interval)
 		select {
 		case <-ctx.Done():
-			s.summary = s.buildSummary(sentCount, startAt)
+			if !timer.Stop() {
+				select {
+				case <-timer.C:
+				default:
+				}
+			}
+			s.summary = s.buildSummary(sentCount, startAt, nil)
 			return
-		case <-time.After(interval):
+		case <-timer.C:
 		}
 	}
-	s.summary = s.buildSummary(sentCount, startAt)
+	s.summary = s.buildSummary(sentCount, startAt, nil)
 }
 
 func (s *Scenario) Summary() map[string]any {
@@ -146,6 +159,10 @@ func (s *Scenario) Summary() map[string]any {
 		out[k] = v
 	}
 	return out
+}
+
+func (s *Scenario) RuntimeError() error {
+	return s.runtimeErr
 }
 
 type selectorPick[T any] interface {
@@ -202,8 +219,17 @@ func (s *Scenario) nextPlan(
 	return plan, nil
 }
 
-func (s *Scenario) buildSummary(sentCount int, startAt time.Time) map[string]any {
-	return map[string]any{
+func (s *Scenario) fail(sentCount int, startAt time.Time, err error) {
+	if err == nil {
+		err = errors.New("base scenario failed")
+	}
+	log.Errorf("[%s] %v", s.pipeline, err)
+	s.runtimeErr = err
+	s.summary = s.buildSummary(sentCount, startAt, err)
+}
+
+func (s *Scenario) buildSummary(sentCount int, startAt time.Time, err error) map[string]any {
+	summary := map[string]any{
 		"pipeline":      s.pipeline,
 		"builder":       s.cfg.Builder,
 		"mode":          s.cfg.Mode,
@@ -212,4 +238,8 @@ func (s *Scenario) buildSummary(sentCount int, startAt time.Time) map[string]any
 		"interval_ms":   s.cfg.IntervalMS,
 		"message_count": s.cfg.MessageCount,
 	}
+	if err != nil {
+		summary["error"] = err.Error()
+	}
+	return summary
 }

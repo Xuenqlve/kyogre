@@ -318,6 +318,10 @@ func (p *Pipeline) execute(ctx context.Context, ready *chan<- error) error {
 	signalReady(ready, nil)
 	<-ctx.Done()
 	wg.Wait()
+	if err := p.director.Err(); err != nil {
+		p.uploadError("scenario-director", err)
+		return err
+	}
 	return nil
 }
 

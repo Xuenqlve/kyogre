@@ -28,8 +28,6 @@ func (s *stubBuilder) Build(_ base.Plan) (generator.GenerationContext, error) {
 	return &stubContext{}, nil
 }
 
-func (s *stubBuilder) Close() error { return nil }
-
 type stubContext struct{}
 
 func (s *stubContext) Kind() string                          { return "stub" }

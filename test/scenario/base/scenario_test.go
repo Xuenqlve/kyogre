@@ -2,6 +2,7 @@ package base_test
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/xuenqlve/kyogre/internal/plugin/generator"
@@ -10,13 +11,16 @@ import (
 )
 
 type recordingBuilder struct {
-	targets []base.Target
-	plans   []base.Plan
+	targets   []base.Target
+	plans     []base.Plan
+	buildErr  error
+	lastNames []string
 }
 
 func (b *recordingBuilder) Configure(_ string, _ map[string]any) error { return nil }
 
-func (b *recordingBuilder) LoadTargets(_ pluginMetadata.Metadata, _ []string) ([]base.Target, error) {
+func (b *recordingBuilder) LoadTargets(_ pluginMetadata.Metadata, names []string) ([]base.Target, error) {
+	b.lastNames = append([]string(nil), names...)
 	out := make([]base.Target, 0, len(b.targets))
 	for _, target := range b.targets {
 		out = append(out, target.Clone())
@@ -25,11 +29,12 @@ func (b *recordingBuilder) LoadTargets(_ pluginMetadata.Metadata, _ []string) ([
 }
 
 func (b *recordingBuilder) Build(plan base.Plan) (generator.GenerationContext, error) {
+	if b.buildErr != nil {
+		return nil, b.buildErr
+	}
 	b.plans = append(b.plans, plan.Clone())
 	return &stubContext{}, nil
 }
-
-func (b *recordingBuilder) Close() error { return nil }
 
 func TestBaseScenarioStartRow(t *testing.T) {
 	builderType := base.BuilderType("test-base-scenario-row")
@@ -141,5 +146,78 @@ func TestBaseScenarioStartWithNoTargets(t *testing.T) {
 	}
 	if len(ctxChan) != 0 {
 		t.Fatalf("expected no contexts, got %d", len(ctxChan))
+	}
+}
+
+func TestBaseScenarioConfigureResetsPreviousConfig(t *testing.T) {
+	builderType := base.BuilderType("test-base-scenario-reset-config")
+	builder := &recordingBuilder{
+		targets: []base.Target{{Key: "db.orders", Schema: struct{}{}}},
+	}
+	base.RegisterBuilder(builderType, builder, true)
+
+	sc := &base.Scenario{}
+	err := sc.Configure("pipeline-reset", map[string]any{
+		"builder": string(builderType),
+		"columns": []string{"id", "name"},
+		"target-selector": map[string]any{
+			"schemas": []string{"db.users"},
+		},
+	})
+	if err != nil {
+		t.Fatalf("first configure scenario: %v", err)
+	}
+
+	err = sc.Configure("pipeline-reset", map[string]any{
+		"builder": string(builderType),
+	})
+	if err != nil {
+		t.Fatalf("second configure scenario: %v", err)
+	}
+
+	summary := sc.Summary()
+	if summary != nil {
+		t.Fatalf("expected nil summary after configure, got %#v", summary)
+	}
+
+	ctxChan := make(chan generator.GenerationContext, 1)
+	sc.Start(context.Background(), nil, nil, ctxChan)
+	if len(builder.lastNames) != 0 {
+		t.Fatalf("expected target selector schemas reset, got %#v", builder.lastNames)
+	}
+	if err := sc.RuntimeError(); err != nil {
+		t.Fatalf("unexpected runtime error: %v", err)
+	}
+	if len(ctxChan) != 1 {
+		t.Fatalf("expected one context after reset configure, got %d", len(ctxChan))
+	}
+}
+
+func TestBaseScenarioStartCapturesRuntimeError(t *testing.T) {
+	builderType := base.BuilderType("test-base-scenario-runtime-error")
+	builder := &recordingBuilder{
+		targets:  []base.Target{{Key: "db.users", Schema: struct{}{}}},
+		buildErr: errors.New("build failed"),
+	}
+	base.RegisterBuilder(builderType, builder, true)
+
+	sc := &base.Scenario{}
+	err := sc.Configure("pipeline-close", map[string]any{
+		"builder":       string(builderType),
+		"message-count": 1,
+	})
+	if err != nil {
+		t.Fatalf("configure scenario: %v", err)
+	}
+
+	ctxChan := make(chan generator.GenerationContext, 1)
+	sc.Start(context.Background(), nil, nil, ctxChan)
+
+	if err := sc.RuntimeError(); err == nil || err.Error() != "build failed" {
+		t.Fatalf("unexpected runtime error: %v", err)
+	}
+	summary := sc.Summary()
+	if summary["error"] != "build failed" {
+		t.Fatalf("unexpected summary error: %v", summary["error"])
 	}
 }

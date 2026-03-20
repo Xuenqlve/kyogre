@@ -27,10 +27,14 @@ type Director struct {
 	sequencer    *iquery.Sequencer
 	sequenceSpec []iquery.SequenceSpec
 
-	workers  []*Worker
-	errOnce  sync.Once
-	errMu    sync.Mutex
-	err      error
+	workers []*Worker
+	errOnce sync.Once
+	errMu   sync.Mutex
+	err     error
+}
+
+type runtimeErrorProvider interface {
+	RuntimeError() error
 }
 
 type DirectorConfig struct {
@@ -145,6 +149,11 @@ func (s *Director) Start(ctx context.Context, out message.InPoint) error {
 	}
 	go func() {
 		s.scenario.Start(runCtx, s.metadata, s.sequencer, s.ctxChan)
+		if reporter, ok := s.scenario.(runtimeErrorProvider); ok {
+			if err := reporter.RuntimeError(); err != nil {
+				s.reportError(err)
+			}
+		}
 		if s.ctxChan != nil {
 			close(s.ctxChan)
 		}
@@ -159,6 +168,12 @@ func (s *Director) Start(ctx context.Context, out message.InPoint) error {
 			s.finite.NotifyDone(summary)
 		}
 	}()
+	s.errMu.Lock()
+	defer s.errMu.Unlock()
+	return s.err
+}
+
+func (s *Director) Err() error {
 	s.errMu.Lock()
 	defer s.errMu.Unlock()
 	return s.err

@@ -17,7 +17,6 @@ type ContextBuilder interface {
 	Configure(pipeline string, data map[string]any) error
 	LoadTargets(md metadata.Metadata, names []string) ([]Target, error)
 	Build(plan Plan) (generator.GenerationContext, error)
-	Close() error
 }
 
 type BuilderFactory func() ContextBuilder
