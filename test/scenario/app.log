@@ -1,0 +1,2 @@
+{"level":"info","time":"2026-03-20T17:23:48+08:00","message":"[test_scenario] mysql scenario completed summary=map[duration:3.458µs message_type:mysql-row messages:2 mode:row operation:insert pipeline:test_scenario rows_per_message:3 transaction_size:2]"}
+{"level":"info","time":"2026-03-20T17:23:48+08:00","message":"[test_scenario] mysql scenario completed summary=map[duration:1.625µs message_type:mysql-transaction messages:1 mode:transaction operation:insert pipeline:test_scenario rows_per_message:2 transaction_size:3]"}

@@ -52,6 +52,7 @@ func TestRandomSelector(t *testing.T) {
 	got1, _ := sel.Pick()
 	got2, _ := sel.Pick()
 	got3, _ := sel.Pick()
+	t.Logf("got1: %v, got2: %v, got3: %v", got1, got2, got3)
 	if got1 != "delete" || got2 != "insert" || got3 != "update" {
 		t.Fatalf("unexpected random picks: %q, %q, %q", got1, got2, got3)
 	}
