@@ -26,17 +26,17 @@
 - [x] `pkg/scenario/base/scenario.go`
   说明：已实现 `Scenario` 插件注册、`Configure`、`Start`、`Summary`，可以串起 selector、lookup 和 builder 产出 `generator.GenerationContext`。
 
-- [ ] `pkg/scenario/mysql/builder.go`
-  说明：实现 MySQL builder，把 `Plan` 转为 `MySQLRowContext` / `MySQLTransactionContext`，作为 `base scenario` 的第一个数据库适配器。
+- [x] `pkg/scenario/mysql/builder.go`
+  说明：已实现 MySQL builder，支持从 metadata 加载 `Target + SequenceSpec`，并将 `Plan` 转为 `MySQLRowContext` / `MySQLTransactionContext`。
 
-- [ ] `pkg/scenario/mysql/registry.go`
-  说明：注册 MySQL builder 到 `base scenario` 的 builder registry，避免把 MySQL 逻辑写死在 `base scenario` 中。
+- [x] `pkg/scenario/mysql/registry.go`
+  说明：已注册 MySQL builder 到 `base scenario` 的 builder registry，可通过 `builder=mysql` 获取适配器实例。
 
 - [ ] `test/scenario/base_scenario_test.go`
   说明：补 base scenario 主流程测试，覆盖 selector 驱动、context 产出、空目标和非法配置等关键路径。
 
-- [ ] `test/scenario/mysql_builder_test.go`
-  说明：补 MySQL builder 测试，验证 `Plan -> MySQLRowContext/MySQLTransactionContext` 的映射行为。
+- [x] `test/scenario/mysql_builder_test.go`
+  说明：已补 MySQL builder 测试，覆盖 target 加载、SequenceSpec 绑定、row/transaction context 构造和注册校验。
 
 - [ ] 收敛现有 `pkg/scenario/mysql/scenario.go`
   说明：在 `base scenario + mysql builder` 跑通后，决定将旧 mysql scenario 保留兼容、转发到 base scenario，或删除。
