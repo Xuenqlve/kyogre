@@ -3,26 +3,20 @@ package mysql
 import (
 	"context"
 	"fmt"
-	"sync"
-	"sync/atomic"
-	"time"
 
 	"github.com/mitchellh/mapstructure"
 	"github.com/xuenqlve/common/errors"
-	"github.com/xuenqlve/common/log"
-	mysql_schema "github.com/xuenqlve/common/relational_database/mysql"
 	"github.com/xuenqlve/kyogre/internal/plugin/generator"
 	"github.com/xuenqlve/kyogre/internal/plugin/iquery"
 	"github.com/xuenqlve/kyogre/internal/plugin/metadata"
-	"github.com/xuenqlve/kyogre/internal/plugin/scenario"
-	genctx "github.com/xuenqlve/kyogre/pkg/generator_context"
-	"github.com/xuenqlve/kyogre/pkg/message"
+	pluginScenario "github.com/xuenqlve/kyogre/internal/plugin/scenario"
+	base "github.com/xuenqlve/kyogre/pkg/scenario/base"
 )
 
 const (
-	ScenarioType scenario.Type = "mysql"
-	modeRow      string        = "row"
-	modeTx       string        = "transaction"
+	ScenarioType pluginScenario.Type = "mysql"
+	modeRow      string              = "row"
+	modeTx       string              = "transaction"
 )
 
 type Config struct {
@@ -55,10 +49,7 @@ func (c *Config) Normalize() error {
 		c.IntervalMS = 0
 	}
 	if c.Operation == "" {
-		c.Operation = message.Insert
-	}
-	if c.Operation != message.Insert {
-		return fmt.Errorf("mysql scenario only supports insert in current phase, got: %s", c.Operation)
+		c.Operation = "insert"
 	}
 	if c.RowsPerMessage <= 0 {
 		c.RowsPerMessage = 1
@@ -70,24 +61,19 @@ func (c *Config) Normalize() error {
 }
 
 type Scenario struct {
-	cfg          Config
-	pipeline     string
-	startAt      time.Time
-	sentCount    atomic.Int64
-	completeOnce sync.Once
-	specCursor   atomic.Uint64
-	summary      map[string]any
+	cfg      Config
+	pipeline string
+	delegate *base.Scenario
 }
 
 func init() {
-	scenario.RegisterScenario(ScenarioType, &Scenario{}, false)
+	pluginScenario.RegisterScenario(ScenarioType, &Scenario{}, false)
 }
 
 func (s *Scenario) Configure(pipeline string, data map[string]any) error {
 	s.pipeline = pipeline
-	s.sentCount.Store(0)
-	s.completeOnce = sync.Once{}
-	s.summary = nil
+	s.cfg = Config{}
+	s.delegate = &base.Scenario{}
 
 	if err := mapstructure.Decode(data, &s.cfg); err != nil {
 		return errors.Trace(err)
@@ -95,145 +81,58 @@ func (s *Scenario) Configure(pipeline string, data map[string]any) error {
 	if err := s.cfg.Normalize(); err != nil {
 		return errors.Trace(err)
 	}
+	if err := s.delegate.Configure(pipeline, s.baseConfig()); err != nil {
+		return errors.Trace(err)
+	}
 	return nil
 }
 
-func (s *Scenario) Start(ctx context.Context, md metadata.Metadata, _ *iquery.Sequencer, ctxChan chan<- generator.GenerationContext) {
-	if ctxChan == nil {
+func (s *Scenario) Start(ctx context.Context, md metadata.Metadata, seq *iquery.Sequencer, ctxChan chan<- generator.GenerationContext) {
+	if s.delegate == nil {
 		return
 	}
-	s.startAt = time.Now()
-	tables := s.loadTables(md)
-	if len(tables) == 0 {
-		log.Warnf("[%s] mysql scenario has no available tables", s.pipeline)
-		s.notifyComplete()
-		return
-	}
-	snapshot := generator.NewSnapshot(generator.WithCountFixed(s.cfg.RowsPerMessage))
-	interval := time.Duration(s.cfg.IntervalMS) * time.Millisecond
-	for i := 0; i < s.cfg.MessageCount; i++ {
-		genCtx := s.buildContext(tables, snapshot)
-		if genCtx == nil {
-			continue
-		}
-		select {
-		case <-ctx.Done():
-			s.notifyComplete()
-			return
-		case ctxChan <- genCtx:
-		}
-		s.sentCount.Add(1)
-		if interval <= 0 {
-			continue
-		}
-		select {
-		case <-ctx.Done():
-			s.notifyComplete()
-			return
-		case <-time.After(interval):
-		}
-	}
-	s.notifyComplete()
+	s.delegate.Start(ctx, md, seq, ctxChan)
 }
 
 func (s *Scenario) Summary() map[string]any {
-	if s.summary == nil {
+	if s.delegate == nil {
 		return nil
 	}
-	out := make(map[string]any, len(s.summary))
-	for k, v := range s.summary {
-		out[k] = v
-	}
-	return out
+	return s.delegate.Summary()
 }
 
-func (s *Scenario) buildContext(tables []*mysql_schema.Table, snapshot *generator.StrategySnapshot) generator.GenerationContext {
-	table, ok := s.nextTable(tables)
-	if !ok || table == nil {
+func (s *Scenario) RuntimeError() error {
+	if s.delegate == nil {
 		return nil
+	}
+	return s.delegate.RuntimeError()
+}
+
+func (s *Scenario) baseConfig() map[string]any {
+	cfg := map[string]any{
+		"builder":       string(BuilderType),
+		"message-count": s.cfg.MessageCount,
+		"interval-ms":   s.cfg.IntervalMS,
+		"mode":          s.cfg.Mode,
+		"columns":       append([]string(nil), s.cfg.Columns...),
+		"hint":          s.cfg.Hint,
+		"write-type":    s.cfg.WriteType,
+		"target-selector": map[string]any{
+			"strategy": "round-robin",
+			"schemas":  append([]string(nil), s.cfg.Schemas...),
+		},
+		"operation-selector": map[string]any{
+			"strategy": "round-robin",
+			"values":   []string{s.cfg.Operation},
+		},
+		"row-count-selector": map[string]any{
+			"fixed": s.cfg.RowsPerMessage,
+		},
 	}
 	if s.cfg.Mode == modeTx {
-		rows := make([]genctx.MySQLRowSpec, 0, s.cfg.TransactionSize)
-		for i := 0; i < s.cfg.TransactionSize; i++ {
-			rows = append(rows, s.buildRowSpec(table))
-		}
-		return genctx.NewMySQLTransactionContext(rows, genctx.WithStrategy(snapshot))
-	}
-	return genctx.NewMySQLRowContext(s.buildRowSpec(table), genctx.WithStrategy(snapshot))
-}
-
-func (s *Scenario) buildRowSpec(table *mysql_schema.Table) genctx.MySQLRowSpec {
-	columns := append([]string(nil), s.cfg.Columns...)
-	return genctx.MySQLRowSpec{
-		Operation: s.cfg.Operation,
-		Hint:      s.cfg.Hint,
-		WriteType: s.cfg.WriteType,
-		Columns:   columns,
-		Schema:    table,
-	}
-}
-
-func (s *Scenario) nextTable(tables []*mysql_schema.Table) (*mysql_schema.Table, bool) {
-	if len(tables) == 0 {
-		return nil, false
-	}
-	idx := int(s.specCursor.Add(1)-1) % len(tables)
-	return tables[idx], true
-}
-
-func (s *Scenario) loadTables(md metadata.Metadata) []*mysql_schema.Table {
-	if md == nil || md.SchemaStore() == nil {
-		return nil
-	}
-	allowed := make(map[string]struct{}, len(s.cfg.Schemas))
-	for _, name := range s.cfg.Schemas {
-		if name != "" {
-			allowed[name] = struct{}{}
+		cfg["transaction-size-selector"] = map[string]any{
+			"fixed": s.cfg.TransactionSize,
 		}
 	}
-	tables := make([]*mysql_schema.Table, 0, len(md.SchemaKeys()))
-	for _, key := range md.SchemaKeys() {
-		schema, err := md.SchemaStore().GetSchema(key)
-		if err != nil {
-			log.Warnf("[%s] mysql scenario load schema failure key=%s: %v", s.pipeline, key.UniqueID(), err)
-			continue
-		}
-		table, ok := schema.(*mysql_schema.Table)
-		if !ok {
-			log.Warnf("[%s] mysql scenario schema type mismatch key=%s: %T", s.pipeline, key.UniqueID(), schema)
-			continue
-		}
-		name := fmt.Sprintf("%s.%s", table.Database, table.Table)
-		if len(allowed) > 0 {
-			if _, ok = allowed[name]; !ok {
-				continue
-			}
-		}
-		tables = append(tables, table)
-	}
-	return tables
-}
-
-func (s *Scenario) notifyComplete() {
-	s.completeOnce.Do(func() {
-		kind := genctx.MySQLRow
-		if s.cfg.Mode == modeTx {
-			kind = genctx.MySQLTransaction
-		}
-		s.summary = map[string]any{
-			"pipeline":         s.pipeline,
-			"messages":         s.sentCount.Load(),
-			"duration":         time.Since(s.startAt).String(),
-			"mode":             s.cfg.Mode,
-			"operation":        s.cfg.Operation,
-			"rows_per_message": s.cfg.RowsPerMessage,
-			"transaction_size": s.cfg.TransactionSize,
-			"message_type":     kind,
-		}
-		log.Infof("[%s] mysql scenario completed summary=%v", s.pipeline, s.summary)
-	})
-}
-
-func (s *Scenario) Close() error {
-	return nil
+	return cfg
 }

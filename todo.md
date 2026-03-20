@@ -38,8 +38,8 @@
 - [x] `test/scenario/mysql_builder_test.go`
   说明：已补 MySQL builder 测试，覆盖 target 加载、SequenceSpec 绑定、row/transaction context 构造和注册校验。
 
-- [ ] 收敛现有 `pkg/scenario/mysql/scenario.go`
-  说明：在 `base scenario + mysql builder` 跑通后，决定将旧 mysql scenario 保留兼容、转发到 base scenario，或删除。
+- [x] 收敛现有 `pkg/scenario/mysql/scenario.go`
+  说明：已将旧 `scenario.type=mysql` 收敛为兼容入口，内部转发到 `base scenario + builder=mysql`，避免继续维护两套 MySQL 主链路。
 
 - [ ] 补一份可直接运行的 MySQL 主配置示例
   说明：需要切到 `base scenario + builder=mysql` 的配置方式，包含 `data-source`、`metadata.type=mysql`、`generator.type=mysql`、`pressure.type=mysql-dml`、`scenario.type=base`。

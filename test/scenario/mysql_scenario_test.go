@@ -95,6 +95,36 @@ func TestMySQLScenarioTransactionContext(t *testing.T) {
 	}
 }
 
+func TestMySQLScenarioSummaryDelegatesToBase(t *testing.T) {
+	md := buildMySQLMetadata(t)
+
+	sc := &mysqlscenario.Scenario{}
+	err := sc.Configure(pipelineName, map[string]any{
+		"mode":             "row",
+		"message-count":    1,
+		"operation":        message.Insert,
+		"rows-per-message": 1,
+		"schemas":          []string{"kyogre.users"},
+	})
+	if err != nil {
+		t.Fatalf("configure mysql scenario: %v", err)
+	}
+
+	ctxChan := make(chan generator.GenerationContext, 1)
+	sc.Start(context.Background(), md, nil, ctxChan)
+
+	summary := sc.Summary()
+	if summary == nil {
+		t.Fatalf("expected summary")
+	}
+	if summary["builder"] != string(mysqlscenario.BuilderType) {
+		t.Fatalf("unexpected summary builder: %v", summary["builder"])
+	}
+	if summary["messages"] != 1 {
+		t.Fatalf("unexpected summary messages: %v", summary["messages"])
+	}
+}
+
 func buildMySQLMetadata(t *testing.T) pluginMetadata.Metadata {
 	t.Helper()
 
