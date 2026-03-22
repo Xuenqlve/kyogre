@@ -16,7 +16,7 @@ const Mock metadata.MetadataType = "mock"
 type Config struct {
 	Name string `mapstructure:"name"`
 	// IQueryEnabled 控制该 metadata 是否参与 lookup（默认 true）。
-	IQueryEnabled bool `mapstructure:"lookup-enabled" json:"lookup-enabled"`
+	CloseIQuery bool `mapstructure:"close-lookup" json:"close-lookup"`
 }
 
 type Metadata struct {
@@ -32,7 +32,7 @@ func init() {
 
 func (m *Metadata) Configure(pipeline string, data map[string]any) error {
 	m.pipeline = pipeline
-	m.cfg = Config{IQueryEnabled: true}
+	m.cfg = Config{CloseIQuery: false}
 	if err := mapstructure.Decode(data, &m.cfg); err != nil {
 		return errors.Trace(err)
 	}
@@ -66,7 +66,7 @@ func (m *Metadata) SchemaPrimaryField(key schema_store.SchemaKey) ([]iquery.Boun
 }
 
 func (m *Metadata) IQueryEnabled() bool {
-	return m.cfg.IQueryEnabled
+	return !m.cfg.CloseIQuery
 }
 
 func (m *Metadata) SchemaStore() schema_store.SchemaStore {

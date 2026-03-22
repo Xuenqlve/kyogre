@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	"github.com/xuenqlve/common/schema_store"
-	"github.com/xuenqlve/kyogre/internal/message"
 	"github.com/xuenqlve/kyogre/internal/plugin/pressure"
+	"github.com/xuenqlve/kyogre/pkg/message"
 	"github.com/xuenqlve/kyogre/pkg/pressure/mysql-row"
 
 	mysql_schema "github.com/xuenqlve/common/relational_database/mysql"

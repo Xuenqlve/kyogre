@@ -5,113 +5,134 @@ import (
 	"fmt"
 
 	"github.com/mitchellh/mapstructure"
-	"github.com/xuenqlve/kyogre/internal/message"
+	"github.com/xuenqlve/common/errors"
 	"github.com/xuenqlve/kyogre/internal/plugin/generator"
 	"github.com/xuenqlve/kyogre/internal/plugin/iquery"
 	"github.com/xuenqlve/kyogre/internal/plugin/metadata"
-	"github.com/xuenqlve/kyogre/internal/plugin/scenario"
+	pluginScenario "github.com/xuenqlve/kyogre/internal/plugin/scenario"
+	base "github.com/xuenqlve/kyogre/pkg/scenario/base"
 )
 
-const ScenarioType scenario.Type = "mysql"
+const (
+	ScenarioType pluginScenario.Type = "mysql"
+	modeRow      string              = "row"
+	modeTx       string              = "transaction"
+)
 
-func init() {
-	scenario.RegisterScenario(ScenarioType, NewScenario(), false)
+type Config struct {
+	Mode            string   `mapstructure:"mode"`
+	MessageCount    int      `mapstructure:"message-count"`
+	IntervalMS      int      `mapstructure:"interval-ms"`
+	WorkerCount     int      `mapstructure:"worker-count"`
+	Operation       string   `mapstructure:"operation"`
+	Schemas         []string `mapstructure:"schemas"`
+	RowsPerMessage  int      `mapstructure:"rows-per-message"`
+	TransactionSize int      `mapstructure:"transaction-size"`
+	Columns         []string `mapstructure:"columns"`
+	Hint            string   `mapstructure:"hint"`
+	WriteType       string   `mapstructure:"write-type"`
+}
+
+func (c *Config) Normalize() error {
+	if c.Mode == "" {
+		c.Mode = modeRow
+	}
+	switch c.Mode {
+	case modeRow, modeTx:
+	default:
+		return fmt.Errorf("unsupported mysql scenario mode: %s", c.Mode)
+	}
+	if c.MessageCount <= 0 {
+		c.MessageCount = 1
+	}
+	if c.IntervalMS < 0 {
+		c.IntervalMS = 0
+	}
+	if c.Operation == "" {
+		c.Operation = "insert"
+	}
+	if c.RowsPerMessage <= 0 {
+		c.RowsPerMessage = 1
+	}
+	if c.TransactionSize <= 0 {
+		c.TransactionSize = 2
+	}
+	return nil
 }
 
 type Scenario struct {
-	*scenario.BaseScenario
-	cfg       *Config
-	ctx       context.Context
-	metadata  metadata.Metadata
-	generator []generator.Generator
-	workers   []*Worker
-
-	lookup    iquery.Lookup
-	sequencer *iquery.Sequencer
+	cfg      Config
+	pipeline string
+	delegate *base.Scenario
 }
 
-func NewScenario() *Scenario {
-	return &Scenario{
-		generator: make([]generator.Generator, 0),
-		workers:   make([]*Worker, 0),
+func init() {
+	pluginScenario.RegisterScenario(ScenarioType, &Scenario{}, false)
+}
+
+func (s *Scenario) Configure(pipeline string, data map[string]any) error {
+	s.pipeline = pipeline
+	s.cfg = Config{}
+	s.delegate = &base.Scenario{}
+
+	if err := mapstructure.Decode(data, &s.cfg); err != nil {
+		return errors.Trace(err)
 	}
+	if err := s.cfg.Normalize(); err != nil {
+		return errors.Trace(err)
+	}
+	if err := s.delegate.Configure(pipeline, s.baseConfig()); err != nil {
+		return errors.Trace(err)
+	}
+	return nil
 }
 
-func (s *Scenario) Configure(pipeline string, data map[string]any) (err error) {
-	s.BaseScenario = scenario.NewBaseScenario(pipeline)
-	s.cfg = &Config{}
-	if err = mapstructure.Decode(data, s.cfg); err != nil {
+func (s *Scenario) Start(ctx context.Context, md metadata.Metadata, seq *iquery.Sequencer, ctxChan chan<- generator.GenerationContext) {
+	if s.delegate == nil {
 		return
 	}
-	if err = s.cfg.Validate(); err != nil {
-		return
-	}
-	return
+	s.delegate.Start(ctx, md, seq, ctxChan)
 }
 
-func (s *Scenario) Preparation(ctx context.Context) error {
-	s.ctx = ctx
-	if len(s.generator) == 0 {
-		return fmt.Errorf("no generators registered")
+func (s *Scenario) Summary() map[string]any {
+	if s.delegate == nil {
+		return nil
 	}
-	if len(s.generator) < s.cfg.WorkerCount {
-		return fmt.Errorf("generator count %d less than worker count %d", len(s.generator), s.cfg.WorkerCount)
-	}
-	return nil
+	return s.delegate.Summary()
 }
 
-func (s *Scenario) Start(msgChan message.InPoint) error {
-	if len(s.generator) == 0 {
-		return fmt.Errorf("no generators initialized")
+func (s *Scenario) RuntimeError() error {
+	if s.delegate == nil {
+		return nil
 	}
-
-	// 从配置中获取依赖配置
-	dependencyConfig, err := s.cfg.DependencyConfig.GetDependencyConfig()
-	if err != nil {
-		return fmt.Errorf("failed to get dependency config: %w", err)
-	}
-
-	for i := 0; i < s.cfg.WorkerCount; i++ {
-		worker := NewWorker(
-			s.ctx,
-			msgChan,
-			s.generator[i],
-			s.lookup,
-			s.sequencer,
-			i,                        // worker ID
-			dependencyConfig,         // 传入依赖配置
-			s.cfg.GenerationStrategy, // 传入生成策略
-		)
-		worker.Start()
-		s.workers = append(s.workers, worker)
-	}
-	return nil
+	return s.delegate.RuntimeError()
 }
 
-func (s *Scenario) Close() error {
-	for _, w := range s.workers {
-		w.Close()
+func (s *Scenario) baseConfig() map[string]any {
+	cfg := map[string]any{
+		"builder":       string(BuilderType),
+		"message-count": s.cfg.MessageCount,
+		"interval-ms":   s.cfg.IntervalMS,
+		"mode":          s.cfg.Mode,
+		"columns":       append([]string(nil), s.cfg.Columns...),
+		"hint":          s.cfg.Hint,
+		"write-type":    s.cfg.WriteType,
+		"target-selector": map[string]any{
+			"strategy": "round-robin",
+			"schemas":  append([]string(nil), s.cfg.Schemas...),
+		},
+		"operation-selector": map[string]any{
+			"strategy": "round-robin",
+			"values":   []string{s.cfg.Operation},
+		},
+		"row-count-selector": map[string]any{
+			"fixed": s.cfg.RowsPerMessage,
+		},
 	}
-
-	if s.sequencer != nil {
-		if err := s.sequencer.Close(); err != nil {
-			return err
+	if s.cfg.Mode == modeTx {
+		cfg["transaction-size-selector"] = map[string]any{
+			"fixed": s.cfg.TransactionSize,
 		}
 	}
-
-	if s.lookup != nil {
-		if err := s.lookup.Close(); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (s *Scenario) RegisterMetadata(md metadata.Metadata) {
-	s.metadata = md
-}
-
-func (s *Scenario) RegisterGenerator(gen generator.Generator) {
-	s.generator = append(s.generator, gen)
+	return cfg
 }

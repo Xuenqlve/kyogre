@@ -1,0 +1,110 @@
+name: example-mysql-pipeline
+log-level: debug
+log-file: /tmp
+api-config:
+  http-addr: ":18081"
+
+data-source:
+  source:
+    host: 127.0.0.1
+    port: 3306
+    username: root
+    password: root
+    schema_store: kyogre_demo
+    timeout: 5s
+    read-timeout: 5s
+    write-timeout: 5s
+
+metadata:
+  mysql-meta:
+    type: mysql
+    config:
+      data-source: source
+      template: customize
+      databases:
+        kyogre_demo:
+          - table: users
+            columns:
+              - column: id
+                type: primary
+              - column: name
+                type: string
+              - column: email
+                type: varchar
+              - column: created_at
+                type: timestamp
+            indexes:
+              - name: ""
+                columns: ["id"]
+                is_primary: true
+                is_unique: false
+              - name: uk_email
+                columns: ["email"]
+                is_primary: false
+                is_unique: true
+          - table: orders
+            columns:
+              - column: id
+                type: primary
+              - column: user_id
+                type: bigint_unsigned
+              - column: amount
+                type: decimal
+              - column: status
+                type: enum
+            indexes:
+              - name: ""
+                columns: ["id"]
+                is_primary: true
+                is_unique: false
+              - name: idx_user_id
+                columns: ["user_id"]
+                is_primary: false
+                is_unique: false
+
+generator:
+  mysql-generator:
+    type: mysql
+    config: {}
+
+lookup:
+  mysql-lookup:
+    type: memory
+
+scenario:
+  mysql-base-scenario:
+    type: base
+    lookup: mysql-lookup
+    metadata: mysql-meta
+    generators:
+      - mysql-generator
+    config:
+      builder: mysql
+      mode: row
+      message-count: 20
+      interval-ms: 100
+      target-selector:
+        strategy: round-robin
+        schemas:
+          - kyogre_demo.users
+          - kyogre_demo.orders
+      operation-selector:
+        strategy: round-robin
+        values:
+          - insert
+      row-count-selector:
+        fixed: 1
+
+pressure:
+  mysql-pressure:
+    type: mysql-dml
+    config:
+      data-source: source
+      worker-count: 1
+      worker-queue-length: 32
+
+pipelines:
+  - name: mysql-demo
+    scenario: mysql-base-scenario
+    pressure:
+      - mysql-pressure

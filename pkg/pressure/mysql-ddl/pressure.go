@@ -18,6 +18,7 @@ import (
 	"github.com/xuenqlve/kyogre/internal/message"
 	"github.com/xuenqlve/kyogre/internal/plugin/pressure"
 	ds "github.com/xuenqlve/kyogre/pkg/data_source/mysql"
+	message2 "github.com/xuenqlve/kyogre/pkg/message"
 )
 
 // MigrationTask 表示一个迁移任务
@@ -55,7 +56,7 @@ func init() {
 }
 
 func (p *Pressure) MessageType() string {
-	return message.MySQLDDL
+	return message2.MySQLDDL
 }
 
 // Configure 初始化压力测试配置
@@ -151,7 +152,7 @@ func (p *Pressure) processDDLMessage(msg message.Message) error {
 
 	// 提取 DDL 信息
 	switch m := msg.(type) {
-	case *message.MySQLDDLMessage:
+	case *message2.MySQLDDLMessage:
 		return p.executeDDL(m)
 	default:
 		log.Warnf("unsupported message type: %T", m)
@@ -159,7 +160,7 @@ func (p *Pressure) processDDLMessage(msg message.Message) error {
 	}
 }
 
-func (p *Pressure) executeDDL(msg *message.MySQLDDLMessage) error {
+func (p *Pressure) executeDDL(msg *message2.MySQLDDLMessage) error {
 	ddlSQL, err := msg.GenerateSQL()
 	if err != nil {
 		return errors.Trace(err)

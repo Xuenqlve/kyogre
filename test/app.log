@@ -85455,3 +85455,590 @@
 {"level":"debug","time":"2026-01-14T16:54:22+08:00","message":"[RangePool] live tier 100 refill start len=5 target=10 need=5"}
 {"level":"info","time":"2026-01-14T16:54:22+08:00","message":"++[RangePool] live tier 100 refill result added=5 need=5 window_start=0 window_cursor=7500 window_end=15000 enableLoop=true"}
 >>>>>>> b9613b75eef089ceac7d347f6aa950fb75464b38
+{"level":"info","time":"2026-01-20T11:48:59+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:48:59+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:48:59+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:48:59+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:48:59+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:48:59+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:48:59+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:48:59+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:48:59+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:48:59+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:00+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:00+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:00+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:00+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:00+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:00+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:00+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:00+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:00+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:00+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:00+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:00+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:00+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:00+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:00+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:00+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:00+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:00+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:00+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:00+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:00+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:00+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:00+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:00+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:00+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:01+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:01+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:01+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:01+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:01+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:01+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:01+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:01+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:01+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:01+08:00","message":"min:0 max:15000 live_start:0 live_cursor:1999 LiveEnableLoop:false refillWindow:0~1999"}
+{"level":"info","time":"2026-01-20T11:49:01+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:01+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:01+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:01+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:01+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:01+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:01+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:01+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:01+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:01+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:01+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:01+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:01+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:02+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:02+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:02+08:00","message":"min:0 max:15000 live_start:0 live_cursor:999 LiveEnableLoop:false refillWindow:0~999"}
+{"level":"info","time":"2026-01-20T11:49:02+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:02+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:02+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:02+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:02+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:02+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:02+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:02+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:02+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:02+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:02+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:02+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:02+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:02+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:02+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:02+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:02+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:02+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:02+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:02+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:02+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:02+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:03+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:03+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:03+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:03+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:03+08:00","message":"min:0 max:15000 live_start:0 live_cursor:1499 LiveEnableLoop:false refillWindow:0~1499"}
+{"level":"info","time":"2026-01-20T11:49:03+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:03+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:03+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:03+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:03+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:03+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:03+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:03+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:03+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:03+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:03+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:03+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:03+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:03+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:03+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:03+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:03+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:03+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:04+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:04+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:04+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:04+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:04+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:04+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:04+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:04+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:04+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:04+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:04+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:04+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:04+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:04+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:04+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:04+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:04+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:04+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:04+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:04+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:04+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:04+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:04+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:04+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:04+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:05+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:05+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:05+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:05+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:05+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:05+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:05+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:05+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:05+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:05+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:05+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:05+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:05+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:05+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:05+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:05+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:05+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:05+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:05+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:05+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:05+08:00","message":"min:0 max:15000 live_start:0 live_cursor:999 LiveEnableLoop:false refillWindow:0~999"}
+{"level":"info","time":"2026-01-20T11:49:05+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:05+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:06+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:06+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:06+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:06+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:06+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:06+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:06+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:06+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:06+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:06+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:06+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:06+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:06+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:06+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:06+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:06+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:06+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:06+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:06+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:06+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:06+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:06+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:06+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:06+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:07+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:07+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:07+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:07+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:07+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:07+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:07+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:07+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:07+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:07+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:07+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:07+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:07+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:07+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:07+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:07+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:07+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:07+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:07+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:07+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:07+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:07+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:07+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:07+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:07+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:08+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:08+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:08+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:08+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:08+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:08+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:08+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:08+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:08+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:08+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:08+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:08+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:08+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:08+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:08+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:08+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:08+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:08+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:08+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:08+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:08+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:08+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:08+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:09+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:09+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:09+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:09+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:09+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:09+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:09+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:09+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:09+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:09+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:09+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:09+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:09+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:09+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:09+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:09+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:09+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:09+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:09+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:09+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:09+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:09+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:09+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:09+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:10+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:10+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:10+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:10+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:10+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:10+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:10+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:10+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:10+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:10+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:10+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:10+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:10+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:10+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:10+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:10+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:10+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:10+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:10+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:10+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:10+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:10+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:10+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:10+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:11+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:11+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:11+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:11+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:11+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:11+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:11+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:11+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:11+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:11+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:11+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:11+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:11+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:11+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:11+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:11+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:11+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:11+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:11+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:11+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:11+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:11+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:11+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:11+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:11+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:12+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:12+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:12+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:12+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:12+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:12+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:12+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:12+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:12+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:12+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:12+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:12+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:12+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:12+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:12+08:00","message":"min:0 max:15000 live_start:0 live_cursor:999 LiveEnableLoop:false refillWindow:0~999"}
+{"level":"info","time":"2026-01-20T11:49:12+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:12+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:12+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:12+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:12+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:12+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:12+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:12+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:12+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:13+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:13+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:13+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:13+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:13+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:13+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:13+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:13+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:13+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:13+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:13+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:13+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:13+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:13+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:13+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:13+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:13+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:13+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:13+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:13+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:13+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:13+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:13+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:13+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:14+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:14+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:14+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:14+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:14+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:14+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:14+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:14+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:14+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:14+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:14+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:14+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:14+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:14+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:14+08:00","message":"min:0 max:15000 live_start:0 live_cursor:999 LiveEnableLoop:false refillWindow:0~999"}
+{"level":"info","time":"2026-01-20T11:49:14+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:14+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:14+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:14+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:14+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:14+08:00","message":"min:0 max:15000 live_start:0 live_cursor:1499 LiveEnableLoop:false refillWindow:0~1499"}
+{"level":"info","time":"2026-01-20T11:49:14+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:14+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:14+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:15+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:15+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:15+08:00","message":"min:0 max:15000 live_start:0 live_cursor:999 LiveEnableLoop:false refillWindow:0~999"}
+{"level":"info","time":"2026-01-20T11:49:15+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:15+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:15+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:15+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:15+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:15+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:15+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:15+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:15+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:15+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:15+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:15+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:15+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:15+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:15+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:15+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:15+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:15+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:15+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:15+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:16+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:16+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:16+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:16+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:16+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:16+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:16+08:00","message":"min:0 max:15000 live_start:0 live_cursor:999 LiveEnableLoop:false refillWindow:0~999"}
+{"level":"info","time":"2026-01-20T11:49:16+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:16+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:16+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:16+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:16+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:16+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:16+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:16+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:16+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:16+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:16+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:16+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:16+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:16+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:16+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:16+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:16+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:16+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:17+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:17+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:17+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:17+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:17+08:00","message":"min:0 max:15000 live_start:0 live_cursor:499 LiveEnableLoop:false refillWindow:0~499"}
+{"level":"info","time":"2026-01-20T11:49:17+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:17+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:17+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:17+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:17+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:17+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:17+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:17+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:17+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:17+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:17+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:17+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:17+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:17+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:17+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:17+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:17+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:17+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:18+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:18+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:18+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:18+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:18+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:18+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:18+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:18+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:18+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:18+08:00","message":"min:0 max:15000 live_start:0 live_cursor:999 LiveEnableLoop:false refillWindow:0~999"}
+{"level":"info","time":"2026-01-20T11:49:18+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:18+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:18+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:18+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:18+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:18+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:18+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:18+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:18+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:18+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:18+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:18+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:18+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:18+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:19+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:19+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:19+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:19+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:19+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:19+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:19+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:19+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:19+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:19+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:19+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:19+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:19+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:19+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:19+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:19+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:19+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:19+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:19+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:19+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:19+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:19+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:19+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:19+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:19+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:20+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:20+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:20+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:20+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:20+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:20+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:20+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:20+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:20+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:20+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:20+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:20+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:20+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:20+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:20+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:20+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:20+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:20+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:20+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:20+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:20+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:20+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:20+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:21+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:21+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:21+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:21+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:21+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:21+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:21+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:21+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:21+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:21+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:21+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:21+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:21+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:21+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:21+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:21+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:21+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:21+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:21+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:21+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:21+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:21+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:21+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:21+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:22+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:22+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:22+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:22+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:22+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:22+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:22+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:22+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:22+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:22+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:22+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:22+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:22+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:22+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:22+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:22+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:22+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:22+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:22+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:22+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:22+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:22+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:22+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:22+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:23+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:23+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:23+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:23+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:23+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:23+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:23+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:23+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:23+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:23+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:23+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:23+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:23+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:23+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:23+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:23+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:23+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:23+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:23+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:23+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}
+{"level":"info","time":"2026-01-20T11:49:23+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:23+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:23+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:23+08:00","message":"------------------start Refill ------------------"}
+{"level":"info","time":"2026-01-20T11:49:23+08:00","message":"min:0 max:15000 live_start:0 live_cursor:4000 LiveEnableLoop:false refillWindow:0~4000"}

@@ -58,9 +58,6 @@ type SQLRows struct {
 	Contents []mysql.RowData
 }
 
-type Row struct {
-}
-
 // write type
 var (
 	Replace              = "replace"

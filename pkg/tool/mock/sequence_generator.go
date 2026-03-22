@@ -251,10 +251,25 @@ func (g *Int64ValueGenerator) Next() (any, bool) {
 	return g.cur, true
 }
 
+// NewInt64ValueGeneratorWithCursor 创建数值生成器并设置当前值。
+// 下一次返回将是 current+step（或在 wrap 时回绕）。
+func NewInt64ValueGeneratorWithCursor(start, max, step int64, wrap bool, current int64) *Int64ValueGenerator {
+	gen := NewInt64ValueGenerator(start, max, step, wrap)
+	gen.cur = current
+	gen.started = true
+	return gen
+}
+
 // NewInt64DigitsGenerator 创建固定位数生成器（最大值为 10^digits-1）。
 func NewInt64DigitsGenerator(start int64, digits int, wrap bool) *Int64ValueGenerator {
 	max := intDigitsMax(digits)
 	return NewInt64ValueGenerator(start, max, 1, wrap)
+}
+
+// NewInt64DigitsGeneratorWithCursor 创建固定位数生成器并设置当前值。
+func NewInt64DigitsGeneratorWithCursor(start int64, digits int, wrap bool, current int64) *Int64ValueGenerator {
+	max := intDigitsMax(digits)
+	return NewInt64ValueGeneratorWithCursor(start, max, 1, wrap, current)
 }
 
 func intDigitsMax(digits int) int64 {
@@ -312,6 +327,18 @@ func (g *StringValueGenerator) Next() (any, bool) {
 	return nil, false
 }
 
+// NewStringValueGeneratorWithCursor 创建字符串生成器并设置当前值。
+// 下一次返回将是 current 的字典序后继。
+func NewStringValueGeneratorWithCursor(length int, current string) (*StringValueGenerator, error) {
+	gen := NewStringValueGenerator(length)
+	if len(current) != length {
+		return nil, ErrInvalidSequenceColumn
+	}
+	copy(gen.current, current)
+	gen.started = true
+	return gen, nil
+}
+
 type rowSequence struct {
 	columns []string
 	gens    []ValueGenerator
@@ -325,6 +352,43 @@ func newRowSequence(columns []string, gens []ValueGenerator) *rowSequence {
 		gens:    append([]ValueGenerator(nil), gens...),
 		values:  make([]any, len(columns)),
 	}
+}
+
+// NewRowSequenceFromGenerators creates a row sequence from explicit generators.
+func NewRowSequenceFromGenerators(columns []string, gens []ValueGenerator) (RowSequence, error) {
+	if len(columns) == 0 || len(columns) != len(gens) {
+		return nil, ErrInvalidSequenceColumn
+	}
+	for _, col := range columns {
+		if col == "" {
+			return nil, ErrInvalidSequenceColumn
+		}
+	}
+	for _, gen := range gens {
+		if gen == nil {
+			return nil, ErrInvalidSequenceColumn
+		}
+	}
+	return newRowSequence(columns, gens), nil
+}
+
+// NewRowSequenceFromGeneratorsWithCursor creates a row sequence seeded at cursor values.
+// cursor must match the columns length and each generator must already be at that value.
+func NewRowSequenceFromGeneratorsWithCursor(columns []string, gens []ValueGenerator, cursor []any) (RowSequence, error) {
+	if len(cursor) != len(columns) {
+		return nil, ErrInvalidSequenceColumn
+	}
+	seq, err := NewRowSequenceFromGenerators(columns, gens)
+	if err != nil {
+		return nil, err
+	}
+	rs, ok := seq.(*rowSequence)
+	if !ok {
+		return nil, ErrInvalidSequenceColumn
+	}
+	copy(rs.values, cursor)
+	rs.started = true
+	return rs, nil
 }
 
 func (s *rowSequence) Columns() []string { return append([]string(nil), s.columns...) }

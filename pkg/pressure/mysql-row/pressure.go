@@ -12,6 +12,7 @@ import (
 	"github.com/xuenqlve/kyogre/internal/message"
 	"github.com/xuenqlve/kyogre/internal/plugin/pressure"
 	"github.com/xuenqlve/kyogre/pkg/data_source/mysql"
+	message2 "github.com/xuenqlve/kyogre/pkg/message"
 )
 
 const (
@@ -33,7 +34,7 @@ type Pressure struct {
 }
 
 func (p *Pressure) MessageType() string {
-	return message.MySQLRow
+	return message2.MySQLRow
 }
 
 func (p *Pressure) Configure(pipeline string, data map[string]any) (err error) {

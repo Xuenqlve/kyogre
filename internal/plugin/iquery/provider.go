@@ -2,11 +2,11 @@ package iquery
 
 import "fmt"
 
-// RowProvider yields rows in the form of map[column]value, typically used to build
+// Provider yields rows in the form of map[column]value, typically used to build
 // WHERE ... IN (...) predicates for update/delete, or fixed key columns for insert.
-type RowProvider interface {
+type Provider interface {
 	Columns() []string
-	NextBatch(n int) ([]map[string]any, bool)
+	Rows() []map[string]any
 }
 
 type rangeProvider struct {
@@ -30,29 +30,32 @@ func newRangeProvider(column string, start, end, step int64) *rangeProvider {
 
 func (p *rangeProvider) Columns() []string { return append([]string(nil), p.columns...) }
 
-func (p *rangeProvider) NextBatch(n int) ([]map[string]any, bool) {
-	if n <= 0 {
-		n = 1
-	}
+func (p *rangeProvider) Rows() []map[string]any {
 	if p.current > p.end {
-		return nil, false
+		return nil
 	}
-	out := make([]map[string]any, 0, n)
-	for i := 0; i < n && p.current <= p.end; i++ {
-		row := map[string]any{p.columns[0]: p.current}
-		out = append(out, row)
-		p.current += p.step
+	step := p.step
+	if step <= 0 {
+		step = 1
 	}
-	return out, len(out) > 0
+	total := int((p.end-p.current)/step) + 1
+	if total < 0 {
+		total = 0
+	}
+	out := make([]map[string]any, 0, total)
+	for p.current <= p.end {
+		out = append(out, map[string]any{p.columns[0]: p.current})
+		p.current += step
+	}
+	return out
 }
 
 type tupleProvider struct {
 	columns []string
-	rows    [][]any
-	idx     int
+	rows    []map[string]any
 }
 
-func newTupleProvider(columns []string, rows [][]any) (*tupleProvider, error) {
+func newTupleProvider(columns []string, rows []map[string]any) (*tupleProvider, error) {
 	cols := make([]string, 0, len(columns))
 	for _, c := range columns {
 		if c != "" {
@@ -60,8 +63,10 @@ func newTupleProvider(columns []string, rows [][]any) (*tupleProvider, error) {
 		}
 	}
 	for i := range rows {
-		if len(rows[i]) != len(cols) {
-			return nil, fmt.Errorf("tuple width mismatch: got %d want %d", len(rows[i]), len(cols))
+		for _, col := range cols {
+			if _, ok := rows[i][col]; !ok {
+				return nil, fmt.Errorf("tuple missing column %q in row", col)
+			}
 		}
 	}
 	return &tupleProvider{columns: cols, rows: rows}, nil
@@ -69,25 +74,17 @@ func newTupleProvider(columns []string, rows [][]any) (*tupleProvider, error) {
 
 func (p *tupleProvider) Columns() []string { return append([]string(nil), p.columns...) }
 
-func (p *tupleProvider) NextBatch(n int) ([]map[string]any, bool) {
-	if n <= 0 {
-		n = 1
+func (p *tupleProvider) Rows() []map[string]any {
+	if len(p.rows) == 0 {
+		return nil
 	}
-	if p.idx >= len(p.rows) {
-		return nil, false
-	}
-	end := p.idx + n
-	if end > len(p.rows) {
-		end = len(p.rows)
-	}
-	out := make([]map[string]any, 0, end-p.idx)
-	for ; p.idx < end; p.idx++ {
-		rowMap := make(map[string]any, len(p.columns))
-		for j, col := range p.columns {
-			rowMap[col] = p.rows[p.idx][j]
+	out := make([]map[string]any, 0, len(p.rows))
+	for i := range p.rows {
+		rowMap := make(map[string]any, len(p.rows[i]))
+		for k, v := range p.rows[i] {
+			rowMap[k] = v
 		}
 		out = append(out, rowMap)
 	}
-	return out, len(out) > 0
+	return out
 }
-

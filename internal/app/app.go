@@ -9,6 +9,7 @@ import (
 	"github.com/xuenqlve/common/log"
 	"github.com/xuenqlve/kyogre/internal/config"
 	"github.com/xuenqlve/kyogre/internal/data_source"
+	"github.com/xuenqlve/kyogre/internal/event"
 	"github.com/xuenqlve/kyogre/internal/plugin/generator"
 	"github.com/xuenqlve/kyogre/internal/plugin/iquery"
 	"github.com/xuenqlve/kyogre/internal/plugin/metadata"
@@ -50,6 +51,8 @@ func NewServer(cfg config.Config) (*Server, error) {
 }
 
 func (s *Server) Configure() (err error) {
+	event.EventAdmin.Init()
+	s.registerEventHandlers()
 	s.ctx, s.cancel = context.WithCancel(context.Background())
 	for dsType, dsCfg := range s.cfg.DataSource {
 		var dataSource data_source.DataSource
@@ -100,6 +103,18 @@ func (s *Server) Configure() (err error) {
 	}
 	s.exitOnComplete = s.shouldExitOnComplete()
 	return nil
+}
+
+func (s *Server) registerEventHandlers() {
+	handleFatal := func(e event.Event) {
+		if s.cancel != nil {
+			s.cancel()
+		}
+	}
+	event.EventAdmin.Register(event.PipelineError, handleFatal)
+	event.EventAdmin.Register(event.WorkerError, handleFatal)
+	event.EventAdmin.Register(event.GoroutinePanic, handleFatal)
+	event.EventAdmin.Register(event.ServerShutdown, handleFatal)
 }
 
 func (s *Server) Run() error {

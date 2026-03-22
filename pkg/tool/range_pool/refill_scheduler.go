@@ -124,7 +124,13 @@ func (s *refillScheduler) doRefill(need int64) error {
 			time.Sleep(minRefillInterval - elapsed)
 		}
 	}
-	enableLoop, win, err := s.refill(s.name, need)
+	state := s.window.stateSnapshot()
+	// WindowEnd should be non-zero once the allocation window is initialized.
+	if state.init && state.end == 0 {
+		return fmt.Errorf("%s refill window end is 0 after initialization", s.name)
+	}
+	windowEnd := state.end
+	enableLoop, win, err := s.refill(s.name, RefillRequest{Need: need, WindowEnd: windowEnd})
 	if err != nil {
 		return err
 	}

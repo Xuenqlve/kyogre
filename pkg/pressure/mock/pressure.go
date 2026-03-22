@@ -9,6 +9,7 @@ import (
 	"github.com/xuenqlve/common/log"
 	"github.com/xuenqlve/kyogre/internal/message"
 	"github.com/xuenqlve/kyogre/internal/plugin/pressure"
+	message2 "github.com/xuenqlve/kyogre/pkg/message"
 )
 
 const PressureType pressure.PressureType = "mock"
@@ -38,7 +39,7 @@ func (p *Pressure) Configure(pipeline string, data map[string]any) error {
 }
 
 func (p *Pressure) MessageType() string {
-	return message.MockType
+	return message2.MockType
 }
 
 func (p *Pressure) Start(ctx context.Context) error {

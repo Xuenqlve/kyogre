@@ -5,57 +5,37 @@ import (
 	"reflect"
 	"sync"
 
-	"github.com/xuenqlve/common/schema_store"
 	"github.com/xuenqlve/kyogre/internal/message"
 	"github.com/xuenqlve/kyogre/internal/plugin/iquery"
 )
 
-type DependencyConfig interface {
-	// Validate 验证配置的有效性
-	Validate() error
-
-	// Type 返回配置类型标识（用于类型断言和日志记录）
-	Type() string
-}
-
 // GenerationMode 生成模式
 type GenerationMode string
 
-// GenerationDependency 生成数据的依赖条件接口
-type GenerationDependency interface {
-	// 获取此生成所需的表列表
-	GetSchemas() []schema_store.SchemaKey
-	// 获取生成模式
-	GetMode() GenerationMode
-
-	// 验证依赖条件是否完整
+// GenerationContext 生成上下文（由 scenario 构造，generator 负责解析与生成消息）
+// 具体实现可根据消息类型扩展，例如单表DML、事务消息等。
+type GenerationContext interface {
+	// Kind 用于路由到对应 generator
+	Kind() string
+	// Provider 返回主键/唯一键值的提供者，由 scenario 提供
+	Provider(key string) iquery.Provider
+	// Providers 返回所有主键/唯一键值的提供者，由 scenario 提供
+	Providers() map[string]iquery.Provider
+	// Strategy 返回生成策略（可选）
+	Strategy() *StrategySnapshot
+	// Validate 校验上下文内容是否合理（由上层构造时完成）
 	Validate() error
-
-	// 获取依赖类型名称（用于序列化）
-	DependencyType() string
-}
-
-// GenerationStrategy 生成策略配置
-type GenerationStrategy struct {
-	TemplateConfig *TemplateConfig `json:"template_config,omitempty"` // 模板配置
-	CustomConfig   map[string]any  `json:"custom_config,omitempty"`   // 自定义配置
-}
-
-// TemplateConfig 模板生成配置（基于预设模板）
-type TemplateConfig struct {
-	TemplateName string         `json:"template_name"`
-	TemplateData map[string]any `json:"template_data"`
+	// Extras 返回扩展参数（可选）
+	Extras() map[string]any
 }
 
 // Generator 生成器接口（两阶段设计）
 type Generator interface {
 	Configure(pipeline string, data map[string]any) error
-	// 第一阶段：收集依赖条件
-	// 根据配置和生成策略，确定需要哪些信息
-	CollectDependencies(req *DependencyRequest) (GenerationDependency, error)
-	// 第二阶段：生成消息（接收反查结果）
-	// 基于依赖条件、反查结果和生成策略，生成实际数据
-	MockMessage(req *MessageGenerationRequest) (message.Message, error)
+	// Kinds 返回该生成器支持的上下文类型（静态声明，不依赖配置）。
+	Kinds() []string
+	// 单阶段：基于上下文生成消息
+	Generate(ctx GenerationContext) (message.Message, error)
 
 	Close()
 }
@@ -103,72 +83,4 @@ func GetGenerator(generatorType Type) (Generator, error) {
 		return nil, fmt.Errorf("generator not registered type:%s", generatorType)
 	}
 	return factory(), nil
-}
-
-var (
-	RandomTableSelect       = "random"
-	OrderedTableSelect      = "ordered"
-	SameWithLastTableSelect = "same_with_last"
-	DiffFromLastTableSelect = "diff_from_last"
-)
-
-// DependencyRequest 收集依赖时的请求对象
-// 使用DependencyConfig接口而不是map，确保类型安全和约束清晰
-type DependencyRequest struct {
-	// 使用接口而不是map，确保类型安全和约束
-	// 接收方可以根据Type()来判断具体类型，然后做类型断言
-	Config DependencyConfig `json:"-"`
-
-	// 生成策略（可选）
-	GenerationStrategy *GenerationStrategy `json:"generation_strategy"`
-}
-
-// MessageGenerationRequest 生成消息时的请求对象
-type MessageGenerationRequest struct {
-	// 第一阶段收集的依赖条件
-	Dependency GenerationDependency `json:"-"`
-
-	// 反查模块查询到的结果
-	QueryResults map[string]*iquery.LookupResult `json:"-"`
-
-	// 生成策略配置
-	GenerationStrategy *GenerationStrategy `json:"generation_strategy"`
-}
-
-// 向后兼容的辅助函数
-func NewDependencyRequest(config DependencyConfig, strategy *GenerationStrategy) *DependencyRequest {
-	return &DependencyRequest{
-		Config:             config,
-		GenerationStrategy: strategy,
-	}
-}
-
-func NewMessageGenerationRequest(dep GenerationDependency, queryResults map[string]*iquery.LookupResult, strategy *GenerationStrategy) *MessageGenerationRequest {
-	return &MessageGenerationRequest{
-		Dependency:         dep,
-		QueryResults:       queryResults,
-		GenerationStrategy: strategy,
-	}
-}
-
-// MockParam 已弃用，保留用于向后兼容
-// 新代码应使用 DependencyRequest 和 MessageGenerationRequest
-type MockParam struct {
-	// 核心：生成的依赖条件
-	Dependency GenerationDependency `json:"-"`
-
-	// 序列化字段（当从配置/消息反序列化时使用）
-	DependencyType string         `json:"dependency_type"` // "dml"/"transaction"/"ddl"
-	DependencyData map[string]any `json:"dependency_data"` // 具体的依赖条件数据
-
-	// 生成策略配置
-	GenerationStrategy *GenerationStrategy `json:"generation_strategy"`
-
-	// 反查结果（在Generator第二阶段接收）
-	QueryResults map[string]*iquery.LookupResult `json:"-"`
-
-	// 【向后兼容】旧的参数字段，逐步迁移
-	Operation   string
-	Count       string
-	TableSelect string
 }

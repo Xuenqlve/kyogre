@@ -11,22 +11,22 @@ type aliveSet struct {
 	capacity int
 	batch    int
 
-	columns []BoundParam
-	cursor  any
+	columns []ColumnParam
+	cursor  map[string]any
 
 	// rows with a moving offset to avoid O(n) shifts.
-	rows   [][]any
+	rows   []map[string]any
 	offset int
 }
 
-func newAliveSet(columns []BoundParam, capacity, batch int) *aliveSet {
+func newAliveSet(columns []ColumnParam, capacity, batch int) *aliveSet {
 	if capacity <= 0 {
 		capacity = 10000
 	}
 	if batch <= 0 {
 		batch = 1000
 	}
-	cols := make([]BoundParam, 0, len(columns))
+	cols := make([]ColumnParam, 0, len(columns))
 	for _, c := range columns {
 		if c.Column != "" {
 			cols = append(cols, c)
@@ -54,7 +54,7 @@ func (s *aliveSet) compactIfNeeded() {
 	if s.offset < 1024 && s.offset*2 < len(s.rows) {
 		return
 	}
-	s.rows = append([][]any(nil), s.rows[s.offset:]...)
+	s.rows = append([]map[string]any(nil), s.rows[s.offset:]...)
 	s.offset = 0
 }
 
@@ -69,14 +69,15 @@ func (s *aliveSet) dropOldest(extra int) {
 	s.compactIfNeeded()
 }
 
-func (s *aliveSet) appendRows(rows [][]any) error {
+func (s *aliveSet) appendRows(rows []map[string]any) error {
 	if len(rows) == 0 {
 		return nil
 	}
-	width := len(s.columns)
 	for i := range rows {
-		if len(rows[i]) != width {
-			return fmt.Errorf("aliveSet tuple width mismatch: got %d want %d", len(rows[i]), width)
+		for _, col := range s.columns {
+			if _, ok := rows[i][col.Column]; !ok {
+				return fmt.Errorf("aliveSet missing column %q in row", col.Column)
+			}
 		}
 		s.rows = append(s.rows, rows[i])
 	}
@@ -89,16 +90,16 @@ func (s *aliveSet) appendRows(rows [][]any) error {
 
 func (s *aliveSet) refill(ctx context.Context, lookup Lookup, schema schema_store.SchemaKey, minNeed int) error {
 	for s.available() < minNeed {
-		res, err := lookup.ScanValues(ctx, ValuesRequest{
+		res, err := lookup.ScanValues(ctx, ValueRequest{
 			Schema:  schema,
 			Columns: s.columns,
 			Cursor:  s.cursor,
-			Limit:   s.batch,
+			Need:    int64(s.batch),
 		})
 		if err != nil {
 			return err
 		}
-		if err := s.appendRows(res.Rows); err != nil {
+		if err = s.appendRows(res.Rows); err != nil {
 			return err
 		}
 		s.cursor = res.NextCursor
@@ -118,7 +119,7 @@ func (s *aliveSet) refill(ctx context.Context, lookup Lookup, schema schema_stor
 	return nil
 }
 
-func (s *aliveSet) take(ctx context.Context, lookup Lookup, schema schema_store.SchemaKey, n int) ([][]any, error) {
+func (s *aliveSet) take(ctx context.Context, lookup Lookup, schema schema_store.SchemaKey, n int) ([]map[string]any, error) {
 	if n <= 0 {
 		n = 1
 	}
@@ -131,7 +132,7 @@ func (s *aliveSet) take(ctx context.Context, lookup Lookup, schema schema_store.
 	if n > s.available() {
 		n = s.available()
 	}
-	out := append([][]any(nil), s.rows[s.offset:s.offset+n]...)
+	out := append([]map[string]any(nil), s.rows[s.offset:s.offset+n]...)
 	s.offset += n
 	s.compactIfNeeded()
 	return out, nil
