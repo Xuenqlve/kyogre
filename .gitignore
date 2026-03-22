@@ -1,3 +1,4 @@
 .claude
 .gocache
 .gomodcache
+test/app.log
