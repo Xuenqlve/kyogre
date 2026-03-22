@@ -56,6 +56,12 @@
 - [x] 收敛 MySQL 测试配置并修复基础测试回归
   说明：已将真实 MySQL 测试数据源配置统一收敛到 `test/test_case/mysql.go`，修复 `RangeSequence` wrap 语义和 `varchar_xlarge` 类型回归，并避免 metadata 测试在初始化失败后继续触发 panic。已完成目标测试验证；真实 MySQL 依赖测试仍需在本地数据库环境下运行。
 
+- [x] 在 `test/app/` 补充最简单组件拼接版 MySQL 主链路测试
+  说明：已新增不经过 `main` 的 app 级测试，直接编排 metadata、scenario、generator、pressure 和消息通道，验证随机插入 1000 条数据的最小主链路。
+
+- [ ] 在真实 MySQL 环境中跑通 `test/app/` 主链路测试
+  说明：当前最小主链路测试代码已落地，但本机默认 `root/root` 无法完成认证；后续需通过 `KYOGRE_TEST_MYSQL_HOST`、`KYOGRE_TEST_MYSQL_PORT`、`KYOGRE_TEST_MYSQL_USERNAME`、`KYOGRE_TEST_MYSQL_PASSWORD` 提供正确连接信息并完成验证。
+
 ## P1
 
 - [ ] 为 `base scenario` 补充插入、更新、删除三类操作选择策略
