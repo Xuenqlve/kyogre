@@ -44,11 +44,11 @@
 - [x] 补一份可直接运行的 MySQL 主配置示例
   说明：已补 `examples/mysql-config.yaml`，采用 `base scenario + builder=mysql` 组合，并在 `examples/README.md` 中补充了使用说明。
 
-- [ ] 跑通 metadata 在真实 MySQL 下的建库建表验证
-  说明：重点确认 `pkg/metadata/mysql/metadata.go` 的真实 DB 初始化、建库、建表和 schema 加载行为。
+- [x] 跑通 metadata 在真实 MySQL 下的建库建表验证
+  说明：已通过 `test/app/` 最小主链路测试验证 `pkg/metadata/mysql/metadata.go` 的真实 DB 初始化、建库和建表行为；当前已确认 metadata 不是 MySQL 主链路阻塞点。
 
-- [ ] 增加一条 MySQL 数据压测端到端集成测试
-  说明：覆盖配置加载 -> metadata -> scenario -> generator -> pressure -> MySQL 写入全链路。
+- [ ] 增加一条 MySQL 数据压测端到端集成测试（全组件加载版）
+  说明：当前只完成了 `test/app/` 最小组件拼接版验证；下一步需要补一条更接近真实系统装配的测试，覆盖配置加载/manager 装配 -> metadata -> scenario -> generator -> pressure -> MySQL 写入全链路。
 
 - [x] 明确一期只做 MySQL DML 压测，暂不把 DDL 作为必交付项
   说明：当前实现和示例都已收敛到 `base scenario + mysql builder + mysql-dml pressure` 的 DML 主链路，DDL 不再作为一期阻塞项。
@@ -62,22 +62,25 @@
 - [x] 在真实 MySQL 环境中跑通 `test/app/` 主链路测试
   说明：已在本地可写 MySQL 实例（`KYOGRE_TEST_MYSQL_PORT=3308`，root/root）上验证通过。当前最小主链路可完成 metadata 建库建表、scenario 产出、generator 生成、pressure 写入和 1000 行落库；测试同时暴露并修复了过早关闭消息通道导致少写 1 条的时序问题。
 
+- [ ] 收敛 `test/app/` MySQL 环境约定与夹具说明
+  说明：当前真实验证依赖 `KYOGRE_TEST_MYSQL_HOST`、`KYOGRE_TEST_MYSQL_PORT`、`KYOGRE_TEST_MYSQL_USERNAME`、`KYOGRE_TEST_MYSQL_PASSWORD`；后续需要把测试实例选择、默认端口和执行命令写清楚，避免重复探测本地 MySQL 环境。
+
 ## P1
 
 - [ ] 为 `base scenario` 补充插入、更新、删除三类操作选择策略
-  说明：至少支持固定、随机、权重三种 operation selector 组合，并可稳定驱动 builder。
+  说明：当前最小主链路只验证了 insert；后续需要补 update/delete 的固定、随机、权重三种 operation selector 组合验证，并确认 builder 与 pressure 行为一致。
 
 - [ ] 打通 lookup / sequencer 与 `base scenario` 的联动
-  说明：让 update / delete 在通用场景层稳定拿到已有主键或唯一键范围，再交给具体 builder 消费。
+  说明：让 update / delete 在通用场景层稳定拿到已有主键或唯一键范围，再交给具体 builder 消费；这是从“只验证 insert”走向完整 DML 链路的关键步骤。
 
 - [ ] 补充 MySQL transaction 策略与回归测试
-  说明：验证 `base scenario` 产出的 `MySQLTransactionContext` 到 `mysql-row` pressure 的事务执行能力。
+  说明：验证 `base scenario` 产出的 `MySQLTransactionContext` 到 `mysql-row` pressure 的事务执行能力；当前主链路只覆盖 row 模式，transaction 仍未验证。
 
 - [ ] 补充失败场景验证
-  说明：覆盖建表失败、数据源连接失败、pressure 执行异常、lookup 返回空窗口等情况。
+  说明：覆盖建表失败、数据源连接失败、pressure 执行异常、lookup 返回空窗口、消息通道关闭时序等情况，补齐真实主链路的回归保护。
 
 - [ ] 补充 MySQL 示例文档
-  说明：写清楚运行前置条件、配置说明、启动命令、验证方法。
+  说明：写清楚运行前置条件、配置说明、启动命令、验证方法，以及 `test/app/` 主链路测试依赖的本地 MySQL 环境约定。
 
 ## P2
 
