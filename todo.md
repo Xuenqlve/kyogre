@@ -59,8 +59,8 @@
 - [x] 在 `test/app/` 补充最简单组件拼接版 MySQL 主链路测试
   说明：已新增不经过 `main` 的 app 级测试，直接编排 metadata、scenario、generator、pressure 和消息通道，验证随机插入 1000 条数据的最小主链路。
 
-- [ ] 在真实 MySQL 环境中跑通 `test/app/` 主链路测试
-  说明：当前最小主链路测试代码已落地，但本机默认 `root/root` 无法完成认证；后续需通过 `KYOGRE_TEST_MYSQL_HOST`、`KYOGRE_TEST_MYSQL_PORT`、`KYOGRE_TEST_MYSQL_USERNAME`、`KYOGRE_TEST_MYSQL_PASSWORD` 提供正确连接信息并完成验证。
+- [x] 在真实 MySQL 环境中跑通 `test/app/` 主链路测试
+  说明：已在本地可写 MySQL 实例（`KYOGRE_TEST_MYSQL_PORT=3308`，root/root）上验证通过。当前最小主链路可完成 metadata 建库建表、scenario 产出、generator 生成、pressure 写入和 1000 行落库；测试同时暴露并修复了过早关闭消息通道导致少写 1 条的时序问题。
 
 ## P1
 

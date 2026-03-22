@@ -47,7 +47,7 @@ func TestMySQLMinimalPipelineInserts1000Rows(t *testing.T) {
 		wantRows      = 1000
 	)
 
-	databaseName := fmt.Sprintf("kyogre_app_test_%d", time.Now().UnixNano())
+	databaseName := fmt.Sprintf("kyapp_%d", time.Now().UnixNano()%1_000_000)
 	targetSchema := fmt.Sprintf("%s.%s", databaseName, tableName)
 
 	if err := prepareMySQLDataSource(pipelineName, dataSourceKey); err != nil {
@@ -83,10 +83,10 @@ func TestMySQLMinimalPipelineInserts1000Rows(t *testing.T) {
 							},
 							"indexes": []map[string]any{
 								{
-									"name":       "",
-									"columns":    []string{"event_id"},
-									"is_primary": true,
-									"is_unique":  false,
+									"name":       "uk_event_name_time",
+									"columns":    []string{"event_id", "name", "created_at"},
+									"is_primary": false,
+									"is_unique":  true,
 								},
 							},
 						},
@@ -193,12 +193,11 @@ func TestMySQLMinimalPipelineInserts1000Rows(t *testing.T) {
 		t.Fatalf("director runtime err: %v", err)
 	}
 
+	gotRows := waitRowCount(t, db, databaseName, tableName, wantRows, 3*time.Second)
 	point.Close()
 	if err := controller.Close(); err != nil {
 		t.Fatalf("close pressure controller: %v", err)
 	}
-
-	gotRows := queryRowCount(t, db, databaseName, tableName)
 	if gotRows != wantRows {
 		t.Fatalf("unexpected inserted row count: got %d want %d", gotRows, wantRows)
 	}
@@ -227,6 +226,22 @@ func queryRowCount(t *testing.T, db *sql.DB, database, table string) int {
 		t.Fatalf("query row count: %v", err)
 	}
 	return count
+}
+
+func waitRowCount(t *testing.T, db *sql.DB, database, table string, want int, timeout time.Duration) int {
+	t.Helper()
+	deadline := time.Now().Add(timeout)
+	last := 0
+	for {
+		last = queryRowCount(t, db, database, table)
+		if last >= want {
+			return last
+		}
+		if time.Now().After(deadline) {
+			return last
+		}
+		time.Sleep(20 * time.Millisecond)
+	}
 }
 
 func dropDatabase(t *testing.T, db *sql.DB, database string) {
