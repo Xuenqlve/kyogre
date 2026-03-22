@@ -10,6 +10,7 @@ description: 面向 Kyogre 的项目级开发规范与 AI 行为约束。用于�
 - 项目名称：Kyogre
 - 项目类型：Go CLI / 多数据库压力测试工具
 - 当前阶段：Alpha，核心架构已搭建，主流程仍有缺口
+- 当前第一目标：优先验证 MySQL 主链路是否已经完整打通且行为正确
 - 主要技术栈：Go 1.24、插件/工厂模式、YAML/TOML 配置、MySQL 为当前主落地数据库
 - 规范来源：用户需求 + 当前仓库轻量阅读结果
 
@@ -26,12 +27,14 @@ description: 面向 Kyogre 的项目级开发规范与 AI 行为约束。用于�
 - 当前已有 `README.md`、`CLAUDE.md`、`AGENTS.md` 可作为仓库说明输入
 - 当前已有 `examples/` 目录，可作为最小运行示例入口
 - 当前消息流通过 `internal/message/message.go` 中的 `message.Point` channel 接通 scenario 与 pressure
+- 当前已落地 `base scenario`，负责在主链路中按配置驱动 target / operation / row-count / transaction-size selector，结合 metadata / lookup / builder 生成 `GenerationContext`，作为 scenario 层的统一启动入口
 
 ### 基于轻量阅读的推断
 
 - 关键主流程是：配置加载 -> Server 初始化 -> DataSource 配置 -> Metadata 初始化 -> Generator / IQuery / Scenario / Pressure 配置 -> Pipeline 执行
 - 当前项目优先保障 MySQL 主链路，其它数据库支持仍偏框架化
 - 当前一期目标应聚焦 MySQL DML 压测主链路闭环，不以 DDL、metrics、报告能力作为阻塞项
+- 当前对外描述应谨慎限定在已验证部分；除 `base scenario` 外，不应在 skill 中把尚未完成链路验证的模块表述为“已稳定落地”
 - 该项目不适合在单次任务中做大规模架构重排，应采用渐进式收敛
 
 ### 待补充信息
@@ -67,7 +70,7 @@ description: 面向 Kyogre 的项目级开发规范与 AI 行为约束。用于�
 - `internal/` 用于应用编排、manager、接口组织、内部生命周期控制。
 - `pkg/` 用于具体实现、可复用能力、各数据库或引擎落地代码。
 - `test/` 用于集成式、流程式或模块级验证，不得把复杂测试逻辑散落回业务目录。
-- 单元测试默认也统一放在 `test/` 下，不放在 `pkg/`、`internal/` 等业务目录旁。
+- 单元测试、回归测试、夹具测试默认统一放在 `test/` 下，不放在 `pkg/`、`internal/` 等业务目录旁；后续新增测试必须按该规范收口。
 - 场景相关测试统一放在 `test/scenario/` 下；例如 `base scenario` 测试应放在 `test/scenario/base/`。
 - 新增文件必须优先落入已有职责目录；如需新目录，必须先说明它不能归入现有目录的原因。
 
@@ -116,10 +119,9 @@ description: 面向 Kyogre 的项目级开发规范与 AI 行为约束。用于�
 - 不得在 skill、状态文档、临时说明中并行维护第二份任务清单；如需说明任务，只能引用或更新 `todo.md`。
 - 新增、调整、完成、阻塞的任务都必须同步更新 `todo.md`，保持其与当前开发进展一致。
 - Todo 必须按“主流程 / 模块 / 测试 / 文档与配置”组织，而不是只按时间顺序堆积。
-- 每个任务必须包含：`id`、`title`、`type`、`priority`、`status`；必要时补 `depends_on`、`blocked_by`、`next_action`。
-- 任务类型统一使用：`feature`、`bugfix`、`refactor`、`test`、`docs`、`chore`。
-- 状态统一使用：`todo`、`in_progress`、`blocked`、`review`、`done`。
-- 优先级统一使用：`P0`（阻塞主流程/关键缺陷）、`P1`（重要功能/必要补测/关键重构）、`P2`（增强项/文档/清理）。
+- `todo.md` 当前采用 checklist 形式维护；后续更新必须延续该格式，不引入第二套结构化字段模板。
+- checklist 任务至少应体现：任务标题、当前状态（`[ ]` / `[x]`）、必要说明；如有阻塞或下一步动作，直接写在说明中。
+- 优先级仍按 `P0`、`P1`、`P2` 分组维护：`P0`（阻塞主流程/关键缺陷）、`P1`（重要功能/必要补测/关键重构）、`P2`（增强项/文档/清理）。
 - 拆解任务时必须先按主流程分段，再落到模块，例如：
   - `pipeline lifecycle`
   - `metadata initialization`
@@ -133,7 +135,7 @@ description: 面向 Kyogre 的项目级开发规范与 AI 行为约束。用于�
 ## 待补充项
 
 - 非 MySQL 数据库的模块级约束
-- `todo.md` 的结构化字段模板与维护示例
+- `todo.md` checklist 维护示例与阻塞任务标记约定
 - CI / 发布 / 回滚流程
 - benchmark 与性能基线规则
 
