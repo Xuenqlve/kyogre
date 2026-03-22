@@ -5,11 +5,9 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/xuenqlve/common/data_source/mysql"
 	"github.com/xuenqlve/common/log"
-	"github.com/xuenqlve/kyogre/internal/data_source"
-	ds "github.com/xuenqlve/kyogre/pkg/data_source/mysql"
 	_ "github.com/xuenqlve/kyogre/pkg/metadata_template"
+	"github.com/xuenqlve/kyogre/test/test_case"
 )
 
 const (
@@ -17,26 +15,8 @@ const (
 	mysqlDataSource = "source"
 )
 
-func mysqlDataSourceTestConfig() map[string]any {
-	return map[string]any{
-		mysqlDataSource: mysql.Config{
-			Host:     "127.0.0.1",
-			Username: "root",
-			Password: "root",
-			Port:     3306,
-		},
-	}
-}
-
 func mysqlDataSourcePrepare() error {
-	dataSource, err := data_source.GetDataSource(ds.MySQL)
-	if err != nil {
-		return err
-	}
-	if err = dataSource.Configure(pipeline, mysqlDataSourceTestConfig()); err != nil {
-		return err
-	}
-	return nil
+	return test_case.PrepareMySQLDataSource(pipeline, mysqlDataSource)
 }
 
 func TestMain(t *testing.M) {

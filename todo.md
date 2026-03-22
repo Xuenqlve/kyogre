@@ -53,6 +53,9 @@
 - [x] 明确一期只做 MySQL DML 压测，暂不把 DDL 作为必交付项
   说明：当前实现和示例都已收敛到 `base scenario + mysql builder + mysql-dml pressure` 的 DML 主链路，DDL 不再作为一期阻塞项。
 
+- [x] 收敛 MySQL 测试配置并修复基础测试回归
+  说明：已将真实 MySQL 测试数据源配置统一收敛到 `test/test_case/mysql.go`，修复 `RangeSequence` wrap 语义和 `varchar_xlarge` 类型回归，并避免 metadata 测试在初始化失败后继续触发 panic。已完成目标测试验证；真实 MySQL 依赖测试仍需在本地数据库环境下运行。
+
 ## P1
 
 - [ ] 为 `base scenario` 补充插入、更新、删除三类操作选择策略

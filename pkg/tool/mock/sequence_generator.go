@@ -116,8 +116,6 @@ func (s *intRangeSequence) NextRange(need int) (SequenceRange, bool) {
 	if need <= 0 {
 		need = 1
 	}
-	// done=true when reaching the end; if wrap is enabled, done also signals a wrap-around.
-	wrapped := false
 	if !s.started {
 		s.cursor = s.start
 		s.started = true
@@ -128,7 +126,6 @@ func (s *intRangeSequence) NextRange(need int) (SequenceRange, bool) {
 	if s.max > 0 && s.cursor > s.max {
 		if s.wrap {
 			s.cursor = s.start
-			wrapped = true
 		} else {
 			return SequenceRange{}, true
 		}
@@ -136,19 +133,17 @@ func (s *intRangeSequence) NextRange(need int) (SequenceRange, bool) {
 
 	start := s.cursor
 	end := start + int64(need) - 1
-	done := wrapped
 	if s.max > 0 && end >= s.max {
 		end = s.max
 		if s.wrap {
 			s.cursor = s.start - 1
-			done = true
 		} else {
-			done = true
+			return SequenceRange{Start: start, End: end}, true
 		}
 	} else {
 		s.cursor = end
 	}
-	return SequenceRange{Start: start, End: end}, done
+	return SequenceRange{Start: start, End: end}, false
 }
 
 // NewRangeSequence 从单列 int 配置构造范围生成器。

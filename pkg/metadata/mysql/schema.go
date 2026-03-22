@@ -139,14 +139,15 @@ const (
 	TimestampUpdate = "timestamp_update"
 	Year            = "year"
 
-	Char         = "char"
-	Varchar      = "varchar"
-	String       = "string"
-	VarcharLarge = "varchar_large"
-	Text         = "text"
-	Mediumtext   = "mediumtext"
-	Longtext     = "longtext"
-	Blob         = "blob"
+	Char          = "char"
+	Varchar       = "varchar"
+	String        = "string"
+	VarcharLarge  = "varchar_large"
+	VarcharXLarge = "varchar_xlarge"
+	Text          = "text"
+	Mediumtext    = "mediumtext"
+	Longtext      = "longtext"
+	Blob          = "blob"
 
 	Boolean = "boolean"
 	Json    = "json"
@@ -192,6 +193,8 @@ func (c Column) TypeTransform() string {
 		return "VARCHAR(255) NOT NULL DEFAULT ''"
 	case VarcharLarge:
 		return "VARCHAR(1024) NOT NULL DEFAULT ''"
+	case VarcharXLarge:
+		return "VARCHAR(5000) NOT NULL DEFAULT ''"
 	case Text:
 		return "TEXT"
 	case Mediumtext:
@@ -254,7 +257,7 @@ func (c Column) DefaultVal() string {
 		return "0.00"
 
 	// 字符串类型
-	case Char, String, Varchar, VarcharLarge:
+	case Char, String, Varchar, VarcharLarge, VarcharXLarge:
 		return ""
 	case Text, Mediumtext, Longtext, Blob:
 		return ""

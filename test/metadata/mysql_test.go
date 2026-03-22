@@ -494,11 +494,13 @@ func TestMySQLConfigMetadata(t *testing.T) {
 		return
 	}
 	ctx := context.Background()
+	initialized := false
 	t.Run("Initialize", func(t *testing.T) {
 		if err = metadata.Initialize(ctx); err != nil {
 			t.Errorf("plugin init err:%v", err)
 			return
 		}
+		initialized = true
 	})
 
 	t.Run("SchemaKeys", func(t *testing.T) {
@@ -509,7 +511,13 @@ func TestMySQLConfigMetadata(t *testing.T) {
 	})
 
 	t.Run("SchemaStore", func(t *testing.T) {
+		if !initialized {
+			t.Skip("metadata initialize failed")
+		}
 		store := metadata.SchemaStore()
+		if store == nil {
+			t.Fatalf("schema store is nil")
+		}
 		keys := metadata.SchemaKeys()
 		for _, key := range keys {
 			schema, err := store.GetSchema(key)
